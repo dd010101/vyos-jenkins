@@ -294,6 +294,13 @@ find /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/ -name *.
 
 If build fails then click the specific build number and check **Console Output** for hints why it does so.
 
+If you use your own version of package for debugging purposes (not the one from vyos github) then your need to hack
+the Global Pipeline Library (see above). Just add `return false` before the return in 
+`vyos-build/vars/isCustomBuild.groovy` and use your own local clone of the `vyos-build` in Global Pipeline Library.
+Otherwise, the build skips the reprepro step, and thus you won't see .deb appearing in your reprepro repository even
+if the build is successful - quite confusing.
+
+
 Current state
 --
 
