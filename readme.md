@@ -107,7 +107,7 @@ Project repository: https://github.com/vyos/vyos-build.git
 ```
 
 Here you may want to use your own cloned repository to fix the build. For example sagitta has hardcoded ARM64
-compilation os it's impossible to build most sagitta packages because of this. As quick work around you can clone
+compilation thus it's impossible to build most sagitta packages because of this. As dirty work around you can clone
 https://github.com/vyos/vyos-build.git locally and delete `stage('arm64') { ... }` block
 in `vars/buildPackage.groovy`, you need to do all modifications twice is sagitta is using both sagitta and current 
 branch, thus hacking it only in current or only in sagitta branch isn't enough. Then you can simply point to you
