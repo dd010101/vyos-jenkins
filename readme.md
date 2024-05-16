@@ -109,8 +109,8 @@ Project repository: https://github.com/vyos/vyos-build.git
 Here you may want to use your own cloned repository to fix the build. For example sagitta has hardcoded ARM64
 compilation thus it's impossible to build most sagitta packages because of this. As dirty work around you can clone
 https://github.com/vyos/vyos-build.git locally and delete `stage('arm64') { ... }` block
-in `vars/buildPackage.groovy`, you need to do all modifications twice is sagitta is using both sagitta and current 
-branch, thus hacking it only in current or only in sagitta branch isn't enough. Then you can simply point to you
+in `vars/buildPackage.groovy`, you need to do all modifications twice since sagitta is using both sagitta and current 
+branch, thus hacking it only in current or only in sagitta branch isn't enough. Then you can simply point to your
 repository:
 
 ```
@@ -121,8 +121,8 @@ Something like that - adjust to your liking.
 
 Credentials for ssh-agent
 --
-You need to set up SSH key authentication for the host specified in DEV_PACKAGES_VYOS_NET_HOST. Basically we allow
-jenkins to SSH into itself with its own SSH key.
+You need to set up SSH key authentication for the host specified in `DEV_PACKAGES_VYOS_NET_HOST` variable. 
+Basically we want to allow jenkins to SSH into itself with its own SSH key.
 
 Login as target user:
 
