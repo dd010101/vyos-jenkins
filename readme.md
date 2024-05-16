@@ -281,6 +281,19 @@ Script Path: Jenkinsfile
 If someone made script to create Multibranch Pipelines automatically from list of repos/Jenkinsfile locations
 that would be nice since this is very repetitive to do via the GUI.
 
+Try to build
+--
+
+Now it's possible to select some **Multibranch Pipeline**, select your **branch**, and you can press build button 
+to see what happens! If all is well you should see .deb appearing in 
+`/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/`:
+
+```
+find /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/ -name *.deb -print
+```
+
+If build fails then click the specific build number and check **Console Output** for hints why it does so.
+
 Current state
 --
 
