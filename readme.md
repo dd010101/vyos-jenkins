@@ -96,7 +96,8 @@ Value: jenkins@<ip of the host system>
 
 This user+IP/host will be used for SSH access to reprepro, it can be another host or you can point this to the jenkins
 host as well, the ip needs to be accesible from docker container thus this should be LAN IP, localhost will not work. I
-assume everything is on single host thus this IP is IP of the jenkins host.
+assume everything is on single host thus this IP is IP of the jenkins host. Mine is `172.17.17.17` so if you see it
+somewhere replace it with your own.
 
 **Global Pipeline Libraries -> Add**
 
@@ -280,7 +281,7 @@ Script Path: Jenkinsfile
 If someone made script to create Multibranch Pipelines automatically from list of repos/Jenkinsfile locations
 that would be nice since this is very repetitive to do via the GUI.
 
-Progress
+Current state
 --
 
 Majority of packages are fine but some aren't. I have no idea what packages are required. So I just go on vyos github
@@ -388,4 +389,60 @@ wide-dhcpv6
 
 Most of them are in standalone `https://github.com/vyos/<something>.git` repo. The `vyos-build/packages` is the only
 exception. Each package may produce various .deb packages thus you won't find all .deb packages in this list since
-for example `vyos-build/packages/linux-kernel` builds whole array of .debs not just the kernel .debs.
+for example `vyos-build/packages/linux-kernel` builds also driver related .debs not just the kernel .debs.
+
+How to try to build ISO
+--
+
+You can try to build ISO to get idea what packages are missing.
+
+Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg singing 
+key `--custom-apt-key`. 
+
+To make `--vyos-mirror` is easy, you just install your favorite webserver and point the webroot
+to `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/`. For example nginx vhost looks
+something like this:
+```
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /home/sentrium/web/dev.packages.vyos.net/public_html/repositories;
+	autoindex on;
+
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ /(.*)/conf {
+		deny all;
+	}
+
+	location ~ /(.*)/db {
+		deny all;
+	}
+}
+```
+
+This will give you HTTP APT repository, like this `http://172.17.17.17/equuleus`.
+
+To create `--custom-apt-key` you need to export your gpg singing public key, for example:
+
+```
+sudo -u jenkins gpg --armor --output /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/apt.gpg.key \
+  --export-options export-minimal --export vyos
+```
+
+This will give you `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/apt.gpg.key` or 
+`http://172.17.17.17/apt.gpg.key`.
+
+How to use your mirror:
+
+1) Download your `apt.gpg.key` to where you want to build your ISO.
+2) Mount your `apt.gpg.key` when your running `docker run` by adding `-v /where/is/your/key:/opt/apt.gpg.key`
+3) When you running `./configure` (equuleus) or `./build-vyos-image` (sagitta) add your mirror
+`--vyos-mirror http://172.17.17.17/equuleus` or `--vyos-mirror http://172.17.17.17/sagitta` and your singing key
+` --custom-apt-key /opt/apt.gpg.key`.
+4) Now the builder uses your mirror instead of `http://dev.packages.vyos.net/`.
