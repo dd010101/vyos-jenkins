@@ -6,7 +6,7 @@ from the host and in theory Jenkins can compromise your build host if you execut
 build so don't share the os with anything else. This isn't the ideal setup - this is just quick and dirty.
 
 I use bullseye virtualbox VM on my desktop PC. Bookworm should work as well. Some builds are RAM heavy
-and I did see OOM crashes if I had 4GB RAM+swap so make sure you have 8GB or better 16GB RAM and/or
+and I did see OOM crashes if I had 4GB RAM so make sure you have 8GB or better 16GB RAM and/or
 enough swap space to compensate. You will also build some vast packages so fast CPU is good idea
 because you may need to recompile kernel multiple times for debugging purposes.
 
