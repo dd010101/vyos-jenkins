@@ -231,7 +231,7 @@ can just replace it with dummy passthrough alias to execute reprepro commands di
 ```
 cat << EOF > /usr/local/bin/uncron-add
 #!/bin/bash
-bash -c "\\$1"
+bash -c "\$1"
 EOF
 
 chmod +x /usr/local/bin/uncron-add
