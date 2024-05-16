@@ -1,4 +1,4 @@
-file list taken from http://dev.packages.vyos.net/ file browser @ 2027-05-16
+file list extracted from http://dev.packages.vyos.net/ file browser
 
 repositories/equuleus/conf/distributions
 repositories/equuleus/db/checksums.db
