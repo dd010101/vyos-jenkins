@@ -285,7 +285,11 @@ Current state
 --
 
 Majority of packages are fine but some aren't. I have no idea what packages are required. So I just go on vyos github
-and look for sagitta/equuleus branch see if there is Jenkinsfile.
+and look for sagitta/equuleus branch see if there is Jenkinsfile. Some packages are shared, some are for just
+sagitta or equuleus, sometimes sagitta has its own packages somewhere else like in `vyos-build/packages`.
+
+I currently focus on equuleus to start with since it seems like that's the easier one to get complete and thus better 
+learning platform - but I guess pick your poison.
 
 What is missing? Some packages fail to build and that's why it's not possible to build ISO yet, for example:
 
