@@ -259,6 +259,7 @@ Project Repository: https://github.com/vyos/vyos-build.git
 (or any other repository, like https://github.com/vyos/vyos-1x.git)
 
 You may want to restrict to only branches you care about, thus:
+
 **Behaviours -> Add -> Filter by name (with regular expression)**
 
 ```
