@@ -1,0 +1,1349 @@
+Started by user root
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/caches/git-a63153b0a42b565fb090841c8b0b4cd0/.git # timeout=10
+Setting origin to https://github.com/vyos/vyos-1x.git
+ > git config remote.origin.url https://github.com/vyos/vyos-1x.git # timeout=10
+Fetching origin...
+Fetching upstream changes from origin
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+ > git config --get remote.origin.url # timeout=10
+ > git fetch --tags --force --progress -- origin +refs/heads/*:refs/remotes/origin/* # timeout=10
+Seen branch in repository origin/crux
+Seen branch in repository origin/current
+Seen branch in repository origin/equuleus
+Seen branch in repository origin/mergify/bp/sagitta/pr-3456
+Seen branch in repository origin/sagitta
+Seen 5 remote branches
+Obtained Jenkinsfile from 330379503281506fcfc66fd53b6e67bc2e887bd0
+Loading library vyos-build@equuleus
+Attempting to resolve equuleus from remote references...
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+ > git ls-remote -h -- ssh://jenkins@172.17.17.17/opt/vyos-build/ # timeout=10
+Found match: refs/heads/equuleus revision 6317d7fc5ae2e6d889c20228fe34cb9e2ceb0ef3
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning with configured refspecs honoured and without tags
+Cloning repository ssh://jenkins@172.17.17.17/opt/vyos-build/
+ > git init /var/lib/jenkins/workspace/vyos-1x_equuleus@libs/7e6eb988c6dc7c4b5ed94ae1df38a8c1fddcc2a1e6cc8bc11953103a99f5af82 # timeout=10
+Fetching upstream changes from ssh://jenkins@172.17.17.17/opt/vyos-build/
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+ > git fetch --no-tags --force --progress -- ssh://jenkins@172.17.17.17/opt/vyos-build/ +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url ssh://jenkins@172.17.17.17/opt/vyos-build/ # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision 6317d7fc5ae2e6d889c20228fe34cb9e2ceb0ef3 (equuleus)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 6317d7fc5ae2e6d889c20228fe34cb9e2ceb0ef3 # timeout=10
+Commit message: "hacks"
+First time build. Skipping changelog.
+[Pipeline] Start of Pipeline
+[Pipeline] timeout
+Timeout set to expire in 2 hr 0 min
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Define Agent)
+[Pipeline] node
+07:24:40  Running on Jenkins in /var/lib/jenkins/workspace/vyos-1x_equuleus
+[Pipeline] {
+[Pipeline] checkout
+07:24:40  The recommended git tool is: git
+07:24:40  No credentials specified
+07:24:40  Cloning the remote Git repository
+07:24:40  Cloning with configured refspecs honoured and without tags
+07:24:40  Cloning repository https://github.com/vyos/vyos-1x.git
+07:24:40   > git init /var/lib/jenkins/workspace/vyos-1x_equuleus # timeout=10
+07:24:40  Fetching upstream changes from https://github.com/vyos/vyos-1x.git
+07:24:40   > git --version # timeout=10
+07:24:40   > git --version # 'git version 2.30.2'
+07:24:40   > git fetch --no-tags --force --progress -- https://github.com/vyos/vyos-1x.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:24:43   > git config remote.origin.url https://github.com/vyos/vyos-1x.git # timeout=10
+07:24:43   > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:24:43  Avoid second fetch
+07:24:43  Checking out Revision 330379503281506fcfc66fd53b6e67bc2e887bd0 (equuleus)
+07:24:43   > git config core.sparsecheckout # timeout=10
+07:24:43   > git checkout -f 330379503281506fcfc66fd53b6e67bc2e887bd0 # timeout=10
+07:24:43  Commit message: "Merge pull request #3397 from vyos/mergify/bp/equuleus/pr-3386"
+07:24:43   > git rev-list --no-walk 330379503281506fcfc66fd53b6e67bc2e887bd0 # timeout=10
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] echo
+07:24:43  Warning, empty changelog. Have you run checkout?
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+07:24:44  + id -u
+[Pipeline] sh
+07:24:44  + id -g
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Code)
+[Pipeline] echo
+07:24:44  Warning, empty changelog. Have you run checkout?
+[Pipeline] parallel
+[Pipeline] { (Branch: amd64)
+[Pipeline] stage
+[Pipeline] { (amd64)
+[Pipeline] getContext
+[Pipeline] node
+07:24:45  Running on Jenkins in /var/lib/jenkins/workspace/vyos-1x_equuleus
+[Pipeline] {
+[Pipeline] checkout
+07:24:45  The recommended git tool is: git
+07:24:45  No credentials specified
+07:24:45   > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/vyos-1x_equuleus/.git # timeout=10
+07:24:45  Fetching changes from the remote Git repository
+07:24:45   > git config remote.origin.url https://github.com/vyos/vyos-1x.git # timeout=10
+07:24:45  Fetching without tags
+07:24:45  Fetching upstream changes from https://github.com/vyos/vyos-1x.git
+07:24:45   > git --version # timeout=10
+07:24:45   > git --version # 'git version 2.30.2'
+07:24:45   > git fetch --no-tags --force --progress -- https://github.com/vyos/vyos-1x.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:24:45  Checking out Revision 330379503281506fcfc66fd53b6e67bc2e887bd0 (equuleus)
+07:24:45   > git config core.sparsecheckout # timeout=10
+07:24:45   > git checkout -f 330379503281506fcfc66fd53b6e67bc2e887bd0 # timeout=10
+07:24:45  Commit message: "Merge pull request #3397 from vyos/mergify/bp/equuleus/pr-3386"
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+07:24:46  + docker pull vyos/vyos-build:equuleus
+07:24:47  equuleus: Pulling from vyos/vyos-build
+07:24:47  Digest: sha256:7a77d58396f6013227dab2c62c38d91e24e3ee4467809023b89e9bcb5b3e8efa
+07:24:47  Status: Image is up to date for vyos/vyos-build:equuleus
+07:24:47  docker.io/vyos/vyos-build:equuleus
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+07:24:48  + docker inspect -f . vyos/vyos-build:equuleus
+07:24:48  .
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] withDockerContainer
+07:24:48  Jenkins does not seem to be running inside a container
+07:24:48  $ docker run -t -d -u 1006:1006 --sysctl net.ipv6.conf.lo.disable_ipv6=0 -e GOSU_UID=1006 -e GOSU_GID=1006 -w /var/lib/jenkins/workspace/vyos-1x_equuleus -v /var/lib/jenkins/workspace/vyos-1x_equuleus:/var/lib/jenkins/workspace/vyos-1x_equuleus:rw,z -v /var/lib/jenkins/workspace/vyos-1x_equuleus@tmp:/var/lib/jenkins/workspace/vyos-1x_equuleus@tmp:rw,z -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** vyos/vyos-build:equuleus cat
+07:24:48  $ docker top badb5de988088d368814718bc7117ecfed172493b9df9e5e10d42cea1e5ce30b -eo pid,comm
+07:24:48  ERROR: The container started but didn't run the expected command. Please double check your ENTRYPOINT does execute the command passed as docker run argument, as required by official docker images (see https://github.com/docker-library/official-images#consistency for entrypoint consistency requirements).
+07:24:48  Alternatively you can force image entrypoint to be disabled by adding option `--entrypoint=''`.
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] script
+[Pipeline] {
+[Pipeline] dir
+07:24:48  Running in /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64
+[Pipeline] {
+[Pipeline] deleteDir
+[Pipeline] checkout
+07:24:49  The recommended git tool is: git
+07:24:49  No credentials specified
+07:24:49  Warning: JENKINS-30600: special launcher org.jenkinsci.plugins.docker.workflow.WithContainerStep$Decorator$1@156c274; decorates hudson.Launcher$LocalLauncher@1e203966 will be ignored (a typical symptom is the Git executable not being run inside a designated container)
+07:24:49  Cloning the remote Git repository
+07:24:49  Cloning with configured refspecs honoured and without tags
+07:24:49  Cloning repository https://github.com/vyos/vyos-1x.git
+07:24:49   > git init /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64 # timeout=10
+07:24:49  Fetching upstream changes from https://github.com/vyos/vyos-1x.git
+07:24:49   > git --version # timeout=10
+07:24:49   > git --version # 'git version 2.30.2'
+07:24:49   > git fetch --no-tags --force --progress -- https://github.com/vyos/vyos-1x.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:24:58   > git config remote.origin.url https://github.com/vyos/vyos-1x.git # timeout=10
+07:24:58   > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:24:58  Avoid second fetch
+07:24:58  Checking out Revision 330379503281506fcfc66fd53b6e67bc2e887bd0 (equuleus)
+07:24:58   > git config core.sparsecheckout # timeout=10
+07:24:58   > git checkout -f 330379503281506fcfc66fd53b6e67bc2e887bd0 # timeout=10
+07:24:58  Commit message: "Merge pull request #3397 from vyos/mergify/bp/equuleus/pr-3386"
+[Pipeline] sh
+07:24:59  + git rev-parse --short=11 HEAD
+[Pipeline] sh
+07:24:59  + dpkg-buildpackage -uc -us -tc -F
+07:24:59  dpkg-buildpackage: info: source package vyos-1x
+07:24:59  dpkg-buildpackage: info: source version 1.3-1
+07:24:59  dpkg-buildpackage: info: source distribution unstable
+07:24:59  dpkg-buildpackage: info: source changed by Daniil Baturin <daniil@vyos.io>
+07:24:59   dpkg-source --before-build .
+07:24:59  dpkg-buildpackage: info: host architecture amd64
+07:24:59   fakeroot debian/rules clean
+07:25:00  dh clean --with python3, --with quilt
+07:25:00     dh_auto_clean
+07:25:00  	make -j1 clean
+07:25:00  make[1]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:00  rm -rf build
+07:25:00  rm -rf templates-cfg
+07:25:00  rm -rf templates-op
+07:25:00  make -C src/shim clean
+07:25:00  make[2]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:00  make -C mkjson clean
+07:25:00  make[3]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:00  rm -rf obj
+07:25:00  rm -rf lib
+07:25:00  make[3]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:00  rm -f vyshim
+07:25:00  make[2]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:00  make[1]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:00     dh_quilt_unpatch
+07:25:00  No patch removed
+07:25:00     dh_clean
+07:25:00   dpkg-source -b .
+07:25:00  dpkg-source: warning: no source format specified in debian/source/format, see dpkg-source(1)
+07:25:00  dpkg-source: warning: source directory 'build-amd64' is not <sourcepackage>-<upstreamversion> 'vyos-1x-1.3'
+07:25:00  dpkg-source: info: using source format '1.0'
+07:25:00  dpkg-source: info: building vyos-1x in vyos-1x_1.3-1.tar.gz
+07:25:02  dpkg-source: info: building vyos-1x in vyos-1x_1.3-1.dsc
+07:25:02   debian/rules build
+07:25:02  dh build --with python3, --with quilt
+07:25:02     dh_quilt_patch
+07:25:02  No series file found
+07:25:02     dh_update_autotools_config
+07:25:02     dh_auto_configure
+07:25:02     debian/rules override_dh_auto_build
+07:25:02  make[1]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:02  make all
+07:25:02  make[2]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:02  rm -rf build
+07:25:02  rm -rf templates-cfg
+07:25:02  rm -rf templates-op
+07:25:02  make -C src/shim clean
+07:25:02  make[3]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:02  make -C mkjson clean
+07:25:02  make[4]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:02  rm -rf obj
+07:25:02  rm -rf lib
+07:25:02  make[4]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:02  rm -f vyshim
+07:25:02  make[3]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:02  Generating build/interface-definitions/protocols-igmp.xml from interface-definitions/protocols-igmp.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-wireless.xml from interface-definitions/interfaces-wireless.xml.in
+07:25:02  Generating build/interface-definitions/dns-dynamic.xml from interface-definitions/dns-dynamic.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-virtaul-ethernet.xml from interface-definitions/interfaces-virtaul-ethernet.xml.in
+07:25:02  Generating build/interface-definitions/dhcpv6-relay.xml from interface-definitions/dhcpv6-relay.xml.in
+07:25:02  Generating build/interface-definitions/vpn_openconnect.xml from interface-definitions/vpn_openconnect.xml.in
+07:25:02  Generating build/interface-definitions/nat.xml from interface-definitions/nat.xml.in
+07:25:02  Generating build/interface-definitions/service_pppoe-server.xml from interface-definitions/service_pppoe-server.xml.in
+07:25:02  Generating build/interface-definitions/policy-local-route.xml from interface-definitions/policy-local-route.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-vxlan.xml from interface-definitions/interfaces-vxlan.xml.in
+07:25:02  Generating build/interface-definitions/system-option.xml from interface-definitions/system-option.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-ethernet.xml from interface-definitions/interfaces-ethernet.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-wwan.xml from interface-definitions/interfaces-wwan.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-bonding.xml from interface-definitions/interfaces-bonding.xml.in
+07:25:02  Generating build/interface-definitions/snmp.xml from interface-definitions/snmp.xml.in
+07:25:02  Generating build/interface-definitions/system-ipv6.xml from interface-definitions/system-ipv6.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-tunnel.xml from interface-definitions/interfaces-tunnel.xml.in
+07:25:02  Generating build/interface-definitions/system-time-zone.xml from interface-definitions/system-time-zone.xml.in
+07:25:02  Generating build/interface-definitions/bcast-relay.xml from interface-definitions/bcast-relay.xml.in
+07:25:02  Generating build/interface-definitions/service_conntrack-sync.xml from interface-definitions/service_conntrack-sync.xml.in
+07:25:02  Generating build/interface-definitions/vrf.xml from interface-definitions/vrf.xml.in
+07:25:02  Generating build/interface-definitions/protocols-mpls.xml from interface-definitions/protocols-mpls.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-geneve.xml from interface-definitions/interfaces-geneve.xml.in
+07:25:02  Generating build/interface-definitions/dhcp-server.xml from interface-definitions/dhcp-server.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-macsec.xml from interface-definitions/interfaces-macsec.xml.in
+07:25:02  Generating build/interface-definitions/ssh.xml from interface-definitions/ssh.xml.in
+07:25:02  Generating build/interface-definitions/system-console.xml from interface-definitions/system-console.xml.in
+07:25:02  Generating build/interface-definitions/dhcpv6-server.xml from interface-definitions/dhcpv6-server.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-loopback.xml from interface-definitions/interfaces-loopback.xml.in
+07:25:02  Generating build/interface-definitions/system-ip.xml from interface-definitions/system-ip.xml.in
+07:25:02  Generating build/interface-definitions/dhcp-relay.xml from interface-definitions/dhcp-relay.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-openvpn.xml from interface-definitions/interfaces-openvpn.xml.in
+07:25:02  Generating build/interface-definitions/service-event-handler.xml from interface-definitions/service-event-handler.xml.in
+07:25:02  Generating build/interface-definitions/system-login-banner.xml from interface-definitions/system-login-banner.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-l2tpv3.xml from interface-definitions/interfaces-l2tpv3.xml.in
+07:25:02  Generating build/interface-definitions/system-conntrack.xml from interface-definitions/system-conntrack.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-pseudo-ethernet.xml from interface-definitions/interfaces-pseudo-ethernet.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-pppoe.xml from interface-definitions/interfaces-pppoe.xml.in
+07:25:02  Generating build/interface-definitions/igmp-proxy.xml from interface-definitions/igmp-proxy.xml.in
+07:25:02  Generating build/interface-definitions/vpn_l2tp.xml from interface-definitions/vpn_l2tp.xml.in
+07:25:02  Generating build/interface-definitions/vpn_pptp.xml from interface-definitions/vpn_pptp.xml.in
+07:25:02  Generating build/interface-definitions/protocols-pim.xml from interface-definitions/protocols-pim.xml.in
+07:25:02  Generating build/interface-definitions/service_console-server.xml from interface-definitions/service_console-server.xml.in
+07:25:02  Generating build/interface-definitions/service_webproxy.xml from interface-definitions/service_webproxy.xml.in
+07:25:02  Generating build/interface-definitions/firewall-options.xml from interface-definitions/firewall-options.xml.in
+07:25:02  Generating build/interface-definitions/protocols-rpki.xml from interface-definitions/protocols-rpki.xml.in
+07:25:02  Generating build/interface-definitions/vrrp.xml from interface-definitions/vrrp.xml.in
+07:25:02  Generating build/interface-definitions/https.xml from interface-definitions/https.xml.in
+07:25:02  Generating build/interface-definitions/vpn_sstp.xml from interface-definitions/vpn_sstp.xml.in
+07:25:02  Generating build/interface-definitions/service_router-advert.xml from interface-definitions/service_router-advert.xml.in
+07:25:02  Generating build/interface-definitions/system-syslog.xml from interface-definitions/system-syslog.xml.in
+07:25:02  Generating build/interface-definitions/salt-minion.xml from interface-definitions/salt-minion.xml.in
+07:25:02  Generating build/interface-definitions/protocols-rip.xml from interface-definitions/protocols-rip.xml.in
+07:25:02  Generating build/interface-definitions/lldp.xml from interface-definitions/lldp.xml.in
+07:25:02  Generating build/interface-definitions/service_mdns-repeater.xml from interface-definitions/service_mdns-repeater.xml.in
+07:25:02  Generating build/interface-definitions/flow-accounting-conf.xml from interface-definitions/flow-accounting-conf.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-dummy.xml from interface-definitions/interfaces-dummy.xml.in
+07:25:02  Generating build/interface-definitions/protocols-bfd.xml from interface-definitions/protocols-bfd.xml.in
+07:25:02  Generating build/interface-definitions/protocols-isis.xml from interface-definitions/protocols-isis.xml.in
+07:25:02  Generating build/interface-definitions/system-proxy.xml from interface-definitions/system-proxy.xml.in
+07:25:02  Generating build/interface-definitions/dns-domain-name.xml from interface-definitions/dns-domain-name.xml.in
+07:25:02  Generating build/interface-definitions/service_ipoe-server.xml from interface-definitions/service_ipoe-server.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-wireguard.xml from interface-definitions/interfaces-wireguard.xml.in
+07:25:02  Generating build/interface-definitions/service_monitoring_telegraf.xml from interface-definitions/service_monitoring_telegraf.xml.in
+07:25:02  Generating build/interface-definitions/intel_qat.xml from interface-definitions/intel_qat.xml.in
+07:25:02  Generating build/interface-definitions/ntp.xml from interface-definitions/ntp.xml.in
+07:25:02  Generating build/interface-definitions/protocols-multicast.xml from interface-definitions/protocols-multicast.xml.in
+07:25:02  Generating build/interface-definitions/cron.xml from interface-definitions/cron.xml.in
+07:25:02  Generating build/interface-definitions/service-ids-ddos-protection.xml from interface-definitions/service-ids-ddos-protection.xml.in
+07:25:02  Generating build/interface-definitions/system-lcd.xml from interface-definitions/system-lcd.xml.in
+07:25:02  Generating build/interface-definitions/tftp-server.xml from interface-definitions/tftp-server.xml.in
+07:25:02  Generating build/interface-definitions/container.xml from interface-definitions/container.xml.in
+07:25:02  Generating build/interface-definitions/ipsec-settings.xml from interface-definitions/ipsec-settings.xml.in
+07:25:02  Generating build/interface-definitions/dns-forwarding.xml from interface-definitions/dns-forwarding.xml.in
+07:25:02  Generating build/interface-definitions/interfaces-bridge.xml from interface-definitions/interfaces-bridge.xml.in
+07:25:02  Generating build/interface-definitions/system-login.xml from interface-definitions/system-login.xml.in
+07:25:02  Generating build/interface-definitions/arp.xml from interface-definitions/arp.xml.in
+07:25:02  mkdir -p templates-cfg
+07:25:02  /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/scripts/override-default build/interface-definitions
+07:25:02  find build/interface-definitions -type f -name "*.xml" | xargs -I {} /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/scripts/build-command-templates {} /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/schema/interface_definition.rng templates-cfg || exit 1
+07:25:02  # XXX: delete top level node.def's that now live in other packages
+07:25:02  rm -f templates-cfg/firewall/node.def
+07:25:02  rm -f templates-cfg/interfaces/node.def
+07:25:02  rm -f templates-cfg/protocols/node.def
+07:25:02  rm -rf templates-cfg/protocols/nbgp
+07:25:02  rm -f templates-cfg/protocols/static/node.def
+07:25:02  rm -f templates-cfg/policy/node.def
+07:25:02  rm -f templates-cfg/system/node.def
+07:25:02  rm -f templates-cfg/vpn/node.def
+07:25:02  rm -f templates-cfg/vpn/ipsec/node.def
+07:25:02  # XXX: T3781: migrate back to old iptables NAT implementation as we can not use nft
+07:25:02  # which requires Kernel 5.10 for proper prefix translation support. Kernel 5.10
+07:25:02  # unfortunately breaks with Intel QAT :(
+07:25:02  rm -rf templates-cfg/nat
+07:25:02  # XXX: required until OSPF and RIP is migrated from vyatta-cfg-quagga to vyos-1x
+07:25:02  mkdir templates-cfg/interfaces/loopback/node.tag/ipv6
+07:25:02  mkdir templates-cfg/interfaces/dummy/node.tag/ipv6
+07:25:02  mkdir templates-cfg/interfaces/openvpn/node.tag/ip
+07:25:02  mkdir -p templates-cfg/interfaces/vti/node.tag/ip
+07:25:02  mkdir -p templates-cfg/interfaces/vti/node.tag/ipv6
+07:25:02  cp templates-cfg/interfaces/ethernet/node.tag/ipv6/node.def templates-cfg/interfaces/loopback/node.tag/ipv6
+07:25:02  cp templates-cfg/interfaces/ethernet/node.tag/ipv6/node.def templates-cfg/interfaces/dummy/node.tag/ipv6
+07:25:02  cp templates-cfg/interfaces/ethernet/node.tag/ip/node.def templates-cfg/interfaces/openvpn/node.tag/ip
+07:25:02  cp templates-cfg/interfaces/ethernet/node.tag/ip/node.def templates-cfg/interfaces/vti/node.tag/ip
+07:25:02  cp templates-cfg/interfaces/ethernet/node.tag/ipv6/node.def templates-cfg/interfaces/vti/node.tag/ipv6
+07:25:02  # XXX: test if there are empty node.def files - this is not allowed as these
+07:25:02  # could mask help strings or mandatory priority statements
+07:25:02  find templates-cfg -name node.def -type f -empty -exec false {} + || sh -c 'echo "There are empty node.def files! Check your interface definitions." && exit 1'
+07:25:02  overridding default in path 'interfaces tunnel mtu'
+07:25:02  overridding default in path 'interfaces tunnel parameters ip ttl'
+07:25:02  overridding default in path 'interfaces vxlan mtu'
+07:25:02  overridding default in path 'interfaces pppoe mtu'
+07:25:02  overridding default in path 'interfaces wwan mtu'
+07:25:02  overridding default in path 'interfaces wireguard mtu'
+07:25:02  overridding default in path 'interfaces macsec mtu'
+07:25:02  overridding default in path 'interfaces l2tpv3 mtu'
+07:25:07  mkdir: cannot create directory ‘templates-cfg/interfaces/dummy/node.tag/ipv6’: File exists
+07:25:07  Generating build/op-mode-definitions/show-hardware.xml from op-mode-definitions/show-hardware.xml.in
+07:25:07  Generating build/op-mode-definitions/pptp-server.xml from op-mode-definitions/pptp-server.xml.in
+07:25:07  Generating build/op-mode-definitions/vrrp.xml from op-mode-definitions/vrrp.xml.in
+07:25:07  Generating build/op-mode-definitions/lldp.xml from op-mode-definitions/lldp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-pppoe.xml from op-mode-definitions/show-interfaces-pppoe.xml.in
+07:25:07  Generating build/op-mode-definitions/conntrack-sync.xml from op-mode-definitions/conntrack-sync.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-input.xml from op-mode-definitions/show-interfaces-input.xml.in
+07:25:07  Generating build/op-mode-definitions/show-vrf.xml from op-mode-definitions/show-vrf.xml.in
+07:25:07  Generating build/op-mode-definitions/pppoe-server.xml from op-mode-definitions/pppoe-server.xml.in
+07:25:07  Generating build/op-mode-definitions/show-console-server.xml from op-mode-definitions/show-console-server.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-rip.xml from op-mode-definitions/show-ip-rip.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-bgp.xml from op-mode-definitions/show-ip-bgp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-pseudo-ethernet.xml from op-mode-definitions/show-interfaces-pseudo-ethernet.xml.in
+07:25:07  Generating build/op-mode-definitions/ping.xml from op-mode-definitions/ping.xml.in
+07:25:07  Generating build/op-mode-definitions/dns-forwarding.xml from op-mode-definitions/dns-forwarding.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-access-paths-prefix-community-lists.xml from op-mode-definitions/show-ip-access-paths-prefix-community-lists.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-bridge.xml from op-mode-definitions/show-interfaces-bridge.xml.in
+07:25:07  Generating build/op-mode-definitions/restart-snmp.xml from op-mode-definitions/restart-snmp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-license.xml from op-mode-definitions/show-license.xml.in
+07:25:07  Generating build/op-mode-definitions/ipv6-route.xml from op-mode-definitions/ipv6-route.xml.in
+07:25:07  Generating build/op-mode-definitions/openconnect.xml from op-mode-definitions/openconnect.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-wireless.xml from op-mode-definitions/show-interfaces-wireless.xml.in
+07:25:07  Generating build/op-mode-definitions/terminal.xml from op-mode-definitions/terminal.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ipv6-prefix-list.xml from op-mode-definitions/show-ipv6-prefix-list.xml.in
+07:25:07  Generating build/op-mode-definitions/nat.xml from op-mode-definitions/nat.xml.in
+07:25:07  Generating build/op-mode-definitions/show-log.xml from op-mode-definitions/show-log.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-mpls.xml from op-mode-definitions/reset-mpls.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-ethernet.xml from op-mode-definitions/show-interfaces-ethernet.xml.in
+07:25:07  Generating build/op-mode-definitions/show-system.xml from op-mode-definitions/show-system.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-macsec.xml from op-mode-definitions/show-interfaces-macsec.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-ipv6-bgp.xml from op-mode-definitions/reset-ipv6-bgp.xml.in
+07:25:07  Generating build/op-mode-definitions/igmp-proxy.xml from op-mode-definitions/igmp-proxy.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-igmp.xml from op-mode-definitions/show-ip-igmp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ntp.xml from op-mode-definitions/show-ntp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-route.xml from op-mode-definitions/show-ip-route.xml.in
+07:25:07  Generating build/op-mode-definitions/wireguard.xml from op-mode-definitions/wireguard.xml.in
+07:25:07  Generating build/op-mode-definitions/show-arp.xml from op-mode-definitions/show-arp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-environment.xml from op-mode-definitions/show-environment.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-vpn.xml from op-mode-definitions/reset-vpn.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ipv6-route.xml from op-mode-definitions/show-ipv6-route.xml.in
+07:25:07  Generating build/op-mode-definitions/show-monitoring.xml from op-mode-definitions/show-monitoring.xml.in
+07:25:07  Generating build/op-mode-definitions/show-reboot.xml from op-mode-definitions/show-reboot.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-vti.xml from op-mode-definitions/show-interfaces-vti.xml.in
+07:25:07  Generating build/op-mode-definitions/clear-ipv6.xml from op-mode-definitions/clear-ipv6.xml.in
+07:25:07  Generating build/op-mode-definitions/monitor-ndp.xml from op-mode-definitions/monitor-ndp.xml.in
+07:25:07  Generating build/op-mode-definitions/reboot.xml from op-mode-definitions/reboot.xml.in
+07:25:07  Generating build/op-mode-definitions/show-login.xml from op-mode-definitions/show-login.xml.in
+07:25:07  Generating build/op-mode-definitions/show-history.xml from op-mode-definitions/show-history.xml.in
+07:25:07  Generating build/op-mode-definitions/traceroute.xml from op-mode-definitions/traceroute.xml.in
+07:25:07  Generating build/op-mode-definitions/show-raid.xml from op-mode-definitions/show-raid.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ipv6.xml from op-mode-definitions/show-ipv6.xml.in
+07:25:07  Generating build/op-mode-definitions/show-rpki.xml from op-mode-definitions/show-rpki.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-bonding.xml from op-mode-definitions/show-interfaces-bonding.xml.in
+07:25:07  Generating build/op-mode-definitions/show-version.xml from op-mode-definitions/show-version.xml.in
+07:25:07  Generating build/op-mode-definitions/dhcp.xml from op-mode-definitions/dhcp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-wireguard.xml from op-mode-definitions/show-interfaces-wireguard.xml.in
+07:25:07  Generating build/op-mode-definitions/monitor-protocol.xml from op-mode-definitions/monitor-protocol.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-dummy.xml from op-mode-definitions/show-interfaces-dummy.xml.in
+07:25:07  Generating build/op-mode-definitions/show-poweroff.xml from op-mode-definitions/show-poweroff.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-ip-bgp.xml from op-mode-definitions/reset-ip-bgp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-bgp.xml from op-mode-definitions/show-bgp.xml.in
+07:25:07  Generating build/op-mode-definitions/webproxy.xml from op-mode-definitions/webproxy.xml.in
+07:25:07  Generating build/op-mode-definitions/force-ipv6.xml from op-mode-definitions/force-ipv6.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-ports.xml from op-mode-definitions/show-ip-ports.xml.in
+07:25:07  Generating build/op-mode-definitions/restart-frr.xml from op-mode-definitions/restart-frr.xml.in
+07:25:07  Generating build/op-mode-definitions/telnet.xml from op-mode-definitions/telnet.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-multicast.xml from op-mode-definitions/show-ip-multicast.xml.in
+07:25:07  Generating build/op-mode-definitions/monitor-log.xml from op-mode-definitions/monitor-log.xml.in
+07:25:07  Generating build/op-mode-definitions/generate-interfaces-debug-archive.xml from op-mode-definitions/generate-interfaces-debug-archive.xml.in
+07:25:07  Generating build/op-mode-definitions/force-mtu-host.xml from op-mode-definitions/force-mtu-host.xml.in
+07:25:07  Generating build/op-mode-definitions/show-firewall-policy.xml from op-mode-definitions/show-firewall-policy.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ipv6-ospfv3.xml from op-mode-definitions/show-ipv6-ospfv3.xml.in
+07:25:07  Generating build/op-mode-definitions/show-bfd.xml from op-mode-definitions/show-bfd.xml.in
+07:25:07  Generating build/op-mode-definitions/disconnect.xml from op-mode-definitions/disconnect.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ipv6-bgp.xml from op-mode-definitions/show-ipv6-bgp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-isis.xml from op-mode-definitions/show-isis.xml.in
+07:25:07  Generating build/op-mode-definitions/traffic-dump.xml from op-mode-definitions/traffic-dump.xml.in
+07:25:07  Generating build/op-mode-definitions/l2tp-server.xml from op-mode-definitions/l2tp-server.xml.in
+07:25:07  Generating build/op-mode-definitions/generate-public-key-command.xml from op-mode-definitions/generate-public-key-command.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-geneve.xml from op-mode-definitions/show-interfaces-geneve.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-ip-igmp.xml from op-mode-definitions/reset-ip-igmp.xml.in
+07:25:07  Generating build/op-mode-definitions/snmp.xml from op-mode-definitions/snmp.xml.in
+07:25:07  Generating build/op-mode-definitions/sstp-server.xml from op-mode-definitions/sstp-server.xml.in
+07:25:07  Generating build/op-mode-definitions/add-system-image.xml from op-mode-definitions/add-system-image.xml.in
+07:25:07  Generating build/op-mode-definitions/force-root-partition-auto-resize.xml from op-mode-definitions/force-root-partition-auto-resize.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-vxlan.xml from op-mode-definitions/show-interfaces-vxlan.xml.in
+07:25:07  Generating build/op-mode-definitions/openvpn.xml from op-mode-definitions/openvpn.xml.in
+07:25:07  Generating build/op-mode-definitions/dns-dynamic.xml from op-mode-definitions/dns-dynamic.xml.in
+07:25:07  Generating build/op-mode-definitions/show-acceleration.xml from op-mode-definitions/show-acceleration.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-tunnel.xml from op-mode-definitions/show-interfaces-tunnel.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-ospf.xml from op-mode-definitions/show-ip-ospf.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-conntrack.xml from op-mode-definitions/reset-conntrack.xml.in
+07:25:07  Generating build/op-mode-definitions/date.xml from op-mode-definitions/date.xml.in
+07:25:07  Generating build/op-mode-definitions/monitor-bandwidth.xml from op-mode-definitions/monitor-bandwidth.xml.in
+07:25:07  Generating build/op-mode-definitions/generate-macsec-key.xml from op-mode-definitions/generate-macsec-key.xml.in
+07:25:07  Generating build/op-mode-definitions/restart.xml from op-mode-definitions/restart.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces.xml from op-mode-definitions/show-interfaces.xml.in
+07:25:07  Generating build/op-mode-definitions/wireless.xml from op-mode-definitions/wireless.xml.in
+07:25:07  Generating build/op-mode-definitions/clear-log.xml from op-mode-definitions/clear-log.xml.in
+07:25:07  Generating build/op-mode-definitions/show-mpls.xml from op-mode-definitions/show-mpls.xml.in
+07:25:07  Generating build/op-mode-definitions/show-users.xml from op-mode-definitions/show-users.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-loopback.xml from op-mode-definitions/show-interfaces-loopback.xml.in
+07:25:07  Generating build/op-mode-definitions/force-arp.xml from op-mode-definitions/force-arp.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-l2tpv3.xml from op-mode-definitions/show-interfaces-l2tpv3.xml.in
+07:25:07  Generating build/op-mode-definitions/monitor-bandwidth-test.xml from op-mode-definitions/monitor-bandwidth-test.xml.in
+07:25:07  Generating build/op-mode-definitions/show-interfaces-wwan.xml from op-mode-definitions/show-interfaces-wwan.xml.in
+07:25:07  Generating build/op-mode-definitions/configure.xml from op-mode-definitions/configure.xml.in
+07:25:07  Generating build/op-mode-definitions/show-table.xml from op-mode-definitions/show-table.xml.in
+07:25:07  Generating build/op-mode-definitions/generate-ssh-server-key.xml from op-mode-definitions/generate-ssh-server-key.xml.in
+07:25:07  Generating build/op-mode-definitions/clear-ip.xml from op-mode-definitions/clear-ip.xml.in
+07:25:07  Generating build/op-mode-definitions/show-vpn.xml from op-mode-definitions/show-vpn.xml.in
+07:25:07  Generating build/op-mode-definitions/show-protocols.xml from op-mode-definitions/show-protocols.xml.in
+07:25:07  Generating build/op-mode-definitions/poweroff.xml from op-mode-definitions/poweroff.xml.in
+07:25:07  Generating build/op-mode-definitions/disks.xml from op-mode-definitions/disks.xml.in
+07:25:07  Generating build/op-mode-definitions/show-configuration.xml from op-mode-definitions/show-configuration.xml.in
+07:25:07  Generating build/op-mode-definitions/ipv4-route.xml from op-mode-definitions/ipv4-route.xml.in
+07:25:07  Generating build/op-mode-definitions/show-bridge.xml from op-mode-definitions/show-bridge.xml.in
+07:25:07  Generating build/op-mode-definitions/generate-ipsec-debug-archive.xml from op-mode-definitions/generate-ipsec-debug-archive.xml.in
+07:25:07  Generating build/op-mode-definitions/flow-accounting-op.xml from op-mode-definitions/flow-accounting-op.xml.in
+07:25:07  Generating build/op-mode-definitions/show-host.xml from op-mode-definitions/show-host.xml.in
+07:25:07  Generating build/op-mode-definitions/reset-ip-multicast.xml from op-mode-definitions/reset-ip-multicast.xml.in
+07:25:07  Generating build/op-mode-definitions/wake-on-lan.xml from op-mode-definitions/wake-on-lan.xml.in
+07:25:07  Generating build/op-mode-definitions/restart-ssh.xml from op-mode-definitions/restart-ssh.xml.in
+07:25:07  Generating build/op-mode-definitions/clear-dhcp-server-lease.xml from op-mode-definitions/clear-dhcp-server-lease.xml.in
+07:25:07  Generating build/op-mode-definitions/show-route-map.xml from op-mode-definitions/show-route-map.xml.in
+07:25:07  Generating build/op-mode-definitions/container.xml from op-mode-definitions/container.xml.in
+07:25:07  Generating build/op-mode-definitions/ipoe-server.xml from op-mode-definitions/ipoe-server.xml.in
+07:25:07  Generating build/op-mode-definitions/connect.xml from op-mode-definitions/connect.xml.in
+07:25:07  Generating build/op-mode-definitions/show-ip-pim.xml from op-mode-definitions/show-ip-pim.xml.in
+07:25:07  mkdir -p templates-op
+07:25:07  find build/op-mode-definitions/ -type f -name "*.xml" | xargs -I {} /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/scripts/build-command-op-templates {} /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/schema/op-mode-definition.rng templates-op || exit 1
+07:25:07  # XXX: delete top level op mode node.def's that now live in other packages
+07:25:07  rm -f templates-op/add/node.def
+07:25:07  rm -f templates-op/clear/interfaces/node.def
+07:25:07  rm -f templates-op/clear/node.def
+07:25:07  rm -f templates-op/delete/node.def
+07:25:07  rm -f templates-op/generate/node.def
+07:25:07  rm -f templates-op/monitor/node.def
+07:25:07  rm -f templates-op/reset/vpn/node.def
+07:25:07  rm -f templates-op/set/node.def
+07:25:07  rm -f templates-op/show/interfaces/node.def
+07:25:07  rm -f templates-op/show/node.def
+07:25:07  rm -f templates-op/show/system/node.def
+07:25:07  rm -f templates-op/show/vpn/node.def
+07:25:07  rm -f templates-op/show/firewall/node.def
+07:25:07  # XXX: T3781: migrate back to old iptables NAT implementation as we can not use nft
+07:25:07  # which requires Kernel 5.10 for proper prefix translation support. Kernel 5.10
+07:25:07  # unfortunately breaks with Intel QAT :(
+07:25:07  rm -rf templates-op/show/nat
+07:25:07  # XXX: ping must be able to recursivly call itself as the
+07:25:07  # options are provided from the script itself
+07:25:07  ln -s ../node.tag templates-op/ping/node.tag/node.tag/
+07:25:07  # XXX: test if there are empty node.def files - this is not allowed as these
+07:25:07  # could mask help strings or mandatory priority statements
+07:25:07  find templates-op -name node.def -type f -empty -exec false {} + || sh -c 'echo "There are empty node.def files! Check your interface definitions." && exit 1'
+07:25:12  make -C src/shim
+07:25:12  make[3]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:12  make -C mkjson
+07:25:12  make[4]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:12  rm -rf obj
+07:25:12  rm -rf lib
+07:25:12  mkdir obj
+07:25:12  mkdir lib
+07:25:12  gcc -Wall -Os -I. -c mkjson.c -o obj/mkjson.o
+07:25:13  ar -cvq lib/libmkjson.a obj/mkjson.o
+07:25:13  a - obj/mkjson.o
+07:25:13  ar -t lib/libmkjson.a
+07:25:13  mkjson.o
+07:25:13  make[4]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:13  gcc -I./mkjson -L./mkjson/lib -DDEBUG=0 -o vyshim vyshim.c -lmkjson -lzmq
+07:25:13  make[3]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:13  make[2]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:13  make[1]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:13     dh_auto_test
+07:25:13  	make -j1 test
+07:25:13  make[1]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:13  set -e; python3 -m compileall -q -x '/vmware-tools/scripts/' .
+07:25:13  PYTHONPATH=python/ python3 -m "nose" --with-xunit src --with-coverage --cover-erase --cover-xml --cover-package src/conf_mode,src/op_mode,src/completion,src/helpers,src/validators,src/tests --verbose
+07:25:14  test_copy (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_copy_duplicate (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_rename (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_rename_duplicate (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_top_level_leaf (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_top_level_tag (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_top_level_valueless (test_config_parser.TestConfigParser) ... ok
+07:25:14  test_dh_key_256 (test_configverify.TestDictSearch) ... ok
+07:25:14  test_dh_key_512 (test_configverify.TestDictSearch) ... ok
+07:25:14  test_dh_key_none (test_configverify.TestDictSearch) ... ok
+07:25:14  test_dict_key_value (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_dict_search_recursive (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_list (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_nested_dict_key_empty (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_nested_dict_key_value (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_nested_list (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_non_existing_keys (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_string (test_dict_search.TestDictSearch) ... ok
+07:25:14  test_create_user (test_initial_setup.TestInitialSetup) ... ok
+07:25:15  test_disable_user_password (test_initial_setup.TestInitialSetup) ... ok
+07:25:15  test_set_gateway (test_initial_setup.TestInitialSetup) ... ok
+07:25:15  test_set_hostname (test_initial_setup.TestInitialSetup) ... ok
+07:25:16  test_set_name_servers (test_initial_setup.TestInitialSetup) ... ok
+07:25:16  test_set_ssh_key_with_name (test_initial_setup.TestInitialSetup) ... ok
+07:25:16  test_set_ssh_key_without_name (test_initial_setup.TestInitialSetup) ... ok
+07:25:17  test_set_user_password (test_initial_setup.TestInitialSetup) ... ok
+07:25:17  test_helpers_first_host_address (test_jinja_filters.TestTeamplteHelpers) ... ok
+07:25:17  test_helpers_from_cidr (test_jinja_filters.TestTeamplteHelpers) ... ok
+07:25:17  test_helpers_ipv4 (test_jinja_filters.TestTeamplteHelpers) ... ok
+07:25:17  test_helpers_ipv6 (test_jinja_filters.TestTeamplteHelpers) ... ok
+07:25:17  test_generate (test_task_scheduler.TestUpdateCrontab) ... ok
+07:25:17  test_verify (test_task_scheduler.TestUpdateCrontab) ... ok
+07:25:17  test_address_from_cidr (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_decrement_ip (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_first_host_address (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_increment_ip (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_is_ip (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_is_ipv4 (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_is_ipv6 (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_last_host_address (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_netmask_from_cidr (test_template.TestVyOSTemplate) ... ok
+07:25:17  test_ipv6_enabled (test_util.TestVyOSUtil) ... ok
+07:25:18  test_key_mangline (test_util.TestVyOSUtil) ... ok
+07:25:18  test_sysctl_read (test_util.TestVyOSUtil) ... ok
+07:25:18  test_is_addr_assigned (test_validate.TestVyOSValidate) ... ok
+07:25:19  test_is_ipv6_link_local (test_validate.TestVyOSValidate) ... ok
+07:25:19
+07:25:19  ----------------------------------------------------------------------
+07:25:19  XML: /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/nosetests.xml
+07:25:19  Name                                               Stmts   Miss  Cover   Missing
+07:25:19  --------------------------------------------------------------------------------
+07:25:19  src/completion/list_disks.py                          20     20     0%   19-45
+07:25:19  src/completion/list_dumpable_interfaces.py             6      6     0%   5-12
+07:25:19  src/completion/list_interfaces.py                     28     28     0%   17-54
+07:25:19  src/completion/list_ipoe.py                           11     11     0%   3-16
+07:25:19  src/completion/list_openvpn_clients.py                33     33     0%   17-59
+07:25:19  src/conf_mode/arp.py                                  56     56     0%   19-104
+07:25:19  src/conf_mode/bcast_relay.py                          64     64     0%   17-111
+07:25:19  src/conf_mode/conntrack.py                            66     66     0%   17-139
+07:25:19  src/conf_mode/conntrack_sync.py                       84     84     0%   17-135
+07:25:19  src/conf_mode/container.py                           316    316     0%   17-487
+07:25:19  src/conf_mode/dhcp_relay.py                           53     53     0%   17-92
+07:25:19  src/conf_mode/dhcp_server.py                         182    182     0%   17-330
+07:25:19  src/conf_mode/dhcpv6_relay.py                         65     65     0%   17-109
+07:25:19  src/conf_mode/dhcpv6_server.py                       108    108     0%   17-188
+07:25:19  src/conf_mode/dns_forwarding.py                       98     98     0%   17-177
+07:25:19  src/conf_mode/dynamic_dns.py                          83     83     0%   17-157
+07:25:19  src/conf_mode/firewall_options.py                     76     76     0%   18-156
+07:25:19  src/conf_mode/flow_accounting_conf.py                215    215     0%   17-392
+07:25:19  src/conf_mode/host_name.py                           109    109     0%   17-193
+07:25:19  src/conf_mode/http-api.py                             92     92     0%   17-151
+07:25:19  src/conf_mode/https.py                               113    113     0%   17-193
+07:25:19  src/conf_mode/igmp_proxy.py                           70     70     0%   17-121
+07:25:19  src/conf_mode/intel_qat.py                            52     52     0%   17-105
+07:25:19  src/conf_mode/interfaces-bonding.py                  153    153     0%   17-244
+07:25:19  src/conf_mode/interfaces-bridge.py                   116    116     0%   17-190
+07:25:19  src/conf_mode/interfaces-dummy.py                     42     42     0%   17-76
+07:25:19  src/conf_mode/interfaces-ethernet.py                 104    104     0%   17-168
+07:25:19  src/conf_mode/interfaces-geneve.py                    59     59     0%   17-112
+07:25:19  src/conf_mode/interfaces-l2tpv3.py                    64     64     0%   17-110
+07:25:19  src/conf_mode/interfaces-loopback.py                  34     34     0%   17-64
+07:25:19  src/conf_mode/interfaces-macsec.py                    96     96     0%   17-166
+07:25:19  src/conf_mode/interfaces-openvpn.py                  346    346     0%   17-550
+07:25:19  src/conf_mode/interfaces-pppoe.py                     76     76     0%   17-142
+07:25:19  src/conf_mode/interfaces-pseudo-ethernet.py           61     61     0%   17-112
+07:25:19  src/conf_mode/interfaces-tunnel.py                   120    120     0%   17-202
+07:25:19  src/conf_mode/interfaces-virtual-ethernet.py          61     61     0%   17-117
+07:25:19  src/conf_mode/interfaces-vxlan.py                     91     91     0%   17-159
+07:25:19  src/conf_mode/interfaces-wireguard.py                 75     75     0%   17-120
+07:25:19  src/conf_mode/interfaces-wireless.py                 180    180     0%   17-294
+07:25:19  src/conf_mode/interfaces-wwan.py                     116    116     0%   17-192
+07:25:19  src/conf_mode/ipsec-settings.py                      166    166     0%   17-287
+07:25:19  src/conf_mode/le_cert.py                              64     64     0%   17-114
+07:25:19  src/conf_mode/lldp.py                                153    153     0%   17-254
+07:25:19  src/conf_mode/nat.py                                 117    117     0%   17-204
+07:25:19  src/conf_mode/ntp.py                                  63     63     0%   17-104
+07:25:19  src/conf_mode/policy-local-route.py                  167    167     0%   17-236
+07:25:19  src/conf_mode/protocols_bfd.py                       124    124     0%   17-226
+07:25:19  src/conf_mode/protocols_igmp.py                       74     74     0%   17-139
+07:25:19  src/conf_mode/protocols_isis.py                      128    128     0%   17-218
+07:25:19  src/conf_mode/protocols_mpls.py                       87     87     0%   17-142
+07:25:19  src/conf_mode/protocols_pim.py                        88     88     0%   17-166
+07:25:19  src/conf_mode/protocols_rip.py                       144    144     0%   17-320
+07:25:19  src/conf_mode/protocols_rpki.py                       91     91     0%   17-138
+07:25:19  src/conf_mode/protocols_static_multicast.py           66     66     0%   17-120
+07:25:19  src/conf_mode/salt-minion.py                          71     71     0%   17-126
+07:25:19  src/conf_mode/service_console-server.py               72     72     0%   17-127
+07:25:19  src/conf_mode/service_event_handler.py                46     46     0%   17-93
+07:25:19  src/conf_mode/service_ids_fastnetmon.py               55     55     0%   17-92
+07:25:19  src/conf_mode/service_ipoe-server.py                 187    187     0%   17-358
+07:25:19  src/conf_mode/service_mdns-repeater.py                54     54     0%   17-92
+07:25:19  src/conf_mode/service_monitoring_telegraf.py         112    112     0%   17-195
+07:25:19  src/conf_mode/service_pppoe-server.py                 89     89     0%   17-148
+07:25:19  src/conf_mode/service_router-advert.py                81     81     0%   17-132
+07:25:19  src/conf_mode/service_webproxy.py                    143    143     0%   17-260
+07:25:19  src/conf_mode/snmp.py                                305    305     0%   17-598
+07:25:19  src/conf_mode/ssh.py                                  68     68     0%   17-111
+07:25:19  src/conf_mode/system-ip.py                            47     47     0%   17-84
+07:25:19  src/conf_mode/system-ipv6.py                          62     62     0%   17-107
+07:25:19  src/conf_mode/system-login-banner.py                  60     60     0%   17-107
+07:25:19  src/conf_mode/system-login.py                        194    194     0%   17-344
+07:25:19  src/conf_mode/system-option.py                        98     98     0%   17-153
+07:25:19  src/conf_mode/system-proxy.py                         51     51     0%   19-95
+07:25:19  src/conf_mode/system-syslog.py                       140    140     0%   17-283
+07:25:19  src/conf_mode/system-timezone.py                      33     33     0%   17-61
+07:25:19  src/conf_mode/system_console.py                      103    103     0%   17-180
+07:25:19  src/conf_mode/system_lcd.py                           51     51     0%   17-91
+07:25:19  src/conf_mode/task_scheduler.py                       95     24    75%   54, 57-79, 142, 146-153
+07:25:19  src/conf_mode/tftp_server.py                          88     88     0%   17-145
+07:25:19  src/conf_mode/vpn_l2tp.py                            214    214     0%   17-400
+07:25:19  src/conf_mode/vpn_openconnect.py                     105    105     0%   17-180
+07:25:19  src/conf_mode/vpn_pptp.py                            159    159     0%   17-301
+07:25:19  src/conf_mode/vpn_sstp.py                             60     60     0%   17-103
+07:25:19  src/conf_mode/vrf.py                                 136    136     0%   17-244
+07:25:19  src/conf_mode/vrrp.py                                130    130     0%   17-197
+07:25:19  src/conf_mode/vyos_cert.py                            86     86     0%   19-147
+07:25:19  src/helpers/read-saved-value.py                       10     10     0%   17-28
+07:25:19  src/helpers/run-config-migration.py                   39     39     0%   18-86
+07:25:19  src/helpers/strip-private.py                          56     56     0%   18-153
+07:25:19  src/helpers/system-versions-foot.py                   14     14     0%   18-38
+07:25:19  src/helpers/vyos-boot-config-loader.py               110    110     0%   19-178
+07:25:19  src/helpers/vyos-bridge-sync.py                       19     19     0%   23-51
+07:25:19  src/helpers/vyos-check-wwan.py                        12     12     0%   17-35
+07:25:19  src/helpers/vyos-load-config.py                       60     60     0%   19-104
+07:25:19  src/helpers/vyos-merge-config.py                      70     70     0%   18-111
+07:25:19  src/helpers/vyos-sudo.py                              11     11     0%   18-33
+07:25:19  src/op_mode/clear_conntrack.py                         7      7     0%   17-26
+07:25:19  src/op_mode/clear_dhcp_lease.py                       44     44     0%   3-73
+07:25:19  src/op_mode/connect_disconnect.py                     57     57     0%   17-99
+07:25:20  src/op_mode/conntrack_sync.py                        121    121     0%   17-181
+07:25:20  src/op_mode/container.py                              45     45     0%   17-84
+07:25:20  src/op_mode/cpu_summary.py                            12     12     0%   17-36
+07:25:20  src/op_mode/dns_forwarding_reset.py                   22     22     0%   23-54
+07:25:20  src/op_mode/dns_forwarding_statistics.py              16     16     0%   3-32
+07:25:20  src/op_mode/dynamic_dns.py                            56     56     0%   17-107
+07:25:20  src/op_mode/flow_accounting_op.py                    131    131     0%   18-252
+07:25:20  src/op_mode/format_disk.py                            80     80     0%   17-133
+07:25:20  src/op_mode/generate_interfaces_debug_archive.py      41     41     0%   17-115
+07:25:20  src/op_mode/generate_public_key_command.py            31     31     0%   17-69
+07:25:20  src/op_mode/generate_ssh_server_key.py                 8      8     0%   17-26
+07:25:20  src/op_mode/ipoe-control.py                           28     28     0%   17-65
+07:25:20  src/op_mode/lldp_op.py                                76     76     0%   17-127
+07:25:20  src/op_mode/maya_date.py                              51     51     0%   17-208
+07:25:20  src/op_mode/openconnect-control.py                    38     38     0%   17-67
+07:25:20  src/op_mode/ping.py                                   77     77     0%   17-240
+07:25:20  src/op_mode/powerctrl.py                             124    124     0%   17-204
+07:25:20  src/op_mode/ppp-server-ctrl.py                        27     27     0%   17-71
+07:25:20  src/op_mode/reset_openvpn.py                          12     12     0%   17-31
+07:25:20  src/op_mode/reset_vpn.py                              31     31     0%   17-72
+07:25:20  src/op_mode/restart_dhcp_relay.py                     23     23     0%   21-55
+07:25:20  src/op_mode/restart_frr.py                           103    103     0%   17-180
+07:25:20  src/op_mode/show_acceleration.py                      76     76     0%   18-116
+07:25:20  src/op_mode/show_configuration_json.py                12     12     0%   17-36
+07:25:20  src/op_mode/show_cpu.py                               27     27     0%   17-61
+07:25:20  src/op_mode/show_dhcp.py                             156    156     0%   19-260
+07:25:20  src/op_mode/show_dhcpv6.py                           134    134     0%   19-219
+07:25:20  src/op_mode/show_firewall_policy.py                   77     77     0%   17-122
+07:25:20  src/op_mode/show_igmpproxy.py                         90     90     0%   22-240
+07:25:20  src/op_mode/show_interfaces.py                       179    179     0%   18-329
+07:25:20  src/op_mode/show_ipsec_connections.py                149    149     0%   17-286
+07:25:20  src/op_mode/show_ipsec_sa.py                          87     87     0%   17-131
+07:25:20  src/op_mode/show_nat_statistics.py                    23     23     0%   17-62
+07:25:20  src/op_mode/show_nat_translations.py                 137    137     0%   17-204
+07:25:20  src/op_mode/show_openvpn.py                           97     97     0%   18-198
+07:25:20  src/op_mode/show_sensors.py                           20     20     0%   3-25
+07:25:20  src/op_mode/show_usb_serial.py                        21     21     0%   17-57
+07:25:20  src/op_mode/show_users.py                             63     63     0%   16-111
+07:25:20  src/op_mode/show_version.py                           21     21     0%   21-68
+07:25:20  src/op_mode/show_vpn_ra.py                            25     25     0%   17-56
+07:25:20  src/op_mode/show_vrf.py                               31     31     0%   17-67
+07:25:20  src/op_mode/show_wireless.py                          83     83     0%   17-149
+07:25:20  src/op_mode/show_wwan.py                              55     55     0%   17-82
+07:25:20  src/op_mode/snmp.py                                   40     40     0%   22-78
+07:25:20  src/op_mode/snmp_ifmib.py                             70     70     0%   22-121
+07:25:20  src/op_mode/snmp_v3.py                                75     75     0%   22-180
+07:25:20  src/op_mode/vpn_ipsec.py                              17     17     0%   17-52
+07:25:20  src/op_mode/vrrp.py                                   29     29     0%   18-55
+07:25:20  src/op_mode/wireguard.py                              98     98     0%   17-159
+07:25:20  src/op_mode/wireguard_client.py                       52     52     0%   17-119
+07:25:20  src/tests/helper.py                                    7      7     0%   17-24
+07:25:20  src/tests/test_config_parser.py                       30      0   100%
+07:25:20  src/tests/test_configverify.py                        17      0   100%
+07:25:20  src/tests/test_dict_search.py                         26      0   100%
+07:25:20  src/tests/test_find_device_file.py                    13     13     0%   17-35
+07:25:20  src/tests/test_initial_setup.py                       59      1    98%   101
+07:25:20  src/tests/test_jinja_filters.py                       46      0   100%
+07:25:20  src/tests/test_task_scheduler.py                      34      5    85%   25-28, 129
+07:25:20  src/tests/test_template.py                            58      0   100%
+07:25:20  src/tests/test_util.py                                15      1    93%   38
+07:25:20  src/tests/test_validate.py                            22      5    77%   30-34
+07:25:20  --------------------------------------------------------------------------------
+07:25:20  TOTAL                                              12454  12088     3%
+07:25:20  ----------------------------------------------------------------------
+07:25:20  Ran 46 tests in 3.844s
+07:25:20
+07:25:20  OK
+07:25:20  make[1]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:20   fakeroot debian/rules binary
+07:25:20  dh binary --with python3, --with quilt
+07:25:20     dh_testroot
+07:25:20     dh_prep
+07:25:20     debian/rules override_dh_auto_install
+07:25:20  make[1]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:20  dh_auto_install
+07:25:20  # convert the XML to dictionaries
+07:25:20  env PYTHONPATH=python python3 python/vyos/xml/generate.py
+07:25:21  saving /var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/python/vyos/xml/cache/configuration.py
+07:25:21  cd python; python3 setup.py install --install-layout=deb --root ../debian/tmp; cd ..
+07:25:21  running install
+07:25:21  running build
+07:25:21  running build_py
+07:25:21  creating build
+07:25:21  creating build/lib
+07:25:21  creating build/lib/vyos
+07:25:21  copying vyos/configdiff.py -> build/lib/vyos
+07:25:21  copying vyos/initialsetup.py -> build/lib/vyos
+07:25:21  copying vyos/template.py -> build/lib/vyos
+07:25:21  copying vyos/frr.py -> build/lib/vyos
+07:25:21  copying vyos/iflag.py -> build/lib/vyos
+07:25:21  copying vyos/hostsd_client.py -> build/lib/vyos
+07:25:21  copying vyos/limericks.py -> build/lib/vyos
+07:25:21  copying vyos/configdict.py -> build/lib/vyos
+07:25:21  copying vyos/logger.py -> build/lib/vyos
+07:25:21  copying vyos/configsession.py -> build/lib/vyos
+07:25:21  copying vyos/configverify.py -> build/lib/vyos
+07:25:21  copying vyos/defaults.py -> build/lib/vyos
+07:25:21  copying vyos/dicts.py -> build/lib/vyos
+07:25:21  copying vyos/systemversions.py -> build/lib/vyos
+07:25:21  copying vyos/migrator.py -> build/lib/vyos
+07:25:21  copying vyos/version.py -> build/lib/vyos
+07:25:21  copying vyos/debug.py -> build/lib/vyos
+07:25:21  copying vyos/util.py -> build/lib/vyos
+07:25:21  copying vyos/airbag.py -> build/lib/vyos
+07:25:21  copying vyos/__init__.py -> build/lib/vyos
+07:25:21  copying vyos/validate.py -> build/lib/vyos
+07:25:21  copying vyos/config.py -> build/lib/vyos
+07:25:21  copying vyos/component_versions.py -> build/lib/vyos
+07:25:21  copying vyos/configtree.py -> build/lib/vyos
+07:25:21  copying vyos/ethtool.py -> build/lib/vyos
+07:25:21  copying vyos/remote.py -> build/lib/vyos
+07:25:21  copying vyos/formatversions.py -> build/lib/vyos
+07:25:21  copying vyos/certbot_util.py -> build/lib/vyos
+07:25:21  copying vyos/range_regex.py -> build/lib/vyos
+07:25:21  copying vyos/snmpv3_hashgen.py -> build/lib/vyos
+07:25:21  copying vyos/configsource.py -> build/lib/vyos
+07:25:21  copying vyos/authutils.py -> build/lib/vyos
+07:25:21  copying vyos/base.py -> build/lib/vyos
+07:25:21  copying vyos/configquery.py -> build/lib/vyos
+07:25:21  copying vyos/ioctl.py -> build/lib/vyos
+07:25:21  creating build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/tunnel.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/geneve.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/macvlan.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/vxlan.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/bridge.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/pppoe.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/l2tpv3.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/wwan.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/input.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/control.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/loopback.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/vrrp.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/wireless.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/__init__.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/vti.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/ethernet.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/bond.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/wireguard.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/interface.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/section.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/operational.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/vtun.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/macsec.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/afi.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/veth.py -> build/lib/vyos/ifconfig
+07:25:21  copying vyos/ifconfig/dummy.py -> build/lib/vyos/ifconfig
+07:25:21  creating build/lib/vyos/xml
+07:25:21  copying vyos/xml/generate.py -> build/lib/vyos/xml
+07:25:21  copying vyos/xml/__init__.py -> build/lib/vyos/xml
+07:25:21  copying vyos/xml/definition.py -> build/lib/vyos/xml
+07:25:21  copying vyos/xml/test_xml.py -> build/lib/vyos/xml
+07:25:21  copying vyos/xml/kw.py -> build/lib/vyos/xml
+07:25:21  copying vyos/xml/load.py -> build/lib/vyos/xml
+07:25:21  creating build/lib/vyos/xml/cache
+07:25:21  copying vyos/xml/cache/configuration.py -> build/lib/vyos/xml/cache
+07:25:21  copying vyos/xml/cache/__init__.py -> build/lib/vyos/xml/cache
+07:25:21  running install_lib
+07:25:21  creating ../debian/tmp
+07:25:21  creating ../debian/tmp/usr
+07:25:21  creating ../debian/tmp/usr/lib
+07:25:21  creating ../debian/tmp/usr/lib/python3
+07:25:21  creating ../debian/tmp/usr/lib/python3/dist-packages
+07:25:21  creating ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/configdiff.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/initialsetup.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/template.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/frr.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/iflag.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/hostsd_client.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/limericks.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/configdict.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/logger.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/configsession.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  creating ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/tunnel.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/geneve.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/macvlan.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/vxlan.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/bridge.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/pppoe.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/l2tpv3.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/wwan.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/input.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/control.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/loopback.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/vrrp.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/wireless.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/__init__.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/vti.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/ethernet.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/bond.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/wireguard.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/interface.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/section.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/operational.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/vtun.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/macsec.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/afi.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/veth.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/ifconfig/dummy.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig
+07:25:21  copying build/lib/vyos/configverify.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/defaults.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/dicts.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/systemversions.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/migrator.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/version.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/debug.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/util.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/airbag.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/__init__.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  creating ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  copying build/lib/vyos/xml/generate.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  copying build/lib/vyos/xml/__init__.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  copying build/lib/vyos/xml/definition.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  copying build/lib/vyos/xml/test_xml.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  copying build/lib/vyos/xml/kw.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  creating ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/cache
+07:25:21  copying build/lib/vyos/xml/cache/configuration.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/cache
+07:25:21  copying build/lib/vyos/xml/cache/__init__.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/cache
+07:25:21  copying build/lib/vyos/xml/load.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml
+07:25:21  copying build/lib/vyos/validate.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/config.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/component_versions.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/configtree.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/ethtool.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/remote.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/formatversions.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/certbot_util.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/range_regex.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/snmpv3_hashgen.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/configsource.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/authutils.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/base.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/configquery.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  copying build/lib/vyos/ioctl.py -> ../debian/tmp/usr/lib/python3/dist-packages/vyos
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configdiff.py to configdiff.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/initialsetup.py to initialsetup.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/template.py to template.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/frr.py to frr.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/iflag.py to iflag.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/hostsd_client.py to hostsd_client.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/limericks.py to limericks.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configdict.py to configdict.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/logger.py to logger.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configsession.py to configsession.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/tunnel.py to tunnel.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/geneve.py to geneve.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/macvlan.py to macvlan.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/vxlan.py to vxlan.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/bridge.py to bridge.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/pppoe.py to pppoe.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/l2tpv3.py to l2tpv3.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/wwan.py to wwan.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/input.py to input.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/control.py to control.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/loopback.py to loopback.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/vrrp.py to vrrp.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/wireless.py to wireless.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/__init__.py to __init__.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/vti.py to vti.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/ethernet.py to ethernet.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/bond.py to bond.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/wireguard.py to wireguard.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/interface.py to interface.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/section.py to section.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/operational.py to operational.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/vtun.py to vtun.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/macsec.py to macsec.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/afi.py to afi.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/veth.py to veth.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ifconfig/dummy.py to dummy.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configverify.py to configverify.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/defaults.py to defaults.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/dicts.py to dicts.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/systemversions.py to systemversions.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/migrator.py to migrator.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/version.py to version.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/debug.py to debug.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/util.py to util.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/airbag.py to airbag.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/__init__.py to __init__.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/generate.py to generate.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/__init__.py to __init__.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/definition.py to definition.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/test_xml.py to test_xml.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/kw.py to kw.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/cache/configuration.py to configuration.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/cache/__init__.py to __init__.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/xml/load.py to load.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/validate.py to validate.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/config.py to config.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/component_versions.py to component_versions.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configtree.py to configtree.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ethtool.py to ethtool.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/remote.py to remote.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/formatversions.py to formatversions.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/certbot_util.py to certbot_util.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/range_regex.py to range_regex.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/snmpv3_hashgen.py to snmpv3_hashgen.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configsource.py to configsource.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/authutils.py to authutils.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/base.py to base.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/configquery.py to configquery.cpython-37.pyc
+07:25:21  byte-compiling ../debian/tmp/usr/lib/python3/dist-packages/vyos/ioctl.py to ioctl.cpython-37.pyc
+07:25:21  running install_egg_info
+07:25:21  running egg_info
+07:25:21  creating vyos.egg-info
+07:25:21  writing vyos.egg-info/PKG-INFO
+07:25:21  writing dependency_links to vyos.egg-info/dependency_links.txt
+07:25:21  writing top-level names to vyos.egg-info/top_level.txt
+07:25:21  writing manifest file 'vyos.egg-info/SOURCES.txt'
+07:25:21  reading manifest file 'vyos.egg-info/SOURCES.txt'
+07:25:21  writing manifest file 'vyos.egg-info/SOURCES.txt'
+07:25:21  Copying vyos.egg-info to ../debian/tmp/usr/lib/python3/dist-packages/vyos-1.3.0.egg-info
+07:25:21  Skipping SOURCES.txt
+07:25:21  running install_scripts
+07:25:21  # Install scripts
+07:25:21  mkdir -p debian/tmp/usr/sbin
+07:25:22  mkdir -p debian/tmp/usr/bin
+07:25:22  cp -r src/utils/* debian/tmp/usr/bin
+07:25:22  cp src/shim/vyshim debian/tmp/usr/sbin
+07:25:22  # Install conf mode scripts
+07:25:22  mkdir -p debian/tmp/usr/libexec/vyos/conf_mode
+07:25:22  cp -r src/conf_mode/* debian/tmp/usr/libexec/vyos/conf_mode
+07:25:22  # Install op mode scripts
+07:25:22  mkdir -p debian/tmp/usr/libexec/vyos/op_mode
+07:25:22  cp -r src/op_mode/* debian/tmp/usr/libexec/vyos/op_mode
+07:25:22  # Install validators
+07:25:22  mkdir -p debian/tmp/usr/libexec/vyos/validators
+07:25:22  cp -r src/validators/* debian/tmp/usr/libexec/vyos/validators
+07:25:22  # Install completion helpers
+07:25:22  mkdir -p debian/tmp/usr/libexec/vyos/completion
+07:25:22  cp -r src/completion/* debian/tmp/usr/libexec/vyos/completion
+07:25:22  # Install helper scripts
+07:25:22  cp -r src/helpers/* debian/tmp/usr/libexec/vyos/
+07:25:22  # Install migration scripts
+07:25:22  mkdir -p debian/tmp/opt/vyatta/etc/config-migrate/migrate
+07:25:22  cp -r src/migration-scripts/* debian/tmp/opt/vyatta/etc/config-migrate/migrate
+07:25:22  # Install system scripts
+07:25:22  mkdir -p debian/tmp/usr/libexec/vyos/system
+07:25:22  cp -r src/system/* debian/tmp/usr/libexec/vyos/system
+07:25:22  # Install system services
+07:25:22  mkdir -p debian/tmp/usr/libexec/vyos/services
+07:25:22  cp -r src/services/* debian/tmp/usr/libexec/vyos/services
+07:25:22  # Install configuration command definitions
+07:25:22  mkdir -p debian/tmp/opt/vyatta/share/vyatta-cfg/templates
+07:25:22  cp -r templates-cfg/* debian/tmp/opt/vyatta/share/vyatta-cfg/templates
+07:25:22  # Install operational command definitions
+07:25:22  mkdir -p debian/tmp/opt/vyatta/share/vyatta-op/templates
+07:25:22  cp -r templates-op/* debian/tmp/opt/vyatta/share/vyatta-op/templates
+07:25:23  # Install data files
+07:25:23  mkdir -p debian/tmp/usr/share/vyos
+07:25:23  cp -r data/* debian/tmp/usr/share/vyos
+07:25:23  # Install etc configuration files
+07:25:23  mkdir -p debian/tmp/etc
+07:25:23  cp -r src/etc/* debian/tmp/etc
+07:25:23  # Install PAM configuration snippets
+07:25:23  mkdir -p debian/tmp/usr/share/pam-configs
+07:25:23  cp -r src/pam-configs/* debian/tmp/usr/share/pam-configs
+07:25:23  # Install systemd service units
+07:25:23  mkdir -p debian/tmp/lib/systemd/system
+07:25:23  cp -r src/systemd/* debian/tmp/lib/systemd/system
+07:25:23  # Make directory for generated configuration file
+07:25:23  mkdir -p debian/tmp/etc/vyos
+07:25:23  # Install smoke test scripts
+07:25:23  mkdir -p debian/tmp/usr/libexec/vyos/tests/smoke/
+07:25:23  cp -r smoketest/scripts/* debian/tmp/usr/libexec/vyos/tests/smoke
+07:25:23  # Install smoke test configs
+07:25:23  mkdir -p debian/tmp/usr/libexec/vyos/tests/config/
+07:25:23  cp -r smoketest/configs/* debian/tmp/usr/libexec/vyos/tests/config
+07:25:23  # Install system programs
+07:25:23  mkdir -p debian/tmp/usr/bin
+07:25:23  cp -r smoketest/bin/* debian/tmp/usr/bin
+07:25:23  make[1]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:23     dh_install
+07:25:24     dh_installdocs
+07:25:24     dh_installchangelogs
+07:25:24     dh_python3
+07:25:25  I: dh_python3 tools:114: replacing shebang in debian/vyos-1x/usr/bin/initial-setup
+07:25:25  I: dh_python3 tools:114: replacing shebang in debian/vyos-1x/usr/bin/vyos-config-file-query
+07:25:25  I: dh_python3 tools:114: replacing shebang in debian/vyos-1x/usr/bin/vyos-hostsd-client
+07:25:25     dh_lintian
+07:25:25     dh_perl
+07:25:26     dh_link
+07:25:27     dh_strip_nondeterminism
+07:25:28     dh_compress
+07:25:28     dh_fixperms
+07:25:30     dh_missing
+07:25:30     dh_strip
+07:25:32     dh_makeshlibs
+07:25:32     dh_shlibdeps
+07:25:35     dh_installdeb
+07:25:35     debian/rules override_dh_gencontrol
+07:25:35  make[1]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:35  dh_gencontrol -- -v0.0-no.git.tag
+07:25:35  dpkg-gencontrol: warning: package vyos-1x: substitution variable ${perl:Depends} unused, but is defined
+07:25:35  dpkg-gencontrol: warning: package vyos-1x: substitution variable ${shlibs:Depends} unused, but is defined
+07:25:35  dpkg-gencontrol: warning: package vyos-1x: substitution variable ${perl:Depends} unused, but is defined
+07:25:35  dpkg-gencontrol: warning: package vyos-1x: substitution variable ${shlibs:Depends} unused, but is defined
+07:25:35  make[1]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:35     dh_md5sums
+07:25:36     dh_builddeb
+07:25:36  dpkg-deb: building package 'vyos-1x-dbgsym' in '../vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb'.
+07:25:36  dpkg-deb: building package 'vyos-1x-smoketest' in '../vyos-1x-smoketest_0.0-no.git.tag_all.deb'.
+07:25:36  dpkg-deb: building package 'vyos-1x-vmware' in '../vyos-1x-vmware_0.0-no.git.tag_amd64.deb'.
+07:25:36  dpkg-deb: building package 'vyos-1x' in '../vyos-1x_0.0-no.git.tag_amd64.deb'.
+07:25:38   dpkg-genbuildinfo --build=full
+07:25:38   dpkg-genchanges --build=full >../vyos-1x_1.3-1_amd64.changes
+07:25:38  dpkg-genchanges: warning: the current version (1.3-1) is earlier than the previous one (1.3dev0)
+07:25:38  dpkg-genchanges: info: including full source code in upload
+07:25:38   fakeroot debian/rules clean
+07:25:39  dh clean --with python3, --with quilt
+07:25:39     dh_auto_clean
+07:25:39  	make -j1 clean
+07:25:39  make[1]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:39  rm -rf build
+07:25:39  rm -rf templates-cfg
+07:25:39  rm -rf templates-op
+07:25:39  make -C src/shim clean
+07:25:39  make[2]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:39  make -C mkjson clean
+07:25:39  make[3]: Entering directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:39  rm -rf obj
+07:25:39  rm -rf lib
+07:25:39  make[3]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim/mkjson'
+07:25:39  rm -f vyshim
+07:25:39  make[2]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64/src/shim'
+07:25:39  make[1]: Leaving directory '/var/lib/jenkins/workspace/vyos-1x_equuleus/build-amd64'
+07:25:39     dh_quilt_unpatch
+07:25:39  No patch removed
+07:25:39     dh_clean
+07:25:40   dpkg-source --after-build .
+07:25:41  dpkg-buildpackage: info: full upload; Debian-native package (full source is included)
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] archiveArtifacts
+07:25:41  Archiving artifacts
+07:25:41  Recording fingerprints
+[Pipeline] archiveArtifacts
+07:25:41  Archiving artifacts
+07:25:41  Recording fingerprints
+[Pipeline] archiveArtifacts
+07:25:41  Archiving artifacts
+07:25:41  Recording fingerprints
+[Pipeline] stash
+07:25:41  Stashed 4 file(s)
+[Pipeline] stash
+07:25:41  Stashed 1 file(s)
+[Pipeline] stash
+07:25:42  Stashed 1 file(s)
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] deleteDir
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+07:25:43  $ docker stop --time=1 badb5de988088d368814718bc7117ecfed172493b9df9e5e10d42cea1e5ce30b
+07:25:44  $ docker rm -f --volumes badb5de988088d368814718bc7117ecfed172493b9df9e5e10d42cea1e5ce30b
+[Pipeline] // withDockerContainer
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // parallel
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Finalize)
+[Pipeline] node
+07:25:45  Running on Jenkins in /var/lib/jenkins/workspace/vyos-1x_equuleus
+[Pipeline] {
+[Pipeline] checkout
+07:25:45  The recommended git tool is: git
+07:25:45  No credentials specified
+07:25:45  Cloning the remote Git repository
+07:25:45  Cloning with configured refspecs honoured and without tags
+07:25:45  Cloning repository https://github.com/vyos/vyos-1x.git
+07:25:45   > git init /var/lib/jenkins/workspace/vyos-1x_equuleus # timeout=10
+07:25:45  Fetching upstream changes from https://github.com/vyos/vyos-1x.git
+07:25:45   > git --version # timeout=10
+07:25:45   > git --version # 'git version 2.30.2'
+07:25:45   > git fetch --no-tags --force --progress -- https://github.com/vyos/vyos-1x.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:25:47   > git config remote.origin.url https://github.com/vyos/vyos-1x.git # timeout=10
+07:25:47   > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+07:25:47  Avoid second fetch
+07:25:47  Checking out Revision 330379503281506fcfc66fd53b6e67bc2e887bd0 (equuleus)
+07:25:47   > git config core.sparsecheckout # timeout=10
+07:25:47   > git checkout -f 330379503281506fcfc66fd53b6e67bc2e887bd0 # timeout=10
+07:25:47  Commit message: "Merge pull request #3397 from vyos/mergify/bp/equuleus/pr-3386"
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] echo
+07:25:47  Warning, empty changelog. Have you run checkout?
+[Pipeline] script
+[Pipeline] {
+[Pipeline] unstash
+[Pipeline] unstash
+[Pipeline] unstash
+[Pipeline] echo
+07:25:48  Uploading Artifacts to external repository
+[Pipeline] copyArtifacts
+07:25:48  Copied 6 artifacts from "vyos-1x » equuleus" build number 8
+[Pipeline] sshagent
+07:25:48  [ssh-agent] Using credentials jenkins
+07:25:48  [ssh-agent] Looking for ssh-agent implementation...
+07:25:48  [ssh-agent]   Exec ssh-agent (binary ssh-agent on a remote machine)
+07:25:48  $ ssh-agent
+07:25:48  SSH_AUTH_SOCK=/tmp/ssh-nBUBUEsA9kuU/agent.1846722
+07:25:48  SSH_AGENT_PID=1846725
+07:25:48  Running ssh-add (command line suppressed)
+07:25:48  Identity added: /var/lib/jenkins/workspace/vyos-1x_equuleus@tmp/private_key_18100432978946491243.key (root@vyos-bullseye)
+07:25:48  [ssh-agent] Started.
+[Pipeline] {
+[Pipeline] sh
+07:25:48  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t bash --login -c 'mkdir -p ~/VyOS/equuleus'
+[Pipeline] findFiles
+[Pipeline] echo
+07:25:48  Remove deprecated source package(s) from the repository...
+[Pipeline] sh
+07:25:49  + cat vyos-1x_1.3-1.dsc
+07:25:49  + grep Source
+[Pipeline] sh
+07:25:49  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus removesrc equuleus vyos-1x'
+07:25:49  removing 'vyos-1x' from 'equuleus|main|amd64'...
+07:25:49  removing 'vyos-1x-dbgsym' from 'equuleus|main|amd64'...
+07:25:49  removing 'vyos-1x-smoketest' from 'equuleus|main|amd64'...
+07:25:49  removing 'vyos-1x-vmware' from 'equuleus|main|amd64'...
+07:25:49  removing 'vyos-1x' from 'equuleus|main|source'...
+07:25:49  Exporting indices...
+07:25:49  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/Release.gpg.new'
+07:25:49  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/InRelease.new'
+07:25:49  Deleting files no longer referenced...
+07:25:49  deleting and forgetting pool/main/v/vyos-1x/vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb
+07:25:49  deleting and forgetting pool/main/v/vyos-1x/vyos-1x-smoketest_0.0-no.git.tag_all.deb
+07:25:49  deleting and forgetting pool/main/v/vyos-1x/vyos-1x-vmware_0.0-no.git.tag_amd64.deb
+07:25:49  deleting and forgetting pool/main/v/vyos-1x/vyos-1x_0.0-no.git.tag_amd64.deb
+07:25:49  deleting and forgetting pool/main/v/vyos-1x/vyos-1x_1.3-1.dsc
+07:25:49  deleting and forgetting pool/main/v/vyos-1x/vyos-1x_1.3-1.tar.gz
+07:25:49  removed now empty directory /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/pool/main/v/vyos-1x
+[Pipeline] findFiles
+[Pipeline] echo
+07:25:49  Remove deprecated binary package(s) from the repository...
+[Pipeline] sh
+07:25:50  + dpkg-deb -f vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb Package
+[Pipeline] sh
+07:25:50  + dpkg-deb -f vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb Architecture
+[Pipeline] sh
+07:25:50  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus -A amd64 remove equuleus vyos-1x-dbgsym'
+07:25:50  Not removed as not found: vyos-1x-dbgsym
+07:25:50  Exporting indices...
+[Pipeline] sh
+07:25:51  + dpkg-deb -f vyos-1x-smoketest_0.0-no.git.tag_all.deb Package
+[Pipeline] sh
+07:25:51  + dpkg-deb -f vyos-1x-smoketest_0.0-no.git.tag_all.deb Architecture
+[Pipeline] sh
+07:25:52  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus  remove equuleus vyos-1x-smoketest'
+07:25:52  Not removed as not found: vyos-1x-smoketest
+07:25:52  Exporting indices...
+[Pipeline] sh
+07:25:52  + dpkg-deb -f vyos-1x-vmware_0.0-no.git.tag_amd64.deb Package
+[Pipeline] sh
+07:25:52  + dpkg-deb -f vyos-1x-vmware_0.0-no.git.tag_amd64.deb Architecture
+[Pipeline] sh
+07:25:53  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus -A amd64 remove equuleus vyos-1x-vmware'
+07:25:53  Not removed as not found: vyos-1x-vmware
+07:25:53  Exporting indices...
+[Pipeline] sh
+07:25:53  + dpkg-deb -f vyos-1x_0.0-no.git.tag_amd64.deb Package
+[Pipeline] sh
+07:25:54  + dpkg-deb -f vyos-1x_0.0-no.git.tag_amd64.deb Architecture
+[Pipeline] sh
+07:25:54  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus -A amd64 remove equuleus vyos-1x'
+07:25:54  Not removed as not found: vyos-1x
+07:25:54  Exporting indices...
+[Pipeline] findFiles
+[Pipeline] echo
+07:25:54  Uploading tarball package(s) to the repository...
+[Pipeline] sh
+07:25:54  + scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR vyos-1x_1.3-1.tar.gz jenkins@172.17.17.17:~/VyOS/equuleus
+[Pipeline] findFiles
+[Pipeline] echo
+07:25:55  Uploading *.dsc package(s) to the repository...
+[Pipeline] sh
+07:25:55  + cat vyos-1x_1.3-1.dsc
+07:25:55  + grep Source
+[Pipeline] sh
+07:25:55  + scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR vyos-1x_1.3-1.dsc jenkins@172.17.17.17:~/VyOS/equuleus
+[Pipeline] sh
+07:25:56  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus includedsc equuleus ~/VyOS/equuleus/vyos-1x_1.3-1.dsc'
+07:25:56  /var/lib/jenkins/VyOS/equuleus/vyos-1x_1.3-1.dsc: component guessed as 'main'
+07:25:56  Created directory "/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/pool/main/v/vyos-1x"
+07:25:56  Exporting indices...
+07:25:56  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/Release.gpg.new'
+07:25:56  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/InRelease.new'
+[Pipeline] findFiles
+[Pipeline] echo
+07:25:56  Uploading binary package(s) to the repository ...
+[Pipeline] sh
+07:25:56  + dpkg-deb -f vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb Package
+[Pipeline] sh
+07:25:57  + dpkg-deb -f vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb Architecture
+[Pipeline] sh
+07:25:57  + scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb jenkins@172.17.17.17:~/VyOS/equuleus
+[Pipeline] sh
+07:25:57  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus -A amd64 includedeb equuleus ~/VyOS/equuleus/vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb'
+07:25:58  /var/lib/jenkins/VyOS/equuleus/vyos-1x-dbgsym_0.0-no.git.tag_amd64.deb: component guessed as 'main'
+07:25:58  Exporting indices...
+07:25:58  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/Release.gpg.new'
+07:25:58  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/InRelease.new'
+[Pipeline] sh
+07:25:58  + dpkg-deb -f vyos-1x-smoketest_0.0-no.git.tag_all.deb Package
+[Pipeline] sh
+07:25:58  + dpkg-deb -f vyos-1x-smoketest_0.0-no.git.tag_all.deb Architecture
+[Pipeline] sh
+07:25:59  + scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR vyos-1x-smoketest_0.0-no.git.tag_all.deb jenkins@172.17.17.17:~/VyOS/equuleus
+[Pipeline] sh
+07:25:59  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus  includedeb equuleus ~/VyOS/equuleus/vyos-1x-smoketest_0.0-no.git.tag_all.deb'
+07:25:59  /var/lib/jenkins/VyOS/equuleus/vyos-1x-smoketest_0.0-no.git.tag_all.deb: component guessed as 'main'
+07:25:59  Exporting indices...
+07:25:59  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/Release.gpg.new'
+07:25:59  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/InRelease.new'
+[Pipeline] sh
+07:26:00  + dpkg-deb -f vyos-1x-vmware_0.0-no.git.tag_amd64.deb Package
+[Pipeline] sh
+07:26:00  + dpkg-deb -f vyos-1x-vmware_0.0-no.git.tag_amd64.deb Architecture
+[Pipeline] sh
+07:26:00  + scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR vyos-1x-vmware_0.0-no.git.tag_amd64.deb jenkins@172.17.17.17:~/VyOS/equuleus
+[Pipeline] sh
+07:26:01  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus -A amd64 includedeb equuleus ~/VyOS/equuleus/vyos-1x-vmware_0.0-no.git.tag_amd64.deb'
+07:26:01  /var/lib/jenkins/VyOS/equuleus/vyos-1x-vmware_0.0-no.git.tag_amd64.deb: component guessed as 'main'
+07:26:01  Exporting indices...
+07:26:01  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/Release.gpg.new'
+07:26:01  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/InRelease.new'
+[Pipeline] sh
+07:26:01  + dpkg-deb -f vyos-1x_0.0-no.git.tag_amd64.deb Package
+[Pipeline] sh
+07:26:02  + dpkg-deb -f vyos-1x_0.0-no.git.tag_amd64.deb Architecture
+[Pipeline] sh
+07:26:02  + scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR vyos-1x_0.0-no.git.tag_amd64.deb jenkins@172.17.17.17:~/VyOS/equuleus
+[Pipeline] sh
+07:26:02  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus -A amd64 includedeb equuleus ~/VyOS/equuleus/vyos-1x_0.0-no.git.tag_amd64.deb'
+07:26:03  /var/lib/jenkins/VyOS/equuleus/vyos-1x_0.0-no.git.tag_amd64.deb: component guessed as 'main'
+07:26:03  Exporting indices...
+07:26:03  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/Release.gpg.new'
+07:26:03  Successfully created '/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus/dists/equuleus/InRelease.new'
+[Pipeline] sh
+07:26:03  + ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR jenkins@172.17.17.17 -t uncron-add 'reprepro -v -b /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/equuleus deleteunreferenced'
+[Pipeline] }
+07:26:03  $ ssh-agent -k
+07:26:03  unset SSH_AUTH_SOCK;
+07:26:03  unset SSH_AGENT_PID;
+07:26:03  echo Agent pid 1846725 killed;
+07:26:03  [ssh-agent] Stopped.
+[Pipeline] // sshagent
+[Pipeline] }
+[Pipeline] // script
+Post stage
+[Pipeline] deleteDir
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] End of Pipeline
+Finished: SUCCESS
