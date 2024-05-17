@@ -266,6 +266,10 @@ You may want to restrict to only branches you care about, thus:
 Regular expression: (equuleus|sagitta)
 ```
 
+**Behaviours -> Add -> Advanced clone behaviours**
+
+(leave defaults)
+
 **Build Configuration -> Mode (by Jenkinsfile)**
 ```
 Script Path: packages/dropbear/Jenkinsfile
@@ -300,121 +304,6 @@ the Global Pipeline Library (see above). Just add `return false` before the retu
 `vyos-build/vars/isCustomBuild.groovy` and use your own local clone of the `vyos-build` in Global Pipeline Library.
 Otherwise, the build skips the reprepro step, and thus you won't see .deb appearing in your reprepro repository even
 if the build is successful - quite confusing.
-
-
-Current state
---
-
-Majority of packages are fine but some aren't. I have no idea what packages are required. So I just go on vyos github
-and look for sagitta/equuleus branch see if there is Jenkinsfile. Some packages are shared, some are for just
-sagitta or equuleus, sometimes sagitta has its own packages somewhere else like in `vyos-build/packages`.
-
-I currently focus on equuleus to start with since it seems like that's the easier one to get complete and thus better 
-learning platform - but I guess pick your poison.
-
-What is missing? Some packages fail to build and that's why it's not possible to build ISO yet, for example:
-
-- aws-gateway-load-balancer-tunnel-handler
-  - sagitta cmake: command not found
-- frr
-  - sagitta error: patch failed: bgpd/bgp_routemap.c:6288
-  - equuleus reprepro: No section and no priority for 'frr', skipping.
-- owamp
-  - sagitta dpkg-checkbuilddeps: error: Unmet build dependencies: dh-apparmor dh-exec libcap-dev
-- pam_tacplus
-  - sagitta configure.ac:63: error: possibly undefined macro: gl_PREREQ_EXPLICIT_BZERO
-- vyos-cloud-init
-  - sagitta git describe version (None) differs from cloudinit.version (22.1)
-  - equuleus git describe version (None) differs from cloudinit.version (22.1)
-- vyos-strongswan
-  - equuleus: dpkg-checkbuilddeps: error: Unmet build dependencies: libcurl4-openssl-dev | libcurl3-dev | libcurl2-dev
-- vyos-xe-guest-utilities
-  - equuleus dpkg-checkbuilddeps: error: Unmet build dependencies: golang
-- linux-kernel
-  - sagitta ./build-accel-ppp.sh: 31: cmake: not found
-
-Why there are unmet dependencies and why is cmake missing? I have no explanation. Since the build is executed 
-inside docker then the container should bring all dependencies in by itself. That's why I have no idea
-how the vyos people actually built these packages... Do they use some other vyos-build container?
-
-Some packages fail hard as does frr where the build is actually broken and fails
-to apply patches or fails to produce .deb. The solution to missing dependencies and/or tools is straightforward -
-we need to somehow get these missing packages installed inside the docker container. How to fix failing frr patch or
-failing .deb (No section and no priority for...) I have no idea - there needs to be something wrong with the build
-script like it's getting some other source code than expected or something like that...
-
-
-<details>
-  <summary>Packages I found so far:</summary>
-
-```
-aws-gateway-load-balancer-tunnel-handler
-ddclient
-dropbear
-ethtool
-frr
-hostap
-hsflowd
-hvinfo
-ipaddrcheck
-iproute2
-isc-dhcp
-keepalived
-libnss-mapuser
-libpam-radius-auth
-libvyosconfig
-linux-kernel
-live-boot
-minisign
-ndppd
-netfilter
-ocserv
-opennhrp
-openvpn-otp
-owamp
-pam_tacplus
-pmacct
-pyhumps
-radvd
-strongswan
-telegraf
-udp-broadcast-relay
-vyatta-bash
-vyatta-biosdevname
-vyatta-cfg
-vyatta-cfg-firewall
-vyatta-cfg-qos
-vyatta-cfg-quagga
-vyatta-cfg-system
-vyatta-cfg-vpn
-vyatta-cluster
-vyatta-config-mgmt
-vyatta-conntrack
-vyatta-nat
-vyatta-op
-vyatta-op-firewall
-vyatta-op-qos
-vyatta-op-vpn
-vyatta-wanloadbalance
-vyatta-zone
-vyos-1x
-vyos-cloud-init
-vyos-http-api-tools
-vyos-nhrp
-vyos-opennhrp
-vyos-strongswan
-vyos-user-utils
-vyos-utils
-vyos-world
-vyos-xe-guest-utilities
-wide-dhcpv6
-```
-
-</details>
-
-Most of them are in standalone `https://github.com/vyos/<something>.git` repo. The `vyos-build/packages` is the only
-exception. Each package may produce various .deb packages thus you won't find all .deb packages in this list since
-for example `vyos-build/packages/linux-kernel` builds also driver related .debs not just the kernel .debs.
 
 How to try to build ISO
 --
