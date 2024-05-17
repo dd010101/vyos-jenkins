@@ -60,6 +60,28 @@ After adding docker group and/or after UID/GID change restart jenkins
 systemctl restart jenkins.service
 ```
 
+Build patched vyos-build docker image and create local registry
+--
+
+The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus I made some
+patches to make it work. If this changed in future then this step can be skipped.
+
+This may take a while.
+
+```
+git clone https://github.com/dd010101/vyos-build.git
+cd vyos-build
+
+git checkout equuleus
+cd docker
+docker build . -t vyos/vyos-build:equuleus
+
+git checkout sagitta
+docker build . -t vyos/vyos-build:sagitta
+
+docker run -d -p 5000:5000 --restart always --name registry registry:2.7
+```
+
 Install jenkins plugins
 --
 **Manage Jenkins -> Plugins -> Available plugins**
@@ -103,21 +125,19 @@ somewhere replace it with your own.
 
 ```
 Name: vyos-build
-Project repository: https://github.com/vyos/vyos-build.git
+Project repository: https://github.com/dd010101/vyos-build.git
 ```
 
-Here you may want to use your own cloned repository to fix the build. For example sagitta has hardcoded ARM64
-compilation thus it's impossible to build most sagitta packages because of this. As dirty work around you can clone
-https://github.com/vyos/vyos-build.git locally and delete `stage('arm64') { ... }` block
-in `vars/buildPackage.groovy`, you need to do all modifications twice since sagitta is using both sagitta and current 
-branch, thus hacking it only in current or only in sagitta branch isn't enough. Then you can simply point to your
-repository:
+Currently patched version of vyos-build is required, in the future the official 
+`https://github.com/vyos/vyos-build.git` may work but doesn't currently.
+
+**Declarative Pipeline (Docker)**
+
+(this applies only if using patched vyos-build docker image)
 
 ```
-Project repository: ssh://jenkins@<ip of the host system>/opt/vyos-build/
+Docker registry URL: http://<ip of the host system>:5000
 ```
-
-Something like that - adjust to your liking.
 
 Credentials for ssh-agent
 --
