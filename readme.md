@@ -1,6 +1,8 @@
 State
 --
 
+TODO: make everything up to date and add missing equuleus/sagitta packages
+
 Currently, it should be possible to use this information to build all required packages for equuleus,
 and it's possible to use resulting mirror to build ISO.
 
@@ -9,10 +11,8 @@ Resulting mirror for equuleus (1.3) has 149 of 151 .deb packages compared to the
 Those two missing packages are [believed](issues.md#equuleus) to be unused or not used for regular ISO build.
 I didn't find way to reproduce those. Thus, I think equuleus mirror/ISO is ready for testing.
 
-Resulting mirror for sagitta (1.4) has 171 of 190 .deb packages compared to the
-[dev.packages.vyos.net - sagitta](apt-file-list/sagitta-reduced.txt). See [here](issues.md#sagitta) for details. Does
-anyone
-have information what was origin of those missing ones? I would appreciate ideas.
+Resulting mirror for sagitta (1.4) has 192 of 190 .deb packages compared to the
+[dev.packages.vyos.net - sagitta](apt-file-list/sagitta-reduced.txt).
 
 This guide is work in progress and meant only for local experimentation and development.
 
@@ -667,8 +667,11 @@ Package info for sagitta
 
 List of required packages and their Jenkinsfile:
 
-The `pam_tacplus` is broken right now, that's why `https://github.com/dd010101/vyos-build.git` is required.\
-Same applies for `vyos-xe-guest-utilities` where `current` branch is required.
+Some packages (`pam_tacplus`, `strongswan`) are broken right now, that's why
+fork `https://github.com/dd010101/vyos-build.git`
+is required. Until they are fixed.
+
+Another special case is `vyos-xe-guest-utilities` where `current` branch is required.
 
 | Package                                  | GIT repository                                      | Branch      | Location of Jenkinsfile                                       |
 |------------------------------------------|-----------------------------------------------------|-------------|---------------------------------------------------------------|
@@ -697,7 +700,7 @@ Same applies for `vyos-xe-guest-utilities` where `current` branch is required.
 | pmacct                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pmacct/Jenkinsfile                                   |
 | pyhumps                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pyhumps/Jenkinsfile                                  |
 | radvd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/radvd/Jenkinsfile                                    |
-| strongswan                               | https://github.com/vyos/vyos-build.git              | sagitta     | packages/strongswan/Jenkinsfile                               |
+| strongswan                               | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/strongswan/Jenkinsfile                               |
 | telegraf                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/telegraf/Jenkinsfile                                 |
 | udp-broadcast-relay                      | https://github.com/vyos/udp-broadcast-relay.git     | sagitta     | Jenkinsfile                                                   |
 | vyatta-bash                              | https://github.com/vyos/vyatta-bash.git             | sagitta     | Jenkinsfile                                                   |
@@ -773,13 +776,20 @@ repositories/sagitta/pool/main/libn/libnftnl/libnftnl11-dbgsym_1.2.6-2_amd64.deb
 repositories/sagitta/pool/main/libn/libnftnl/libnftnl11_1.2.6-2_amd64.deb
 repositories/sagitta/pool/main/libn/libnss-mapuser/libnss-mapuser-dbgsym_1.1.0-cl3u3_amd64.deb
 repositories/sagitta/pool/main/libn/libnss-mapuser/libnss-mapuser_1.1.0-cl3u3_amd64.deb
+repositories/sagitta/pool/main/libn/libnss-tacplus/libnss-tacplus-dbgsym_1.0.4-cl5.1.0u11_amd64.deb
+repositories/sagitta/pool/main/libn/libnss-tacplus/libnss-tacplus_1.0.4-cl5.1.0u11_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-radius-auth/libpam-radius-auth-dbgsym_1.5.0-cl3u7_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-radius-auth/libpam-radius-auth_1.5.0-cl3u7_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-radius-auth/radius-shell-dbgsym_1.5.0-cl3u7_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-radius-auth/radius-shell_1.5.0-cl3u7_amd64.deb
-repositories/sagitta/pool/main/libp/libpam-tacplus/libpam-tacplus-dbgsym_1.7.0-0.1_amd64.deb
-repositories/sagitta/pool/main/libp/libpam-tacplus/libpam-tacplus_1.7.0-0.1_amd64.deb
-repositories/sagitta/pool/main/libp/libpam-tacplus/libtac-dev_1.7.0-0.1_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libpam-tacplus-dbgsym_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libpam-tacplus-dev_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libpam-tacplus_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libtac-dev_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libtac2-bin-dbgsym_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libtac2-bin_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libtac2-dbgsym_1.4.3-cl5.1.0u5_amd64.deb
+repositories/sagitta/pool/main/libp/libpam-tacplus/libtac2_1.4.3-cl5.1.0u5_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-tacplus/libtac5-bin-dbgsym_1.7.0-0.1_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-tacplus/libtac5-bin_1.7.0-0.1_amd64.deb
 repositories/sagitta/pool/main/libp/libpam-tacplus/libtac5-dbgsym_1.7.0-0.1_amd64.deb
@@ -790,6 +800,9 @@ repositories/sagitta/pool/main/libr/librtr0/librtr-doc_0.8.0_all.deb
 repositories/sagitta/pool/main/libr/librtr0/librtr0_0.8.0_amd64.deb
 repositories/sagitta/pool/main/libr/librtr0/rtr-tools-dbg_0.8.0_amd64.deb
 repositories/sagitta/pool/main/libr/librtr0/rtr-tools_0.8.0_amd64.deb
+repositories/sagitta/pool/main/libt/libtacplus-map/libtacplus-map-dev_1.0.1-cl5.1.0u9_amd64.deb
+repositories/sagitta/pool/main/libt/libtacplus-map/libtacplus-map1-dbgsym_1.0.1-cl5.1.0u9_amd64.deb
+repositories/sagitta/pool/main/libt/libtacplus-map/libtacplus-map1_1.0.1-cl5.1.0u9_amd64.deb
 repositories/sagitta/pool/main/libv/libvyosconfig0/libvyosconfig0-dbgsym_0.0.10_amd64.deb
 repositories/sagitta/pool/main/libv/libvyosconfig0/libvyosconfig0_0.0.10_amd64.deb
 repositories/sagitta/pool/main/liby/libyang2/libyang-tools_2.1.148-1_all.deb
@@ -849,6 +862,17 @@ repositories/sagitta/pool/main/s/strongswan/strongswan-swanctl_5.9.11-2+vyos0_am
 repositories/sagitta/pool/main/s/strongswan/strongswan_5.9.11-2+vyos0_all.deb
 repositories/sagitta/pool/main/t/telegraf/telegraf_1.28.3-1_amd64.deb
 repositories/sagitta/pool/main/u/udp-broadcast-relay/udp-broadcast-relay_0.1+vyos3+equuleus1_amd64.deb
+repositories/sagitta/pool/main/v/vici/python3-vici_5.9.11-1_all.deb
+repositories/sagitta/pool/main/v/vpp-ext-deps/vpp-ext-deps_24.02-11_amd64.deb
+repositories/sagitta/pool/main/v/vpp/libvppinfra-dev_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/libvppinfra_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/python3-vpp-api_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/vpp-dbg_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/vpp-dev_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/vpp-plugin-core_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/vpp-plugin-devtools_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/vpp-plugin-dpdk_24.02-release_amd64.deb
+repositories/sagitta/pool/main/v/vpp/vpp_24.02-release_amd64.deb
 repositories/sagitta/pool/main/v/vyatta-bash/vyatta-bash-dbgsym_4.1-3+vyos2+current2_amd64.deb
 repositories/sagitta/pool/main/v/vyatta-bash/vyatta-bash_4.1-3+vyos2+current2_amd64.deb
 repositories/sagitta/pool/main/v/vyatta-biosdevname/vyatta-biosdevname-dbgsym_0.3.11+vyos2+current2_amd64.deb
