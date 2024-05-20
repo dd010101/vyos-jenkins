@@ -10,7 +10,8 @@ Those two missing packages are [believed](issues.md#equuleus) to be unused or no
 I didn't find way to reproduce those. Thus, I think equuleus mirror/ISO is ready for testing.
 
 Resulting mirror for sagitta (1.4) has 171 of 190 .deb packages compared to the
-[dev.packages.vyos.net - sagitta](apt-file-list/sagitta-reduced.txt). See [here](issues.md#sagitta) for details. Does anyone
+[dev.packages.vyos.net - sagitta](apt-file-list/sagitta-reduced.txt). See [here](issues.md#sagitta) for details. Does
+anyone
 have information what was origin of those missing ones? I would appreciate ideas.
 
 This guide is work in progress and meant only for local experimentation and development.
@@ -140,6 +141,26 @@ docker push 172.17.17.17:5000/vyos/vyos-build:sagitta
 ```
 docker tag vyos/vyos-build:current 172.17.17.17:5000/vyos/vyos-build:current
 docker push 172.17.17.17:5000/vyos/vyos-build:current
+```
+
+**Allow insecure docker access to local registry:**
+
+Add your local IP with 5000 port to `insecure-registries` section in `/etc/docker/daemon.json`, something like this:
+
+```
+cat << EOF > /etc/docker/daemon.json
+{
+   "insecure-registries": [
+      "172.17.17.17:5000"
+   ]
+}
+EOF
+```
+
+Then restart docker:
+
+```
+systemctl restart docker.service
 ```
 
 Install jenkins plugins
