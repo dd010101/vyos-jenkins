@@ -4,12 +4,12 @@ State
 Currently, it should be possible to use this information to build all required packages for equuleus,
 and it's possible to use resulting mirror to build ISO.
 
-Resulting mirror for equuleus has 149 .deb packages compared to the
+Resulting mirror for equuleus (1.3) has 149 .deb packages compared to the
 [dev.packages.vyos.net - equuleus](apt-file-list/equuleus-reduced.txt) 151.
 Those two missing packages are [believed](issues.md#equuleus) to be unused or not used for regular ISO build.
 I didn't find way to reproduce those.
 
-Resulting mirror for sagitta has 171 .deb packages compared to the
+Resulting mirror for sagitta (1.4) has 171 .deb packages compared to the
 [dev.packages.vyos.net - sagitta](apt-file-list/sagitta-reduced.txt) 190. See [here](issues.md#sagitta) for details. Does anyone
 have information what was origin of those missing ones? I would appreciate ideas.
 
@@ -872,16 +872,6 @@ repositories/sagitta/pool/main/w/wpa/wpasupplicant_2.10-1028-g6b9c86466_amd64.de
 ```
 
 </details>
-
-Modified packages
---
-
-If you use your own version of package for debugging purposes (not the one from vyos github) and you want to use
-reprepro as miror then your need to hack the Global Pipeline Library (see above). Just add `return false` before
-the return in `vyos-build/vars/isCustomBuild.groovy` and use your own local clone of the `vyos-build` in
-Global Pipeline Library.
-Otherwise, the build skips the reprepro step, and thus you won't see .deb appearing in your reprepro repository even
-if the build is successful - quite confusing.
 
 How to try to build ISO
 --
