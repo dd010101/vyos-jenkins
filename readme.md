@@ -161,6 +161,18 @@ host as well, the ip needs to be accesible from docker container thus this shoul
 assume everything is on single host thus this IP is IP of the jenkins host. Mine is `172.17.17.17` so if you see it
 somewhere replace it with your own.
 
+**Global properties -> Environmental Variables -> Add**
+
+```
+Name: ARM64_BUILD_DISABLED
+Value: true
+```
+
+This is used to disable ARM64 support. The vyos-build expects that you have ARM64 build node and that's not
+something that is easy to obtain or emulate on x86. If you have ARM64 build node then skip this step and make sure
+your ARM64 node has tag `ec2_arm64`. If you try to build ARM64 without ARM node then most sagitta builds will wait
+and eventually fail.
+
 **Global Pipeline Libraries -> Add**
 
 ```
