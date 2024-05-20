@@ -716,7 +716,7 @@ Another special case is `vyos-xe-guest-utilities` where `current` branch is requ
 | vyos-utils                               | https://github.com/vyos/vyos-utils.git              | sagitta     | Jenkinsfile                                                   |
 | vyos-world                               | https://github.com/vyos/vyos-world.git              | sagitta     | Jenkinsfile                                                   |
 | vyos-xe-guest-utilities                  | https://github.com/vyos/vyos-xe-guest-utilities.git | **current** | Jenkinsfile                                                   |
-| wide-dhcpv6                              | https://github.com/vyos/wide-dhcpv6.git             | sagitta     | packages/wide-dhcpv6/Jenkinsfile                              |
+| wide-dhcpv6                              | https://github.com/vyos/vyos-build.git              | sagitta     | packages/wide-dhcpv6/Jenkinsfile                              |
 
 <details>
 <summary>Expected list of resulting .deb files after build (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
