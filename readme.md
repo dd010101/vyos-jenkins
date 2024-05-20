@@ -6,11 +6,11 @@ and it's possible to use resulting mirror to build ISO.
 
 Resulting mirror for equuleus has 149 .deb packages compared to the
 [dev.packages.vyos.net](apt-file-list/equuleus-reduced.txt) 151.
-Those two missing packages are [believed](issues.md) to be unused or not used for regular ISO build.
+Those two missing packages are [believed](issues.md#equuleus) to be unused or not used for regular ISO build.
 I didn't find way to reproduce those.
 
 Resulting mirror for sagitta has 171 .deb packages compared to the 
-[dev.packages.vyos.net](apt-file-list/sagitta-reduced.txt) 190. See [here](issues.md) for details. Does anyone
+[dev.packages.vyos.net](apt-file-list/sagitta-reduced.txt) 190. See [here](issues.md#sagitta) for details. Does anyone
 have information what was origin of those missing ones? I would appreciate ideas.
 
 This guide is work in progress and meant only for local experimentation and development.
