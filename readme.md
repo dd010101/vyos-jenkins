@@ -84,6 +84,7 @@ patches to make it work. If this changed in future then this step can be skipped
 
 ```
 git clone https://github.com/dd010101/vyos-build.git
+git pull --all
 cd vyos-build/docker
 ```
 
@@ -107,7 +108,7 @@ docker build . -t vyos/vyos-build:sagitta
 docker run -d -p 5000:5000 --restart always --name registry registry:2.7
 ```
 
-**Push created image(s) to the local registry**
+**Push created image(s) to the local registry:**
 
 I will assume 172.17.17.17 as the local IP, replace it with the local IP of the host.
 
