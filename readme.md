@@ -434,7 +434,7 @@ Package info for equuleus
 
 List of required packages and their Jenkinsfile:
 
-| Package                 | GIT repository                                      | Branch   | location of Jenkinsfile           |
+| Package                 | GIT repository                                      | Branch   | Location of Jenkinsfile           |
 |-------------------------|-----------------------------------------------------|----------|-----------------------------------|
 | dropbear                | https://github.com/vyos/vyos-build.git              | equuleus | packages/dropbear/Jenkinsfile     |
 | frr                     | https://github.com/vyos/vyos-build.git              | equuleus | packages/frr/Jenkinsfile          |
@@ -649,7 +649,7 @@ List of required packages and their Jenkinsfile:
 The `pam_tacplus` is broken right now, that's why `https://github.com/dd010101/vyos-build.git` is required.\
 Same applies for `vyos-xe-guest-utilities` where `current` branch is required.
 
-| Package                                  | GIT repository                                      | Branch      | location of Jenkinsfile                                       |
+| Package                                  | GIT repository                                      | Branch      | Location of Jenkinsfile                                       |
 |------------------------------------------|-----------------------------------------------------|-------------|---------------------------------------------------------------|
 | aws-gateway-load-balancer-tunnel-handler | https://github.com/vyos/vyos-build.git              | sagitta     | packages/aws-gateway-load-balancer-tunnel-handler/Jenkinsfile |
 | ddclient                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ddclient/Jenkinsfile                                 |
