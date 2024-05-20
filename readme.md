@@ -9,7 +9,7 @@ Resulting mirror for equuleus has 149 .deb packages compared to the
 Those two missing packages are [believed](issues.md#equuleus) to be unused or not used for regular ISO build.
 I didn't find way to reproduce those.
 
-Resulting mirror for sagitta has 171 .deb packages compared to the 
+Resulting mirror for sagitta has 171 .deb packages compared to the
 [dev.packages.vyos.net](apt-file-list/sagitta-reduced.txt) 190. See [here](issues.md#sagitta) for details. Does anyone
 have information what was origin of those missing ones? I would appreciate ideas.
 
@@ -429,7 +429,7 @@ find /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/ -name *.
 
 If build fails then click the specific build number and check **Console Output** for hints why it does so.
 
-Packages info for equuleus
+Package info for equuleus
 --
 
 List of required packages and their Jenkinsfile:
@@ -485,7 +485,7 @@ List of required packages and their Jenkinsfile:
 | wide-dhcpv6             | https://github.com/vyos/vyos-build.git              | equuleus | packages/wide-dhcpv6/Jenkinsfile  |
 
 <details>
-<summary>Expected list of resulting .deb files (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
+<summary>Expected list of resulting .deb files after build (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
 
 ```
 repositories/equuleus/pool/main/a/accel-ppp/accel-ppp_1.12.0-170-g0b4ef98_amd64.deb
@@ -641,13 +641,61 @@ repositories/equuleus/pool/main/w/wpa/wpasupplicant_2.10-520-gb704dc72e_amd64.de
 
 </details>
 
-Packages info for sagitta
+Package info for sagitta
 --
 
-TODO
+List of required packages and their Jenkinsfile:
+
+The `pam_tacplus` is broken right now, that's why `https://github.com/dd010101/vyos-build.git` is required.\
+Same applies for `vyos-xe-guest-utilities` where `current` branch is required.
+
+| Package                                  | GIT repository                                      | Branch      | location of Jenkinsfile                                       |
+|------------------------------------------|-----------------------------------------------------|-------------|---------------------------------------------------------------|
+| aws-gateway-load-balancer-tunnel-handler | https://github.com/vyos/vyos-build.git              | sagitta     | packages/aws-gateway-load-balancer-tunnel-handler/Jenkinsfile |
+| ddclient                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ddclient/Jenkinsfile                                 |
+| dropbear                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/dropbear/Jenkinsfile                                 |
+| ethtool                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ethtool/Jenkinsfile                                  |
+| frr                                      | https://github.com/vyos/vyos-build.git              | sagitta     | packages/frr/Jenkinsfile                                      |
+| hostap                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/hostap/Jenkinsfile                                   |
+| hsflowd                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/hsflowd/Jenkinsfile                                  |
+| hvinfo                                   | https://github.com/vyos/hvinfo.git                  | sagitta     | Jenkinsfile                                                   |
+| ipaddrcheck                              | https://github.com/vyos/ipaddrcheck.git             | sagitta     | Jenkinsfile                                                   |
+| isc-dhcp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/isc-dhcp/Jenkinsfile                                 |
+| keepalived                               | https://github.com/vyos/vyos-build.git              | sagitta     | packages/keepalived/Jenkinsfile                               |
+| libnss-mapuser                           | https://github.com/vyos/libnss-mapuser.git          | sagitta     | Jenkinsfile                                                   |
+| libpam-radius-auth                       | https://github.com/vyos/libpam-radius-auth.git      | sagitta     | Jenkinsfile                                                   |
+| libvyosconfig                            | https://github.com/vyos/libvyosconfig.git           | sagitta     | Jenkinsfile                                                   |
+| linux-kernel                             | https://github.com/vyos/vyos-build.git              | sagitta     | packages/linux-kernel/Jenkinsfile                             |
+| live-boot                                | https://github.com/vyos/live-boot.git               | sagitta     | Jenkinsfile                                                   |
+| ndppd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ndppd/Jenkinsfile                                    |
+| netfilter                                | https://github.com/vyos/vyos-build.git              | sagitta     | packages/netfilter/Jenkinsfile                                |
+| opennhrp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/opennhrp/Jenkinsfile                                 |
+| openvpn-otp                              | https://github.com/vyos/vyos-build.git              | sagitta     | packages/openvpn-otp/Jenkinsfile                              |
+| owamp                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/owamp/Jenkinsfile                                    |
+| pam_tacplus                              | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/pam_tacplus/Jenkinsfile                              |
+| pmacct                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pmacct/Jenkinsfile                                   |
+| pyhumps                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pyhumps/Jenkinsfile                                  |
+| radvd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/radvd/Jenkinsfile                                    |
+| strongswan                               | https://github.com/vyos/vyos-build.git              | sagitta     | packages/strongswan/Jenkinsfile                               |
+| telegraf                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/telegraf/Jenkinsfile                                 |
+| udp-broadcast-relay                      | https://github.com/vyos/udp-broadcast-relay.git     | sagitta     | Jenkinsfile                                                   |
+| vyatta-bash                              | https://github.com/vyos/vyatta-bash.git             | sagitta     | Jenkinsfile                                                   |
+| vyatta-biosdevname                       | https://github.com/vyos/vyatta-biosdevname.git      | sagitta     | Jenkinsfile                                                   |
+| vyatta-cfg                               | https://github.com/vyos/vyatta-cfg.git              | sagitta     | Jenkinsfile                                                   |
+| vyatta-cfg-system                        | https://github.com/vyos/vyatta-cfg-system.git       | sagitta     | Jenkinsfile                                                   |
+| vyatta-op                                | https://github.com/vyos/vyatta-op.git               | sagitta     | Jenkinsfile                                                   |
+| vyatta-wanloadbalance                    | https://github.com/vyos/vyatta-wanloadbalance.git   | sagitta     | Jenkinsfile                                                   |
+| vyos-1x                                  | https://github.com/vyos/vyos-1x.git                 | sagitta     | Jenkinsfile                                                   |
+| vyos-cloud-init                          | https://github.com/vyos/vyos-cloud-init.git         | sagitta     | Jenkinsfile                                                   |
+| vyos-http-api-tools                      | https://github.com/vyos/vyos-http-api-tools.git     | sagitta     | Jenkinsfile                                                   |
+| vyos-user-utils                          | https://github.com/vyos/vyos-user-utils.git         | sagitta     | Jenkinsfile                                                   |
+| vyos-utils                               | https://github.com/vyos/vyos-utils.git              | sagitta     | Jenkinsfile                                                   |
+| vyos-world                               | https://github.com/vyos/vyos-world.git              | sagitta     | Jenkinsfile                                                   |
+| vyos-xe-guest-utilities                  | https://github.com/vyos/vyos-xe-guest-utilities.git | **current** | Jenkinsfile                                                   |
+| wide-dhcpv6                              | https://github.com/vyos/wide-dhcpv6.git             | sagitta     | packages/wide-dhcpv6/Jenkinsfile                              |
 
 <details>
-<summary>Expected list of resulting .deb files (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
+<summary>Expected list of resulting .deb files after build (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
 
 ```
 repositories/sagitta/pool/main/a/accel-ppp/accel-ppp_1.12.0-260-g19c36e5_amd64.deb
