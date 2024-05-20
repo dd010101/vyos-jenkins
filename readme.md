@@ -80,20 +80,45 @@ Build patched vyos-build docker image and create local registry
 The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus I made some
 patches to make it work. If this changed in future then this step can be skipped.
 
-This may take a while.
+**Clone (patched) vyos-build:**
 
 ```
 git clone https://github.com/dd010101/vyos-build.git
-cd vyos-build
+cd vyos-build/docker
+```
 
+**Build vyos-build image(s):**
+
+This may take a while.
+
+```
 git checkout equuleus
-cd docker
 docker build . -t vyos/vyos-build:equuleus
+```
 
+```
 git checkout sagitta
 docker build . -t vyos/vyos-build:sagitta
+```
 
+**Launch local registry and set it, so it always runs when docker runs:**
+
+```
 docker run -d -p 5000:5000 --restart always --name registry registry:2.7
+```
+
+**Push created image(s) to the local registry**
+
+I will assume 172.17.17.17 as the local IP, replace it with the local IP of the host.
+
+```
+docker tag vyos/vyos-build:equuleus 172.17.17.17:5000/vyos/vyos-build:equuleus
+docker push 172.17.17.17:5000/vyos/vyos-build:equuleus
+```
+
+```
+docker tag vyos/vyos-build:sagitta 172.17.17.17:5000/vyos/vyos-build:sagitta
+docker push 172.17.17.17:5000/vyos/vyos-build:sagitta
 ```
 
 Install jenkins plugins
