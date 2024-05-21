@@ -84,63 +84,11 @@ After adding docker group and/or after UID/GID change restart jenkins
 systemctl restart jenkins.service
 ```
 
-Build patched vyos-build docker image and create local registry
+Launch local registry and set it, so it always runs when Docker runs
 --
-
-The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus I made some
-patches to make it work. If this changed in future then this step can be skipped.
-
-**Clone (patched) vyos-build:**
-
-```
-git clone https://github.com/dd010101/vyos-build.git
-cd vyos-build/docker
-```
-
-**Build vyos-build image(s):**
-
-This may take a while.
-
-```
-git checkout equuleus
-docker build . -t vyos/vyos-build:equuleus
-```
-
-```
-git checkout sagitta
-docker build . -t vyos/vyos-build:sagitta
-```
-
-```
-git checkout current
-docker build . -t vyos/vyos-build:current
-```
-
-(current is required for some sagitta packages)
-
-**Launch local registry and set it, so it always runs when docker runs:**
 
 ```
 docker run -d -p 5000:5000 --restart always --name registry registry:2.7
-```
-
-**Push created image(s) to the local registry:**
-
-I will assume 172.17.17.17 as the local IP, replace it with the local IP of the host.
-
-```
-docker tag vyos/vyos-build:equuleus 172.17.17.17:5000/vyos/vyos-build:equuleus
-docker push 172.17.17.17:5000/vyos/vyos-build:equuleus
-```
-
-```
-docker tag vyos/vyos-build:sagitta 172.17.17.17:5000/vyos/vyos-build:sagitta
-docker push 172.17.17.17:5000/vyos/vyos-build:sagitta
-```
-
-```
-docker tag vyos/vyos-build:current 172.17.17.17:5000/vyos/vyos-build:current
-docker push 172.17.17.17:5000/vyos/vyos-build:current
 ```
 
 **Allow insecure docker access to local registry:**
@@ -163,7 +111,54 @@ Then restart docker:
 systemctl restart docker.service
 ```
 
-Install jenkins plugins
+Build patched vyos-build docker image and create local registry
+--
+
+The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus I made some
+patches to make it work. If this changed in future then this step can be skipped.
+
+The below script clones the (patched) vyos-build, then builds and pushes the images to your custom Docker repository.
+
+```bash
+#!/bin/bash
+
+CUSTOM_DOCKER_REPO="172.17.17.17:5000"
+
+#
+# Clone (patched) vyos-build
+
+git clone https://github.com/dd010101/vyos-build.git
+cd vyos-build/docker
+
+#
+# Build and Push equuleus
+
+git checkout equuleus
+docker build . -t vyos/vyos-build:equuleus
+
+docker tag vyos/vyos-build:equuleus ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
+docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
+
+#
+# Build and Push sagitta
+
+git checkout sagitta
+docker build . -t vyos/vyos-build:sagitta
+
+docker tag vyos/vyos-build:sagitta ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:sagitta
+docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:sagitta
+
+#
+# Build and Push current -- (current is required for some sagitta packages)
+
+git checkout current
+docker build . -t vyos/vyos-build:current
+
+docker tag vyos/vyos-build:current ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:current
+docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:current
+```
+
+Install Jenkins plugins
 --
 **Manage Jenkins -> Plugins -> Available plugins**
 
