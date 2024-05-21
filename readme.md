@@ -13,9 +13,9 @@ recreate nearly identical replacement for `dev.packages.vyos.net` and produce IS
 and are expected to be equivalent but of course with any custom image build you need to verify and test the resulting
 image yourself.
 
-Thanks to 
-
 This guide is work in progress and meant only for local experimentation and development.
+
+Thanks to @pittagurneyi for provding build scripts for missing packages
 
 Notes for hosting
 --
