@@ -1,18 +1,19 @@
 State
 --
 
-TODO: make everything up to date and add missing equuleus/sagitta packages
+Currently, it should be possible to use this information to build all required packages for equuleus and sagitta as
+result you get apt repository that can be used to build ISO.
 
-Currently, it should be possible to use this information to build all required packages for equuleus,
-and it's possible to use resulting mirror to build ISO.
+The goal of this project is to reproduce atp repositories of stable branches formerly available at
+`dev.packages.vyos.net`. This isn't exactly possible due to the state of vyos build system and vyos packages.
+Many patches and workarounds for the build system were required to be developed and couple packages were required 
+to be forked due to their broken or non-existent build script. The nature of the build system makes it impossible
+to build exactly the same packages and thus for some packages slight variation exist. In result, it's possible to
+recreate nearly identical replacement for `dev.packages.vyos.net` and produce ISO images that will pass smoketest,
+and are expected to be equivalent but of course with any custom image build you need to verify and test the resulting
+image yourself.
 
-Resulting mirror for equuleus (1.3) has 149 of 151 .deb packages compared to the
-[dev.packages.vyos.net - equuleus](apt-file-list/equuleus-reduced.txt).
-Those two missing packages are [believed](issues.md#equuleus) to be unused or not used for regular ISO build.
-I didn't find way to reproduce those. Thus, I think equuleus mirror/ISO is ready for testing.
-
-Resulting mirror for sagitta (1.4) has 192 of 190 .deb packages compared to the
-[dev.packages.vyos.net - sagitta](apt-file-list/sagitta-reduced.txt).
+Thanks to 
 
 This guide is work in progress and meant only for local experimentation and development.
 
@@ -459,55 +460,59 @@ Package info for equuleus
 
 List of required packages and their Jenkinsfile:
 
-| Package                 | GIT repository                                      | Branch   | Location of Jenkinsfile           |
-|-------------------------|-----------------------------------------------------|----------|-----------------------------------|
-| dropbear                | https://github.com/vyos/vyos-build.git              | equuleus | packages/dropbear/Jenkinsfile     |
-| frr                     | https://github.com/vyos/vyos-build.git              | equuleus | packages/frr/Jenkinsfile          |
-| hostap                  | https://github.com/vyos/vyos-build.git              | equuleus | packages/hostap/Jenkinsfile       |
-| hvinfo                  | https://github.com/vyos/hvinfo.git                  | equuleus | Jenkinsfile                       |
-| ipaddrcheck             | https://github.com/vyos/ipaddrcheck.git             | equuleus | Jenkinsfile                       |
-| iproute2                | https://github.com/vyos/vyos-build.git              | equuleus | packages/iproute2/Jenkinsfile     |
-| keepalived              | https://github.com/vyos/vyos-build.git              | equuleus | packages/keepalived/Jenkinsfile   |
-| libnss-mapuser          | https://github.com/vyos/libnss-mapuser.git          | equuleus | Jenkinsfile                       |
-| libpam-radius-auth      | https://github.com/vyos/libpam-radius-auth.git      | equuleus | Jenkinsfile                       |
-| libvyosconfig           | https://github.com/vyos/libvyosconfig.git           | equuleus | Jenkinsfile                       |
-| linux-kernel            | https://github.com/vyos/vyos-build.git              | equuleus | packages/linux-kernel/Jenkinsfile |
-| live-boot               | https://github.com/vyos/live-boot.git               | equuleus | Jenkinsfile                       |
-| mdns-repeater           | https://github.com/vyos/mdns-repeater.git           | equuleus | Jenkinsfile                       |
-| minisign                | https://github.com/vyos/vyos-build.git              | equuleus | packages/minisign/Jenkinsfile     |
-| netfilter               | https://github.com/vyos/vyos-build.git              | equuleus | packages/netfilter/Jenkinsfile    |
-| ocserv                  | https://github.com/vyos/vyos-build.git              | equuleus | packages/ocserv/Jenkinsfile       |
-| telegraf                | https://github.com/vyos/vyos-build.git              | equuleus | packages/telegraf/Jenkinsfile     |
-| udp-broadcast-relay     | https://github.com/vyos/udp-broadcast-relay.git     | equuleus | Jenkinsfile                       |
-| vyatta-bash             | https://github.com/vyos/vyatta-bash.git             | equuleus | Jenkinsfile                       |
-| vyatta-biosdevname      | https://github.com/vyos/vyatta-biosdevname.git      | equuleus | Jenkinsfile                       |
-| vyatta-cfg              | https://github.com/vyos/vyatta-cfg.git              | equuleus | Jenkinsfile                       |
-| vyatta-cfg-firewall     | https://github.com/vyos/vyatta-cfg-firewall.git     | equuleus | Jenkinsfile                       |
-| vyatta-cfg-qos          | https://github.com/vyos/vyatta-cfg-qos.git          | equuleus | Jenkinsfile                       |
-| vyatta-cfg-quagga       | https://github.com/vyos/vyatta-cfg-quagga.git       | equuleus | Jenkinsfile                       |
-| vyatta-cfg-system       | https://github.com/vyos/vyatta-cfg-system.git       | equuleus | Jenkinsfile                       |
-| vyatta-cfg-vpn          | https://github.com/vyos/vyatta-cfg-vpn.git          | equuleus | Jenkinsfile                       |
-| vyatta-cluster          | https://github.com/vyos/vyatta-cluster.git          | equuleus | Jenkinsfile                       |
-| vyatta-config-mgmt      | https://github.com/vyos/vyatta-config-mgmt.git      | equuleus | Jenkinsfile                       |
-| vyatta-conntrack        | https://github.com/vyos/vyatta-conntrack.git        | equuleus | Jenkinsfile                       |
-| vyatta-nat              | https://github.com/vyos/vyatta-nat.git              | equuleus | Jenkinsfile                       |
-| vyatta-op               | https://github.com/vyos/vyatta-op.git               | equuleus | Jenkinsfile                       |
-| vyatta-op-firewall      | https://github.com/vyos/vyatta-op-firewall.git      | equuleus | Jenkinsfile                       |
-| vyatta-op-qos           | https://github.com/vyos/vyatta-op-qos.git           | equuleus | Jenkinsfile                       |
-| vyatta-op-vpn           | https://github.com/vyos/vyatta-op-vpn.git           | equuleus | Jenkinsfile                       |
-| vyatta-wanloadbalance   | https://github.com/vyos/vyatta-wanloadbalance.git   | equuleus | Jenkinsfile                       |
-| vyatta-zone             | https://github.com/vyos/vyatta-zone.git             | equuleus | Jenkinsfile                       |
-| vyos-1x                 | https://github.com/vyos/vyos-1x.git                 | equuleus | Jenkinsfile                       |
-| vyos-cloud-init         | https://github.com/vyos/vyos-cloud-init.git         | equuleus | Jenkinsfile                       |
-| vyos-http-api-tools     | https://github.com/vyos/vyos-http-api-tools.git     | equuleus | Jenkinsfile                       |
-| vyos-nhrp               | https://github.com/vyos/vyos-nhrp.git               | equuleus | Jenkinsfile                       |
-| vyos-opennhrp           | https://github.com/vyos/vyos-opennhrp.git           | equuleus | Jenkinsfile                       |
-| vyos-strongswan         | https://github.com/vyos/vyos-strongswan.git         | equuleus | Jenkinsfile                       |
-| vyos-user-utils         | https://github.com/vyos/vyos-user-utils.git         | equuleus | Jenkinsfile                       |
-| vyos-utils              | https://github.com/vyos/vyos-utils.git              | equuleus | Jenkinsfile                       |
-| vyos-world              | https://github.com/vyos/vyos-world.git              | equuleus | Jenkinsfile                       |
-| vyos-xe-guest-utilities | https://github.com/vyos/vyos-xe-guest-utilities.git | equuleus | Jenkinsfile                       |
-| wide-dhcpv6             | https://github.com/vyos/vyos-build.git              | equuleus | packages/wide-dhcpv6/Jenkinsfile  |
+Some packages aren't in the vyos repositories at all (`python3-inotify`), that's why
+`https://github.com/dd010101/vyos-missing.git` is required.
+
+| Package                 | GIT repository                                      | Branch   | Location of Jenkinsfile              |
+|-------------------------|-----------------------------------------------------|----------|--------------------------------------|
+| dropbear                | https://github.com/vyos/vyos-build.git              | equuleus | packages/dropbear/Jenkinsfile        |
+| frr                     | https://github.com/vyos/vyos-build.git              | equuleus | packages/frr/Jenkinsfile             |
+| hostap                  | https://github.com/vyos/vyos-build.git              | equuleus | packages/hostap/Jenkinsfile          |
+| hvinfo                  | https://github.com/vyos/hvinfo.git                  | equuleus | Jenkinsfile                          |
+| ipaddrcheck             | https://github.com/vyos/ipaddrcheck.git             | equuleus | Jenkinsfile                          |
+| iproute2                | https://github.com/vyos/vyos-build.git              | equuleus | packages/iproute2/Jenkinsfile        |
+| keepalived              | https://github.com/vyos/vyos-build.git              | equuleus | packages/keepalived/Jenkinsfile      |
+| libnss-mapuser          | https://github.com/vyos/libnss-mapuser.git          | equuleus | Jenkinsfile                          |
+| libpam-radius-auth      | https://github.com/vyos/libpam-radius-auth.git      | equuleus | Jenkinsfile                          |
+| libvyosconfig           | https://github.com/vyos/libvyosconfig.git           | equuleus | Jenkinsfile                          |
+| linux-kernel            | https://github.com/vyos/vyos-build.git              | equuleus | packages/linux-kernel/Jenkinsfile    |
+| live-boot               | https://github.com/vyos/live-boot.git               | equuleus | Jenkinsfile                          |
+| mdns-repeater           | https://github.com/vyos/mdns-repeater.git           | equuleus | Jenkinsfile                          |
+| minisign                | https://github.com/vyos/vyos-build.git              | equuleus | packages/minisign/Jenkinsfile        |
+| netfilter               | https://github.com/vyos/vyos-build.git              | equuleus | packages/netfilter/Jenkinsfile       |
+| ocserv                  | https://github.com/vyos/vyos-build.git              | equuleus | packages/ocserv/Jenkinsfile          |
+| python3-inotify         | **https://github.com/dd010101/vyos-missing.git**    | equuleus | packages/python3-inotify/Jenkinsfile |
+| telegraf                | https://github.com/vyos/vyos-build.git              | equuleus | packages/telegraf/Jenkinsfile        |
+| udp-broadcast-relay     | https://github.com/vyos/udp-broadcast-relay.git     | equuleus | Jenkinsfile                          |
+| vyatta-bash             | https://github.com/vyos/vyatta-bash.git             | equuleus | Jenkinsfile                          |
+| vyatta-biosdevname      | https://github.com/vyos/vyatta-biosdevname.git      | equuleus | Jenkinsfile                          |
+| vyatta-cfg              | https://github.com/vyos/vyatta-cfg.git              | equuleus | Jenkinsfile                          |
+| vyatta-cfg-firewall     | https://github.com/vyos/vyatta-cfg-firewall.git     | equuleus | Jenkinsfile                          |
+| vyatta-cfg-qos          | https://github.com/vyos/vyatta-cfg-qos.git          | equuleus | Jenkinsfile                          |
+| vyatta-cfg-quagga       | https://github.com/vyos/vyatta-cfg-quagga.git       | equuleus | Jenkinsfile                          |
+| vyatta-cfg-system       | https://github.com/vyos/vyatta-cfg-system.git       | equuleus | Jenkinsfile                          |
+| vyatta-cfg-vpn          | https://github.com/vyos/vyatta-cfg-vpn.git          | equuleus | Jenkinsfile                          |
+| vyatta-cluster          | https://github.com/vyos/vyatta-cluster.git          | equuleus | Jenkinsfile                          |
+| vyatta-config-mgmt      | https://github.com/vyos/vyatta-config-mgmt.git      | equuleus | Jenkinsfile                          |
+| vyatta-conntrack        | https://github.com/vyos/vyatta-conntrack.git        | equuleus | Jenkinsfile                          |
+| vyatta-nat              | https://github.com/vyos/vyatta-nat.git              | equuleus | Jenkinsfile                          |
+| vyatta-op               | https://github.com/vyos/vyatta-op.git               | equuleus | Jenkinsfile                          |
+| vyatta-op-firewall      | https://github.com/vyos/vyatta-op-firewall.git      | equuleus | Jenkinsfile                          |
+| vyatta-op-qos           | https://github.com/vyos/vyatta-op-qos.git           | equuleus | Jenkinsfile                          |
+| vyatta-op-vpn           | https://github.com/vyos/vyatta-op-vpn.git           | equuleus | Jenkinsfile                          |
+| vyatta-wanloadbalance   | https://github.com/vyos/vyatta-wanloadbalance.git   | equuleus | Jenkinsfile                          |
+| vyatta-zone             | https://github.com/vyos/vyatta-zone.git             | equuleus | Jenkinsfile                          |
+| vyos-1x                 | https://github.com/vyos/vyos-1x.git                 | equuleus | Jenkinsfile                          |
+| vyos-cloud-init         | https://github.com/vyos/vyos-cloud-init.git         | equuleus | Jenkinsfile                          |
+| vyos-http-api-tools     | https://github.com/vyos/vyos-http-api-tools.git     | equuleus | Jenkinsfile                          |
+| vyos-nhrp               | https://github.com/vyos/vyos-nhrp.git               | equuleus | Jenkinsfile                          |
+| vyos-opennhrp           | https://github.com/vyos/vyos-opennhrp.git           | equuleus | Jenkinsfile                          |
+| vyos-strongswan         | https://github.com/vyos/vyos-strongswan.git         | equuleus | Jenkinsfile                          |
+| vyos-user-utils         | https://github.com/vyos/vyos-user-utils.git         | equuleus | Jenkinsfile                          |
+| vyos-utils              | https://github.com/vyos/vyos-utils.git              | equuleus | Jenkinsfile                          |
+| vyos-world              | https://github.com/vyos/vyos-world.git              | equuleus | Jenkinsfile                          |
+| vyos-xe-guest-utilities | https://github.com/vyos/vyos-xe-guest-utilities.git | equuleus | Jenkinsfile                          |
+| wide-dhcpv6             | https://github.com/vyos/vyos-build.git              | equuleus | packages/wide-dhcpv6/Jenkinsfile     |
 
 <details>
 <summary>Expected list of resulting .deb files after build (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
@@ -674,6 +679,9 @@ List of required packages and their Jenkinsfile:
 Some packages (`pam_tacplus`, `strongswan`) are broken right now, that's why
 fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
 
+Some packages aren't in the vyos repositories at all (`libnss-tacplus`), that's why
+`https://github.com/dd010101/vyos-missing.git` is required.
+
 Another special case is `vyos-xe-guest-utilities` where `current` branch is required.
 
 | Package                                  | GIT repository                                      | Branch      | Location of Jenkinsfile                                       |
@@ -690,6 +698,7 @@ Another special case is `vyos-xe-guest-utilities` where `current` branch is requ
 | isc-dhcp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/isc-dhcp/Jenkinsfile                                 |
 | keepalived                               | https://github.com/vyos/vyos-build.git              | sagitta     | packages/keepalived/Jenkinsfile                               |
 | libnss-mapuser                           | https://github.com/vyos/libnss-mapuser.git          | sagitta     | Jenkinsfile                                                   |
+| libnss-tacplus                           | **https://github.com/dd010101/vyos-missing.git**    | sagitta     | packages/libnss-tacplus/Jenkinsfile                           |
 | libpam-radius-auth                       | https://github.com/vyos/libpam-radius-auth.git      | sagitta     | Jenkinsfile                                                   |
 | libvyosconfig                            | https://github.com/vyos/libvyosconfig.git           | sagitta     | Jenkinsfile                                                   |
 | linux-kernel                             | https://github.com/vyos/vyos-build.git              | sagitta     | packages/linux-kernel/Jenkinsfile                             |
@@ -866,16 +875,6 @@ repositories/sagitta/pool/main/s/strongswan/strongswan_5.9.11-2+vyos0_all.deb
 repositories/sagitta/pool/main/t/telegraf/telegraf_1.28.3-1_amd64.deb
 repositories/sagitta/pool/main/u/udp-broadcast-relay/udp-broadcast-relay_0.1+vyos3+equuleus1_amd64.deb
 repositories/sagitta/pool/main/v/vici/python3-vici_5.9.11-1_all.deb
-repositories/sagitta/pool/main/v/vpp-ext-deps/vpp-ext-deps_24.02-11_amd64.deb
-repositories/sagitta/pool/main/v/vpp/libvppinfra-dev_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/libvppinfra_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/python3-vpp-api_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/vpp-dbg_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/vpp-dev_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/vpp-plugin-core_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/vpp-plugin-devtools_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/vpp-plugin-dpdk_24.02-release_amd64.deb
-repositories/sagitta/pool/main/v/vpp/vpp_24.02-release_amd64.deb
 repositories/sagitta/pool/main/v/vyatta-bash/vyatta-bash-dbgsym_4.1-3+vyos2+current2_amd64.deb
 repositories/sagitta/pool/main/v/vyatta-bash/vyatta-bash_4.1-3+vyos2+current2_amd64.deb
 repositories/sagitta/pool/main/v/vyatta-biosdevname/vyatta-biosdevname-dbgsym_0.3.11+vyos2+current2_amd64.deb
