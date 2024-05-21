@@ -1,12 +1,12 @@
 State
 --
 
-Currently, it should be possible to use this information to build all required packages for equuleus and sagitta as
-result you get apt repository that can be used to build ISO.
+Currently, it should be possible to use this information to build all required packages for equuleus and sagitta and
+as result you get apt repository that can be used to build ISO images.
 
 The goal of this project is to reproduce atp repositories of stable branches formerly available at
 `dev.packages.vyos.net`. This isn't exactly possible due to the state of vyos build system and vyos packages.
-Many patches and workarounds for the build system were required to be developed and couple packages were required 
+Many patches and workarounds for the build system were required to be developed and couple packages were required
 to be forked due to their broken or non-existent build script. The nature of the build system makes it impossible
 to build exactly the same packages and thus for some packages slight variation exist. In result, it's possible to
 recreate nearly identical replacement for `dev.packages.vyos.net` and produce ISO images that will pass smoketest,
@@ -64,8 +64,30 @@ Allow jenkins to use docker:
 usermod -a -G docker jenkins
 ```
 
+Setup local IP
+--
+
+This guide will simplify the unknown by using static IP on dummy interface, this is hopefully outside your subnet if not
+please change all references of this IP with your own.
+
+```
+cat << EOT >> /etc/network/interfaces
+
+iface dummy0 inet static
+    address 172.17.17.17/32
+    pre-up ip link add dummy0 type dummy
+EOT
+```
+
+```
+ifup dummy0
+```
+
+Now we can locally point to known IP `172.17.17.17` as it was the host itself.
+
 UID / GID issue
 --
+
 Most of Jenkinfiles do respect your UID/GID but not all, for
 example https://github.com/vyos/vyos-build/blob/equuleus/packages/linux-kernel/Jenkinsfile has hardcoded UID and GID to
 1006 and this will fail build if you don't have 1006:1006 user.
@@ -119,8 +141,6 @@ The vyos/vyos-build docker image from dockerhub doesn't work for all packages as
 patches to make it work. If this changed in future then this step can be skipped.
 
 The below script clones the (patched) vyos-build, then builds and pushes the images to your custom Docker repository.
-
-Adjust `CUSTOM_DOCKER_REPO` to your local IP.
 
 ```bash
 #!/bin/bash
@@ -191,13 +211,12 @@ Configure DEV_PACKAGES_VYOS_NET_HOST variable and add global vyos-build jenkins 
 
 ```
 Name: DEV_PACKAGES_VYOS_NET_HOST
-Value: jenkins@<ip of the host system>
+Value: jenkins@172.17.17.17
 ```
 
 This user+IP/host will be used for SSH access to reprepro, it can be another host or you can point this to the jenkins
 host as well, the ip needs to be accesible from docker container thus this should be LAN IP, localhost will not work. I
-assume everything is on single host thus this IP is IP of the jenkins host. Mine is `172.17.17.17` so if you see it
-somewhere replace it with your own.
+assume everything is on single host thus this IP is IP of the jenkins host.
 
 **Global properties -> Environmental Variables -> Add**
 
@@ -242,7 +261,7 @@ since some packages will use current and some sagitta branch.
 (this applies only if using patched vyos-build docker image)
 
 ```
-Docker registry URL: http://<ip of the host system>:5000
+Docker registry URL: http://172.17.17.17:5000
 ```
 
 Credentials for ssh-agent
@@ -920,7 +939,7 @@ repositories/sagitta/pool/main/w/wpa/wpasupplicant_2.10-1028-g6b9c86466_amd64.de
 
 </details>
 
-How to try to build ISO
+How to to build ISO
 --
 
 Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg singing
