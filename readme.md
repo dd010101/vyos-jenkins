@@ -16,9 +16,9 @@ Resulting mirror for sagitta (1.4) has 192 of 190 .deb packages compared to the
 
 This guide is work in progress and meant only for local experimentation and development.
 
-Notes for production
+Notes for hosting
 --
-TODO: create another extended guide, recommend best practices. Also include guide how to mirror repositories
+TODO: recommend best practices. Also include guide how to mirror repositories
 to another host.
 
 Notes for development
@@ -119,9 +119,10 @@ patches to make it work. If this changed in future then this step can be skipped
 
 The below script clones the (patched) vyos-build, then builds and pushes the images to your custom Docker repository.
 
+Adjust `CUSTOM_DOCKER_REPO` to your local IP.
+
 ```bash
 #!/bin/bash
-
 CUSTOM_DOCKER_REPO="172.17.17.17:5000"
 
 #
@@ -413,7 +414,15 @@ Regular expression: (equuleus|sagitta)
 
 **Behaviours -> Add -> Advanced clone behaviours**
 
+```
+Fetch tags: [✓]
+```
+
 (leave defaults)
+
+Advanced clone is required for some packages to obtain all tags (specifically `vyos-cloud-init` and `vyos-1x`).
+It doesn't hurt to have advanced clone for everything, thus you can set-it and copy for everything without
+worrying about what to use it for.
 
 **Build Configuration -> Mode (by Jenkinsfile)**
 
@@ -663,8 +672,7 @@ Package info for sagitta
 List of required packages and their Jenkinsfile:
 
 Some packages (`pam_tacplus`, `strongswan`) are broken right now, that's why
-fork `https://github.com/dd010101/vyos-build.git`
-is required. Until they are fixed.
+fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
 
 Another special case is `vyos-xe-guest-utilities` where `current` branch is required.
 
@@ -962,8 +970,8 @@ This will give you `/home/sentrium/web/dev.packages.vyos.net/public_html/reposit
 How to use your mirror:
 
 1) Download your `apt.gpg.key` to where you want to build your ISO.
-2) Mount your `apt.gpg.key` when your running `docker run` by adding `-v /where/is/your/key:/opt/apt.gpg.key`
-3) When you running `./configure` (equuleus) or `./build-vyos-image` (sagitta) add your mirror
+2) Mount your `apt.gpg.key` when your run `docker run` by adding `-v /where/is/your/key:/opt/apt.gpg.key`
+3) When you run `./configure` (equuleus) or `./build-vyos-image` (sagitta) add your mirror
    `--vyos-mirror http://172.17.17.17/equuleus` or `--vyos-mirror http://172.17.17.17/sagitta` and your singing key
    ` --custom-apt-key /opt/apt.gpg.key`.
 4) Now the builder uses your mirror instead of `http://dev.packages.vyos.net/`.
