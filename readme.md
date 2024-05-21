@@ -15,7 +15,7 @@ image yourself.
 
 This guide is work in progress and meant only for local experimentation and development.
 
-Thanks to @pittagurneyi for provding build scripts for missing packages
+Thanks to @pittagurneyi for provding build scripts for missing packages.
 
 Notes for hosting
 --
