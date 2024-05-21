@@ -34,8 +34,8 @@ and I did see OOM crashes if I had 4GB RAM so make sure you have 8GB and enough 
 any possible of OOM related issues. You will also build some vast packages so fast CPU is good idea
 because you may need to recompile kernel multiple times for debugging purposes.
 
-I assume single shared host for jenkins and x86 node (Built-In Node). I also assume the SSH host for reprepro
-repositories is the same as the jenkins host. Not recommended, but it's the simple way to get experimental
+I assume single shared host for Jenkins and x86 node (Built-In Node). I also assume the SSH host for reprepro
+repositories is the same as the Jenkins host. Not recommended, but it's the simple way to get experimental
 environment started all in one. Normally you would have these roles split into more VMs but that's redundant
 for our purpose and thus everything is on one host under one single user.
 
@@ -46,19 +46,19 @@ to docker container and thus if you see for example that the build fails due to 
 install cmake on the Jenkins host or as Jenkins plugin, since that's not how it is used. In this case you would need
 to install such package inside the docker container.
 
-Install jenkins, and it's java
+Install Jenkins, and it's java
 --
 
 Just follow the usual guide via APT https://www.jenkins.io/doc/book/installing/linux/#debianubuntu
 
-Install java, then jenkins. Let setup guide to install recommended plugins.
+Install java, then Jenkins. Let setup guide to install recommended plugins.
 
 Install docker
 --
 
 Just follow the usual guide via APT https://docs.docker.com/engine/install/debian/
 
-Allow jenkins to use docker:
+Allow Jenkins to use docker:
 
 ```
 usermod -a -G docker jenkins
@@ -92,7 +92,7 @@ Most of Jenkinfiles do respect your UID/GID but not all, for
 example https://github.com/vyos/vyos-build/blob/equuleus/packages/linux-kernel/Jenkinsfile has hardcoded UID and GID to
 1006 and this will fail build if you don't have 1006:1006 user.
 
-That's why we want change jenkins to 1006/1006:
+That's why we want change Jenkins to 1006/1006:
 
 ```
 usermod -u 1006 jenkins
@@ -100,7 +100,7 @@ groupmod -g 1006 jenkins
 chown -R jenkins:jenkins /var/lib/jenkins/ /var/cache/jenkins/ /var/log/jenkins/
 ```
 
-After adding docker group and/or after UID/GID change restart jenkins
+After adding docker group and/or after UID/GID change restart Jenkins
 --
 
 ```
@@ -203,7 +203,7 @@ Configure Built-In node
 
 Separated by space thus "Docker ec2_amd64" as result
 
-Configure DEV_PACKAGES_VYOS_NET_HOST variable and add global vyos-build jenkins library
+Configure DEV_PACKAGES_VYOS_NET_HOST variable and add global vyos-build Jenkins library
 --
 **Manage Jenkins -> System**
 
@@ -214,9 +214,9 @@ Name: DEV_PACKAGES_VYOS_NET_HOST
 Value: jenkins@172.17.17.17
 ```
 
-This user+IP/host will be used for SSH access to reprepro, it can be another host or you can point this to the jenkins
+This user+IP/host will be used for SSH access to reprepro, it can be another host or you can point this to the Jenkins
 host as well, the ip needs to be accesible from docker container thus this should be LAN IP, localhost will not work. I
-assume everything is on single host thus this IP is IP of the jenkins host.
+assume everything is on single host thus this IP is IP of the Jenkins host.
 
 **Global properties -> Environmental Variables -> Add**
 
@@ -267,7 +267,7 @@ Docker registry URL: http://172.17.17.17:5000
 Credentials for ssh-agent
 --
 You need to set up SSH key authentication for the host specified in `DEV_PACKAGES_VYOS_NET_HOST` variable.
-Basically we want to allow jenkins to SSH into itself with its own SSH key.
+Basically we want to allow Jenkins to SSH into itself with its own SSH key.
 
 Login as target user:
 
@@ -281,7 +281,7 @@ Generate regular SSH key:
 ssh-keygen -t ed25519 -C "jenkins"
 ```
 
-Update authenticated_keys to allow jenkins to log in to itself, something like this:
+Update authenticated_keys to allow Jenkins to log in to itself, something like this:
 
 ```
 cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
@@ -326,7 +326,7 @@ sudo -u jenkins gpg --pinentry-mode loopback --full-gen-key
 
 Remember your pub key, it's random string like "934824D5C6A72DA964B3AFBD27A7E25D86BB7E2A".
 
-Create expected folder structure, prepare reprepro config and give jenkins access, this is done for each release
+Create expected folder structure, prepare reprepro config and give Jenkins access, this is done for each release
 codename.
 
 Set RELEASE name:
@@ -402,7 +402,7 @@ chmod +x /usr/local/bin/uncron-add
 
 Multibranch Pipelines
 --
-Use + button on jenkins dashboard to add Multibranch Pipeline. Each Jenkinsfile needs its own Multibranch Pipeline,
+Use + button on Jenkins dashboard to add Multibranch Pipeline. Each Jenkinsfile needs its own Multibranch Pipeline,
 the setup is the same for all packages, and you just adjust location of Jenkinsfile and/or GIT repository to whatever
 you want to build. See packages info bellow for list of all GIT repository and location their Jenkinsfile.
 
@@ -939,7 +939,7 @@ repositories/sagitta/pool/main/w/wpa/wpasupplicant_2.10-1028-g6b9c86466_amd64.de
 
 </details>
 
-How to to build ISO
+How to build ISO
 --
 
 Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg singing
