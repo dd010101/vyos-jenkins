@@ -27,12 +27,13 @@ Notes for development
 
 I recommend debian and dedicated virtual machine for security purposes. Since this setup isn't isolating the build
 from the host and in theory Jenkins can compromise your build host if you execute some malicious
-build so don't share the os with anything else. This isn't the ideal setup - this is just quick and dirty.
+build so don't share the OS with anything else. This isn't the ideal setup - this guides describes the simple way
+not the ideal or proper way.
 
-I use bullseye virtualbox VM on my desktop PC. Bookworm should work as well. Some builds are RAM heavy
-and I did see OOM crashes if I had 4GB RAM so make sure you have 8GB and enough swap (match RAM size) space to avoid
-any possible of OOM related issues. You will also build some vast packages so fast CPU is good idea
-because you may need to recompile kernel multiple times for debugging purposes.
+8GB RAM, 100GB HDD and appropriate CPU should be enough. Some builds are big and thus for debugging
+purposes it would be good to have fast CPU - so you don't need to wait as much. It's not bad idea to make
+8GB swap just to make be sure there will not be OOM situation. It's known that some builds are memory hogs and will
+fail with 4GB total memory due to OOM.
 
 I assume single shared host for Jenkins and x86 node (Built-In Node). I also assume the SSH host for reprepro
 repositories is the same as the Jenkins host. Not recommended, but it's the simple way to get experimental
@@ -215,9 +216,8 @@ Name: DEV_PACKAGES_VYOS_NET_HOST
 Value: jenkins@172.17.17.17
 ```
 
-This user+IP/host will be used for SSH access to reprepro, it can be another host or you can point this to the Jenkins
-host as well, the ip needs to be accesible from docker container thus this should be LAN IP, localhost will not work. I
-assume everything is on single host thus this IP is IP of the Jenkins host.
+This user+IP/host will be used for SSH access to reprepro, it can be another host, we use the host itself, 
+this IP needs to be accesible from docker container thus this should be LAN IP not localhost.
 
 **Global properties -> Environmental Variables -> Add**
 
@@ -240,8 +240,8 @@ Value: true
 
 This is used to disable custom build check. Custom build check would normally skip upload to reprepro repository
 if package is built from non-vyos repository. Unfortunately vyos has bugs not only in their build system but as
-well in their packages, and I was forced to fork pam_tacplus in order to make it buildable and thus pam_tacplus
-is being built from non-vyos repository.
+well in their packages, some packages are also missing, thus it's currently impossible to build all packages
+from vyos repositories and thus we need to use custom repositories.
 
 **Global Pipeline Libraries -> Add**
 
@@ -291,7 +291,7 @@ cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
 Accept signature and verify SSH works:
 
 ```
-ssh <ip of the host system>
+ssh 172.17.17.17
 ```
 
 Then you can add this private key to Jenkins:
