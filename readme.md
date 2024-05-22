@@ -73,6 +73,7 @@ please change all references of this IP with your own.
 ```
 cat << EOT >> /etc/network/interfaces
 
+auto dummy0
 iface dummy0 inet static
     address 172.17.17.17/32
     pre-up ip link add dummy0 type dummy
