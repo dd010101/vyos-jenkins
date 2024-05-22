@@ -145,7 +145,7 @@ patches to make it work. If this changed in future then this step can be skipped
 The below script clones the (patched) vyos-build, then builds and pushes the images to your custom Docker repository.
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env bash
 CUSTOM_DOCKER_REPO="172.17.17.17:5000"
 
 #
@@ -377,7 +377,7 @@ We use this as hack to fix some of vyos packaging issues.
 
 ```
 cat << 'EOF' > /usr/local/bin/uncron-add
-#!/bin/bash
+#!/usr/bin/env bash
 COMMAND="$1"
 
 # this is hack to workaround a issue where vyos didn't create sagitta branch
@@ -470,7 +470,7 @@ to see what happens! If all is well you should see .deb appearing in
 `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/`:
 
 ```
-find /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/ -name *.deb -print
+find /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/ -name '*.deb' -print
 ```
 
 If build fails then click the specific build number and check **Console Output** for hints why it does so.

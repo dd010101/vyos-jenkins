@@ -1,6 +1,4 @@
-
-#!/bin/bash
-
+#!/usr/bin/env bash
 CUSTOM_DOCKER_REPO="172.17.17.17:5000"
 
 #
