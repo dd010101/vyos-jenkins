@@ -1005,3 +1005,8 @@ How to use your mirror:
    `--vyos-mirror http://172.17.17.17/equuleus` or `--vyos-mirror http://172.17.17.17/sagitta` and your singing key
    ` --custom-apt-key /opt/apt.gpg.key`.
 4) Now the builder uses your mirror instead of `http://dev.packages.vyos.net/`.
+
+Smoketest
+--
+
+TODO: include instructions how to run standalone smoketest
