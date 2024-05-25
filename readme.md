@@ -459,6 +459,17 @@ Script Path: Jenkinsfile
 
 (or leave just Jenkinsfile if you want to build repository like vyos/vyos-1x where there is just one package)
 
+**Scan Multibranch Pipeline Triggers**
+
+```
+[✓] Periodically if not otherwise run
+
+Interval: 1 hour
+```
+
+Jenkins will check the source GIT repository if changes were made and execute automatic build if needed. This
+will keep packages up to date.
+
 TODO: find a way how to populate Multibranch Pipeline automatically from list in order to avoid the need to
 create all pipelines by hand since it's the most tedious part due to a lot of repetition.
 
