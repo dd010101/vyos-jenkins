@@ -27,14 +27,14 @@ push() {
      curl -sS -g -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
 }
 
-get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read projectName; do
+get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName; do
 
-    echo -n "$projectName:"
+    echo -n "$jobName:"
 
-    originalPath="$workingDir/$projectName.xml"
-    get "/job/$projectName/config.xml" > "$originalPath"
+    originalPath="$workingDir/$jobName.xml"
+    get "/job/$jobName/config.xml" > "$originalPath"
 
-    updatedPath="$workingDir/${projectName}_updated.xml"
+    updatedPath="$workingDir/${jobName}_updated.xml"
     project="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
     trigger="com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger"
     plugin="cloudbees-folder@6.928.v7c780211d66e"
@@ -45,7 +45,7 @@ get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | whil
         --subnode "//$project/triggers/$trigger" --type elem --name interval --value "3600000" \
         "$originalPath" > "$updatedPath" 2>/dev/null
 
-    push "/job/$projectName/config.xml" "$updatedPath"
+    push "/job/$jobName/config.xml" "$updatedPath"
 
     echo " ok"
 
