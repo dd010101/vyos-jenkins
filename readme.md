@@ -201,9 +201,10 @@ Configure Built-In node
 **Add tags**
 
 - Docker
+- docker
 - ec2_amd64
 
-Separated by space thus "Docker ec2_amd64" as result
+Separated by space thus "Docker docker ec2_amd64" as result
 
 Configure DEV_PACKAGES_VYOS_NET_HOST variable and add global vyos-build Jenkins library
 --
