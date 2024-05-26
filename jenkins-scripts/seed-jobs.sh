@@ -5,8 +5,8 @@ set -e
 # This script seeds Jenkins jobs via list of packages in jobs.json
 # it iterates through all packages
 # it checks if job for package exists
-# it updates job if exists otherwise creates new one
-# finally it starts first build for available branches
+# it updates job if exists otherwise creates new one.
+# It can also start build for all jobs.
 #
 # This script has two modes, first mode is create
 # ./seed-jobs.sh create
