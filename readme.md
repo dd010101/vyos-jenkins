@@ -373,7 +373,7 @@ cat << EOF > $REPOSITORY/conf/options
 verbose
 EOF
 
-chown -R jenkins:jenkins $REPOSITORY
+chown -R jenkins:jenkins /home/sentrium
 ```
 
 uncron
