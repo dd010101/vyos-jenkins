@@ -458,8 +458,57 @@ EOF
 chmod +x /usr/local/bin/uncron-add
 ```
 
-Multibranch Pipelines
+Multibranch Pipelines (by script)
 --
+
+Experimental script exists to automate pipeline/job creation.
+
+Check the `jenkins-scripts/seed-jobs.sh` for details.
+
+**Get the script seed-jobs.sh**
+
+And it's assets (jobs.json, jobTemplate.xml).
+
+```
+git clone git@github.com:dd010101/vyos-jenkins.git
+cd vyos-jenkins/jenkins-scripts
+```
+
+**Install dependencies**
+
+```
+apt install -y xmlstarlet jq
+```
+
+**Adjust settings to suit your Jenkins**
+
+```
+cat seed-jobs.sh
+```
+
+**Create jobs**
+
+Then wait for branch indexing to complete.
+
+```
+./seed-jobs.sh create
+```
+
+**After branch indexing you can trigger build for everything**
+
+Make sure you have >=16GB RAM or 8GB RAM + 8GB swap, since running build for everything like this eats more memory
+than building one by one this is also dependent on how many Number of executors you have.
+
+```
+./seed-jobs.sh build
+```
+
+Now wait for build to complete and check Build History and Dashboard for failed builds. If you find any failed
+builds then read Console Output to see why it did failed.
+
+Multibranch Pipelines (manual)
+--
+
 Use + button on Jenkins dashboard to add Multibranch Pipeline. Each Jenkinsfile needs its own Multibranch Pipeline,
 the setup is the same for all packages, and you just adjust location of Jenkinsfile and/or GIT repository to whatever
 you want to build. See packages info bellow for list of all GIT repository and location their Jenkinsfile.
@@ -526,9 +575,6 @@ Interval: 1 hour
 
 Jenkins will check the source GIT repository if changes were made and execute automatic build if needed. This
 will keep packages up to date.
-
-TODO: find a way how to populate Multibranch Pipeline automatically from list in order to avoid the need to
-create all pipelines by hand since it's the most tedious part due to a lot of repetition.
 
 Try to build
 --

@@ -1,0 +1,64 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch@783.va_6eb_ef636fb_d">
+    <actions/>
+    <description>~DESCRIPTION~</description>
+    <properties>
+        <org.jenkinsci.plugins.docker.workflow.declarative.FolderConfig plugin="docker-workflow@572.v950f58993843">
+            <dockerLabel/>
+            <registry plugin="docker-commons@439.va_3cb_0a_6a_fb_29"/>
+        </org.jenkinsci.plugins.docker.workflow.declarative.FolderConfig>
+    </properties>
+    <folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@2.1169.va_f810c56e895">
+        <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+    </folderViews>
+    <healthMetrics/>
+    <icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.1169.va_f810c56e895">
+        <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+    </icon>
+    <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@6.928.v7c780211d66e">
+        <pruneDeadBranches>true</pruneDeadBranches>
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>-1</numToKeep>
+        <abortBuilds>false</abortBuilds>
+    </orphanedItemStrategy>
+    <triggers>
+        <com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger plugin="cloudbees-folder@6.928.v7c780211d66e">
+            <spec>H/15 * * * *</spec>
+            <interval>3600000</interval>
+        </com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger>
+    </triggers>
+    <disabled>false</disabled>
+    <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.1169.va_f810c56e895">
+        <data>
+            <jenkins.branch.BranchSource>
+                <source class="jenkins.plugins.git.GitSCMSource" plugin="git@5.2.2">
+                    <id>61655632-2acc-4cf1-be05-2bd1530809a4</id>
+                    <remote>~GIT_URL~</remote>
+                    <credentialsId/>
+                    <traits>
+                        <jenkins.plugins.git.traits.BranchDiscoveryTrait/>
+                        <jenkins.scm.impl.trait.RegexSCMHeadFilterTrait plugin="scm-api@690.vfc8b_54395023">
+                            <regex>~BRANCH_REGEX~</regex>
+                        </jenkins.scm.impl.trait.RegexSCMHeadFilterTrait>
+                        <jenkins.plugins.git.traits.CloneOptionTrait>
+                            <extension class="hudson.plugins.git.extensions.impl.CloneOption">
+                                <shallow>false</shallow>
+                                <noTags>false</noTags>
+                                <reference/>
+                                <honorRefspec>false</honorRefspec>
+                            </extension>
+                        </jenkins.plugins.git.traits.CloneOptionTrait>
+                    </traits>
+                </source>
+                <strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
+                    <properties class="empty-list"/>
+                </strategy>
+            </jenkins.branch.BranchSource>
+        </data>
+        <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+    </sources>
+    <factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
+        <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+        <scriptPath>~JENKINSFILE_PATH~</scriptPath>
+    </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>

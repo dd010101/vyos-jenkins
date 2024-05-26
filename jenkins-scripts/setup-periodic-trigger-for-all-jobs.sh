@@ -15,38 +15,38 @@ set -e
 user="YOUR_JENKINS_USERNAME"
 token="YOUR_JENKINS_TOKEN"
 jenkinsUrl="http://${user}:${token}@172.17.17.17:8080"
-workingDir="/opt/jenkins-cli"
+workDir="/opt/jenkins-cli"
 
-mkdir -p "$workingDir"
+mkdir -p "$workDir"
 
 get() {
-    curl -sS -g "${jenkinsUrl}${1}"
+  curl -sS -g "${jenkinsUrl}${1}"
 }
 
 push() {
-     curl -sS -g -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
+  curl -sS -g -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
 }
 
 get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName; do
 
-    echo -n "$jobName:"
+  echo -n "$jobName:"
 
-    originalPath="$workingDir/$jobName.xml"
-    get "/job/$jobName/config.xml" > "$originalPath"
+  originalPath="$workDir/$jobName.xml"
+  get "/job/$jobName/config.xml" > "$originalPath"
 
-    updatedPath="$workingDir/${jobName}_updated.xml"
-    project="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
-    trigger="com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger"
-    plugin="cloudbees-folder@6.928.v7c780211d66e"
-    xmlstarlet ed  --delete "//$project/triggers/$trigger" \
-        --subnode "//$project/triggers" --type elem --name "$trigger" \
-        --append "//$project/triggers/$trigger" --type attr --name plugin --value "$plugin" \
-        --subnode "//$project/triggers/$trigger" --type elem --name spec --value "H/15 * * * *" \
-        --subnode "//$project/triggers/$trigger" --type elem --name interval --value "3600000" \
-        "$originalPath" > "$updatedPath" 2>/dev/null
+  updatedPath="$workDir/${jobName}_updated.xml"
+  project="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
+  trigger="com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger"
+  plugin="cloudbees-folder@6.928.v7c780211d66e"
+  xmlstarlet ed  --delete "//$project/triggers/$trigger" \
+      --subnode "//$project/triggers" --type elem --name "$trigger" \
+      --append "//$project/triggers/$trigger" --type attr --name plugin --value "$plugin" \
+      --subnode "//$project/triggers/$trigger" --type elem --name spec --value "H/15 * * * *" \
+      --subnode "//$project/triggers/$trigger" --type elem --name interval --value "3600000" \
+      "$originalPath" > "$updatedPath" 2>/dev/null
 
-    push "/job/$jobName/config.xml" "$updatedPath"
+  push "/job/$jobName/config.xml" "$updatedPath"
 
-    echo " ok"
+  echo " ok"
 
 done
