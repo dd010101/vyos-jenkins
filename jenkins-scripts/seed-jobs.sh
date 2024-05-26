@@ -38,16 +38,20 @@ mode="$1"
 availableModes=("create" "build")
 
 get() {
-  curl -sS -g "${jenkinsUrl}${1}"
+  curl -sS -g --fail-with-body "${jenkinsUrl}${1}"
 }
 
 post() {
-  curl -sS -g -X POST "${jenkinsUrl}${1}"
+  curl -sS -g --fail-with-body -X POST "${jenkinsUrl}${1}"
 }
 
 push() {
-  curl -sS -g -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
+  curl -sS -g --fail-with-body -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
 }
+
+echo -n "testing jenkins connection: "
+get > /dev/null
+echo "ok"
 
 if [[ "$mode" == "create" ]]; then
   while read item
@@ -72,7 +76,7 @@ if [[ "$mode" == "create" ]]; then
       "$templatePath" > "$jobPath" 2>/dev/null
 
     # check if job exists
-    result=$(get "/checkJobName?value=$jobName")
+    result=$(get "/checkJobName?value=$jobName" || true)
     if [[ "$result" == *"already exists"* ]]; then
       # update job
       push "/job/$jobName/config.xml" "$jobPath"
@@ -93,9 +97,9 @@ elif [[ "$mode" == "build" ]]; then
 
     # trigger build - it's not easy to know what branches job has
     # thus we trigger all possible ones and ignore not found
-    post "/job/$jobName/job/equuleus/build" > /dev/null 2>/dev/null
-    post "/job/$jobName/job/sagitta/build" > /dev/null 2>/dev/null
-    post "/job/$jobName/job/current/build" > /dev/null 2>/dev/null
+    post "/job/$jobName/job/equuleus/build" > /dev/null 2>/dev/null || true
+    post "/job/$jobName/job/sagitta/build" > /dev/null 2>/dev/null || true
+    post "/job/$jobName/job/current/build" > /dev/null 2>/dev/null || true
 
     echo " ok"
 
@@ -105,4 +109,3 @@ else
   echo "ERROR: unknown mode '$mode'"
   echo "available modes: ${availableModes[*]}"
 fi
-

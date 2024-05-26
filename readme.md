@@ -373,7 +373,7 @@ cat << EOF > $REPOSITORY/conf/options
 verbose
 EOF
 
-chown -R jenkins: $REPOSITORY
+chown -R jenkins:jenkins $REPOSITORY
 ```
 
 uncron
