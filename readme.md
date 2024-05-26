@@ -333,6 +333,12 @@ Remember your pub key, it's random string like "934824D5C6A72DA964B3AFBD27A7E25D
 Create expected folder structure, prepare reprepro config and give Jenkins access, this is done for each release
 codename.
 
+Set SIGN_PUB_KEY:
+
+```
+export SIGN_PUB_KEY="<pub key idenitifier from step above>"
+```
+
 Set RELEASE name:
 
 ```
@@ -347,7 +353,7 @@ export RELEASE=sagitta
 
 ...
 
-Then create reprepro repository **REPLACE \<your singing pub key>**:
+Then create reprepro repository for each RELEASE:
 
 ```
 export REPOSITORY=/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/$RELEASE
@@ -361,7 +367,7 @@ Codename: $RELEASE
 Architectures: source amd64
 Components: main
 Description: $RELEASE
-SignWith: <your singing pub key>
+SignWith: $SIGN_PUB_KEY
 EOF
 
 cat << EOF > $REPOSITORY/conf/options
