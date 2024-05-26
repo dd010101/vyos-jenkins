@@ -198,8 +198,6 @@ Configure Built-In node
 --
 **Manage Jenkins -> Nodes -> Built-In Node**
 
-**Limit Number of executors** to 1 (otherwise builds may crash due to reprepro concurrency).
-
 **Add labels (tags)**
 
 - Docker
@@ -379,10 +377,58 @@ chown -R jenkins: $REPOSITORY
 
 uncron
 --
-All SSH commands are wrapped by this command, normally it would be calling this https://github.com/vyos/uncron, but you
-can just replace it with dummy passthrough alias to execute reprepro commands directly.
+This is required addition for the reprepro.
 
-We use this as hack to fix some of vyos packaging issues.
+```
+# install dependencies
+apt install opam ocaml socat
+
+# login as reprepro user and build uncon, then exit (if asked - confirm defaults)
+su - jenkins
+
+git clone https://github.com/vyos/uncron.git
+cd uncron
+
+opam init
+opam switch create default 4.13.1
+eval $(opam env --switch=default)
+opam install lwt lwt_ppx logs containers
+eval $(opam env)
+
+dune build
+exit
+
+# setup uncron service
+cp /var/lib/jenkins/uncron/_build/install/default/bin/uncron /usr/local/sbin/
+
+cat <<'EHLO' > /etc/systemd/system/uncron.service
+[Unit]
+Description=Command Queue Service
+After=auditd.service systemd-user-sessions.service time-sync.target
+
+[Service]
+EnvironmentFile=/etc/uncron.conf
+ExecStart=/usr/local/sbin/uncron
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+User=jenkins
+Group=jenkins
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EHLO
+
+touch /etc/uncron.conf
+
+systemctl daemon-reload
+systemctl enable --now uncron.service
+
+chmod +x /var/lib/jenkins/uncron/src/uncron-add
+```
+
+We also use this as hack to fix some of vyos packaging issues.
 
 ```
 cat << 'EOF' > /usr/local/bin/uncron-add
@@ -406,7 +452,7 @@ if [[ "$COMMAND" == *"vyos-xe-guest-utilities"* ]] && [[ "$COMMAND" == *"current
     COMMAND=${COMMAND//current/sagitta}
 fi
 
-bash -c "$COMMAND"
+/var/lib/jenkins/uncron/src/uncron-add "$COMMAND"
 EOF
 
 chmod +x /usr/local/bin/uncron-add
