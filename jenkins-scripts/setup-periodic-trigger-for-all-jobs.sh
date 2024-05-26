@@ -12,12 +12,17 @@ set -e
 # dependency: apt install xmlstarlet
 #
 
-user="YOUR_JENKINS_USERNAME"
-token="YOUR_JENKINS_TOKEN"
-jenkinsUrl="http://${user}:${token}@172.17.17.17:8080"
+jenkinsUser="" # fill your username here or set via export JENKINS_USER
+jenkinsToken="" # fill your token here or set via export JENKINS_TOKEN
+jenkinsHost="172.17.17.17:8080"
 workDir="/opt/jenkins-cli"
 
 mkdir -p "$workDir"
+
+templatePath="jobTemplate.xml"
+jenkinsUser=${jenkinsUser:-$JENKINS_USER}
+jenkinsToken=${jenkinsToken:-$JENKINS_TOKEN}
+jenkinsUrl="http://${jenkinsUser}:${jenkinsToken}@$jenkinsHost"
 
 get() {
   curl -sS -g "${jenkinsUrl}${1}"
@@ -27,7 +32,7 @@ push() {
   curl -sS -g -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
 }
 
-get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName; do
+get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName || [ -n "$jobName" ]; do
 
   echo -n "$jobName:"
 

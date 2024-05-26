@@ -91,7 +91,7 @@ if [[ "$mode" == "create" ]]; then
 
 elif [[ "$mode" == "build" ]]; then
 
-  get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName; do
+  get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName || [ -n "$jobName" ]; do
 
     echo -n "$jobName:"
 
