@@ -146,6 +146,8 @@ The below script clones the (patched) vyos-build, then builds and pushes the ima
 
 ```bash
 #!/usr/bin/env bash
+set -e
+
 CUSTOM_DOCKER_REPO="172.17.17.17:5000"
 
 #
@@ -198,7 +200,7 @@ Configure Built-In node
 
 **Limit Number of executors** to 1 (otherwise builds may crash due to reprepro concurrency).
 
-**Add tags**
+**Add labels (tags)**
 
 - Docker
 - docker
@@ -379,6 +381,8 @@ We use this as hack to fix some of vyos packaging issues.
 ```
 cat << 'EOF' > /usr/local/bin/uncron-add
 #!/usr/bin/env bash
+set -e
+
 COMMAND="$1"
 
 # this is hack to workaround a issue where vyos didn't create sagitta branch
