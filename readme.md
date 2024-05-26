@@ -97,6 +97,7 @@ example https://github.com/vyos/vyos-build/blob/equuleus/packages/linux-kernel/J
 That's why we want change Jenkins to 1006/1006:
 
 ```
+systemctl stop jenkins.service
 usermod -u 1006 jenkins
 groupmod -g 1006 jenkins
 chown -R jenkins:jenkins /var/lib/jenkins/ /var/cache/jenkins/ /var/log/jenkins/
