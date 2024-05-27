@@ -5,7 +5,7 @@ Currently, it should be possible to use this information to build all required p
 as result you get apt repository that can be used to build ISO images.
 
 The goal of this project is to reproduce atp repositories of stable branches formerly available at
-`dev.packages.vyos.net`. This isn't exactly possible due to the state of vyos build system and vyos packages.
+`dev.packages.vyos.net`. This isn't exactly possible due to the state of VyOS build system and VyOS packages.
 Many patches and workarounds for the build system were required to be developed and couple packages were required
 to be forked due to their broken or non-existent build script. The nature of the build system makes it impossible
 to build exactly the same packages and thus for some packages slight variation exist. In result, it's possible to
@@ -241,9 +241,9 @@ Value: true
 ```
 
 This is used to disable custom build check. Custom build check would normally skip upload to reprepro repository
-if package is built from non-vyos repository. Unfortunately vyos has bugs not only in their build system but as
+if package is built from non-vyos repository. Unfortunately VyOS has bugs not only in their build system but as
 well in their packages, some packages are also missing, thus it's currently impossible to build all packages
-from vyos repositories and thus we need to use custom repositories.
+from VyOS repositories, and thus we need to use custom repositories.
 
 **Global Pipeline Libraries -> Add**
 
@@ -429,7 +429,7 @@ systemctl enable --now uncron.service
 chmod +x /var/lib/jenkins/uncron/src/uncron-add
 ```
 
-We also use this as hack to fix some of vyos packaging issues.
+We also use this as hack to fix some of VyOS packaging issues.
 
 ```
 cat << 'EOF' > /usr/local/bin/uncron-add
@@ -506,6 +506,12 @@ than building one by one this is also dependent on how many Number of executors 
 
 Now wait for build to complete and check Build History and Dashboard for failed builds. If you find any failed
 builds then read Console Output to see why it did failed.
+
+This process is required only once. After you create Jenkins jobs, and you do first build then Jenkins will
+periodically check if GIT repository for job changed and will do automatically build given job/packages.
+This setup doesn't require much maintenance, but you will need to do some manual maintenance - for example
+you will need to rebuild the docker containers from time to time. There is also possible that some jobs
+will change and of course major overhaul is required to add support for next major release of VyOS.
 
 Multibranch Pipelines (manual)
 --
@@ -595,7 +601,7 @@ Package info for equuleus
 
 List of required packages and their Jenkinsfile:
 
-Some packages aren't in the vyos repositories at all (`python3-inotify`), that's why
+Some packages aren't in the VyOS repositories at all (`python3-inotify`), that's why
 `https://github.com/dd010101/vyos-missing.git` is required.
 
 | Package                 | GIT repository                                      | Branch   | Location of Jenkinsfile              |
