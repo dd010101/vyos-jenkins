@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+
+COMMAND="$1"
+
+# this is hack to workaround a issue where vyos didn't create sagitta branch
+# like the case of vyos-xe-guest-utilities, thus we need to build current
+# branch and then redirect from here to sagitta repository
+if [ ! -L ~/VyOS/current ]; then
+    rm -rf ~/VyOS/current
+    mkdir -p ~/VyOS/sagitta
+    ln -s ~/VyOS/sagitta ~/VyOS/current
+fi
+if [[ "$COMMAND" == *"repositories/current"* ]]; then
+    COMMAND=${COMMAND//current/sagitta}
+fi
+if [[ "$COMMAND" == *"vyos-xe-guest-utilities"* ]] && [[ "$COMMAND" == *"current"* ]]; then
+    COMMAND=${COMMAND//current/sagitta}
+fi
+
+/var/lib/jenkins/uncron/src/uncron-add "$COMMAND"

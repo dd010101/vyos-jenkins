@@ -1,0 +1,21 @@
+server {
+	listen 80;
+	listen [::]:80;
+
+	root /home/sentrium/web/dev.packages.vyos.net/public_html/repositories;
+	autoindex on;
+
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ /(.*)/conf {
+		deny all;
+	}
+
+	location ~ /(.*)/db {
+		deny all;
+	}
+}

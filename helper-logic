@@ -1,0 +1,584 @@
+#!/usr/bin/env bash
+
+# Define colors.
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+LIGHTBLUE='\033[0;94m'
+NOCOLOR='\033[0m'
+
+# Define color indicators.
+EMPTY_INDICATOR="[    ]"
+OK_INDICATOR="[ ${GREEN}OK${NOCOLOR} ]"
+ERROR_INDICATOR="[ ${RED}!!${NOCOLOR} ]"
+
+# Define job indicators.
+JOB_NOT_STARTED_INDICATOR="[ ${LIGHTBLUE}Not Started${NOCOLOR} ]"
+JOB_RUNNING_INDICATOR="[   ${LIGHTBLUE}Running${NOCOLOR}   ]"
+JOB_COMPLETED_INDICATOR="[  ${GREEN}Completed${NOCOLOR}  ]"
+JOB_FAILED_INDICATOR="[   ${RED}Failed!${NOCOLOR}   ]"
+
+# Define username and token filenames.
+USERNAME_FILE=/tmp/installer_username
+TOKEN_FILE=/tmp/installer_token
+
+# Define Jenkins config files.
+JENKINS_CONFIG_FILE=/var/lib/jenkins/config.xml
+JENKINS_GLOBALLIBRARIES_FILE=/var/lib/jenkins/org.jenkinsci.plugins.workflow.libs.GlobalLibraries.xml
+JENKINS_DOCKERDECLARATIVE_FILE=/var/lib/jenkins/org.jenkinsci.plugins.docker.workflow.declarative.GlobalConfig.xml
+
+# Define the job template variables.
+TEMPLATE_FILE="jobs/jobTemplate.xml"
+WORKDIR="/tmp/seed-jobs"
+
+function PrintHeader {
+  # Clear the screen first
+  clear
+
+  # Print banner
+  echo "#################################################"
+  echo "# Unofficial VyOS package mirror installer v1.0 #"
+  echo "#################################################"
+  echo
+}
+
+function EnsureRoot {
+  # Ensure we are root
+  if [ "$EUID" -ne 0 ]; then
+    echo -e "${RED}Please run as root${NOCOLOR}"
+    exit
+  fi
+}
+
+function ClearPreviousLine {
+  tput cuu1
+  tput el
+}
+
+function PrintEmptyIndicator {
+  echo -e "$EMPTY_INDICATOR $1"
+}
+
+function PrintOkIndicator {
+  echo -e "$OK_INDICATOR $1"
+}
+
+function PrintErrorIndicator {
+  echo -e "$ERROR_INDICATOR $1"
+  exit
+}
+
+function PrintJobNotStarted {
+  tput el
+  echo -e "[ ${LIGHTBLUE}Not Started${NOCOLOR} ] Package: $1 - Branch: $2"
+}
+
+function PrintJobRunning {
+  tput el
+  echo -e "[   ${LIGHTBLUE}Running${NOCOLOR}   ] Package: $1 - Branch: $2"
+}
+
+function PrintJobCompleted {
+  tput el
+  echo -e "[  ${GREEN}Completed${NOCOLOR}  ] Package: $1 - Branch: $2"
+}
+
+function PrintJobFailed {
+  tput el
+  echo -e "[   ${RED}Failed!${NOCOLOR}   ] Package: $1 - Branch: $2"
+}
+
+function Run {
+  command="$1"
+  infoMessage="$2"
+  errorMessage="$3"
+  successMessage="$4"
+
+  if [ "$infoMessage" != "" ]; then
+    echo -e "$EMPTY_INDICATOR $infoMessage"
+  fi
+
+  output=$( (set -e; eval "$command") 2>&1 1>/dev/null | tee /dev/fd/2; exit ${PIPESTATUS[0]} )
+  exitCode=$?
+
+  if [ $exitCode -eq 0 ]; then
+    if [ "$successMessage" != "" ]; then
+      if [ "$output" == "" ]; then
+        tput cuu1; tput el
+      fi
+      echo -e "$OK_INDICATOR $successMessage"
+    fi
+  else
+    if [ "$output" == "" ]; then
+      tput cuu1; tput el
+    fi
+    if [ "$successMessage" != "" ]; then
+      >&2 echo -e "$ERROR_INDICATOR $errorMessage"
+    else
+      >&2 echo -e "$ERROR_INDICATOR Unexpected failure, exit code: $exitCode"
+    fi
+    exit $exitCode
+  fi
+}
+
+function EnsureJenkinsCli {
+  if [ ! -f jenkins-cli.jar ]; then
+    PrintEmptyIndicator "Download Jenkins CLI..."
+    wget http://172.17.17.17:8080/jnlpJars/jenkins-cli.jar > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+        ClearPreviousLine
+        PrintOkIndicator "Downloaded Jenkins CLI successfully."
+    else
+        ClearPreviousLine
+        PrintErrorIndicator "Failed to download Jenkins CLI."
+    fi
+  fi
+}
+
+function TestJenkinsConnection {
+  PrintEmptyIndicator "Testing jenkins connection..."
+  java -jar jenkins-cli.jar -s http://172.17.17.17:8080 -auth $1:$2 > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    ClearPreviousLine
+    PrintOkIndicator "Connected to Jenkins successfully."
+
+    echo $1 > $USERNAME_FILE
+    echo $2 > $TOKEN_FILE
+  else
+    ClearPreviousLine
+    PrintErrorIndicator "Failed to connect to Jenkins, please re-run stage 2 and make sure the username and token is correct."
+    echo
+
+    if [ -f $USERNAME_FILE ]; then
+      rm $USERNAME_FILE
+    fi
+
+    if [ -f $TOKEN_FILE ]; then
+      rm $TOKEN_FILE
+    fi
+
+    exit
+  fi
+}
+
+function StopJenkins {
+  if [ $(systemctl is-active jenkins) == "active"  ]; then
+    PrintEmptyIndicator "Stopping Jenkins..."
+    service jenkins stop > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+      ClearPreviousLine
+      PrintOkIndicator "Jenkins has been stopped."
+    else
+      ClearPreviousLine
+      PrintErrorIndicator "Failed to stop Jenkins."
+    fi
+  fi
+}
+
+function StartJenkins {
+  if [ $(systemctl is-active jenkins) != "active"  ]; then
+    PrintEmptyIndicator "Starting Jenkins..."
+    service jenkins start > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+      ClearPreviousLine
+      PrintOkIndicator "Jenkins has been started."
+    else
+      ClearPreviousLine
+      PrintErrorIndicator "Failed to start Jenkins."
+    fi
+  fi
+}
+
+function UrlGet {
+  curl -sS -g --fail-with-body "${JENKINS_URL}${1}"
+}
+
+function UrlPost {
+  curl -sS -g --fail-with-body -X POST "${JENKINS_URL}${1}"
+}
+
+function UrlPush {
+  curl -sS -g --fail-with-body -X POST -d "@${2}" -H "Content-Type: text/xml" "${JENKINS_URL}${1}"
+}
+
+function ProvisionJob {
+  # Extract the job name.
+  JOB_NAME=$(echo "$1" | jq -r .name)
+
+  # Print the job name.
+  PrintEmptyIndicator "$JOB_NAME"
+
+  # Parse the json.
+  DESCRIPTION=$(echo "$1" | jq -r .description)
+  GIT_URL=$(echo "$1" | jq -r .gitUrl)
+  BRANCH_REGEX=$(echo "$1" | jq -r .branchRegex)
+  JENKINS_FILE_PATH=$(echo "$1" | jq -r .jenkinsfilePath)
+
+  # Create the job xml file.
+  JOBPATH="$WORKDIR/$JOB_NAME.xml"
+  PROJECT="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
+  BRANCH_SOURCE="$PROJECT/sources/data/jenkins.branch.BranchSource/source"
+  REGEX_TRAIT="$BRANCH_SOURCE/traits/jenkins.scm.impl.trait.RegexSCMHeadFilterTrait"
+  xmlstarlet ed --update "//$PROJECT/description" --value "$DESCRIPTION" \
+    --update "//$BRANCH_SOURCE/remote" --value "$GIT_URL" \
+    --update "//$REGEX_TRAIT/regex" --value "$BRANCH_REGEX" \
+    --update "//$PROJECT/factory/scriptPath" --value "$JENKINS_FILE_PATH" \
+    "$TEMPLATE_FILE" > "$JOBPATH" 2>/dev/null
+
+  if [ $? -ne 0 ]; then
+    ClearPreviousLine
+    PrintErrorIndicator "Failed to create job xml for: $JOB_NAME"
+  fi
+
+  # Check if job already exists.
+  RESULT=$(UrlGet "/checkJobName?value=$JOB_NAME" || true)
+
+  if [[ "$RESULT" == *"already exists"* ]]; then
+    # Job already exist, so we update it.
+    UrlPush "/job/$JOB_NAME/config.xml" "$JOBPATH"
+  else
+    # Job doesn't exist, so we create it.
+    UrlPush "/createItem?name=$JOB_NAME" "$JOBPATH"
+  fi
+
+  if [ $? -eq 0 ]; then
+    ClearPreviousLine
+    PrintOkIndicator "$JOB_NAME"
+  else
+    ClearPreviousLine
+    PrintErrorIndicator "Failed to create job: $JOB_NAME"
+  fi
+}
+
+function ProvisionJobs {
+  # Create the jobs.
+  echo "Provisioning jobs in Jenkins..."
+
+  # Declare the JOBS list.
+  declare -a JOBS
+
+  # Make sure the work directory exists.
+  mkdir -p "$WORKDIR"
+
+  # Read one job at a time from the json file.
+  while read item
+  do
+    # Find the name of the job.
+    JOB_NAME=$(echo "$item" | jq -r .name)
+
+    # Find the branches for the job.
+    BRANCH_REGEX=$(echo "$item" | jq -r .branchRegex)
+
+    # Split branch regex
+    BRANCHES=$(sed -e 's/(//g' -e 's/)//g' -e 's/|/\n/g' <<< "${BRANCH_REGEX}")
+
+    for BRANCH in $BRANCHES
+    do
+      JOBS+=( "$JOB_NAME|$BRANCH" )
+    done
+
+    # Provision the job.
+    ProvisionJob $item
+  done < <(cat $1 | jq -c '.[]')
+
+  echo
+  echo "Waiting for jobs to be provisioned in Jenkins..."
+  echo
+  echo "Total number of jobs: ${#JOBS[@]}"
+  echo
+
+  for job in "${JOBS[@]}"; do
+    jobSplit=(${job//|/ })
+    JOB_NAME="${jobSplit[0]}"
+    JOB_BRANCH="${jobSplit[1]}"
+
+    PrintJobNotStarted $JOB_NAME $JOB_BRANCH
+  done
+
+  while :
+  do
+    # Define the current state, and set it to true.
+    # If anything isn't ready, we set it to false.
+    FINISHED_THIS_RUN="true"
+
+    # Move the cursor up to the top of the list on screen.
+    for job in "${JOBS[@]}"; do
+      tput cuu1
+    done
+
+    # Check the status for each job
+    for job in "${JOBS[@]}"; do
+      jobSplit=(${job//|/ })
+      JOB_NAME="${jobSplit[0]}"
+      JOB_BRANCH="${jobSplit[1]}"
+
+      URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
+
+      if [ "$(curl -o /dev/null -s -w "%{http_code}\n" "${URL}")" -eq 404 ]; then
+        # The indexing hasn't started for this branch yet.
+        PrintJobNotStarted $JOB_NAME $JOB_BRANCH
+        FINISHED_THIS_RUN="false"
+      else
+        # Indexing has started.
+        RESULT=$(curl -Ss -g --fail-with-body "$URL" | jq -r .result)
+        if [[ "${RESULT}" != "SUCCESS" ]]; then
+          # But it hasn't finished yet.
+          PrintJobRunning $JOB_NAME $JOB_BRANCH
+          FINISHED_THIS_RUN="false"
+        else
+          PrintJobCompleted $JOB_NAME $JOB_BRANCH
+        fi
+      fi
+    done
+
+    # When we get here, if FINISHED_THIS_RUN is true, everything is ready
+    if [[ $FINISHED_THIS_RUN == "true" ]]; then
+      break;
+    else
+      # Sleep 5 seconds
+      sleep 5
+    fi
+  done
+}
+
+function BuildJobs {
+  # Build the jobs.
+  echo "Building jobs in Jenkins..."
+
+  # Declare the JOBS list.
+  declare -a JOBS
+
+  # Read one job at a time from the json file.
+  # Store the single jobs in the JOBS array.
+  while read item
+  do
+    # Find the name of the job.
+    JOB_NAME=$(echo "$item" | jq -r .name)
+
+    # Find the branches for the job.
+    BRANCH_REGEX=$(echo "$item" | jq -r .branchRegex)
+
+    # Split branch regex
+    BRANCHES=$(sed -e 's/(//g' -e 's/)//g' -e 's/|/\n/g' <<< "${BRANCH_REGEX}")
+
+    for BRANCH in $BRANCHES
+    do
+      JOBS+=( "$JOB_NAME|$BRANCH" )
+    done
+  done < <(cat $1 | jq -c '.[]')
+
+  BUILD_FAILED="false"
+
+  echo "Total number of jobs: ${#JOBS[@]}"
+
+  # Has the CONCURRENT_JOBS_COUNT environment variable been set?
+  if [ "$(printenv CONCURRENT_JOBS_COUNT)" ]; then
+    # Yes, so we use that value to define the number of concurrent jobs.
+    CONCURRENT_JOBS_COUNT=$(printenv CONCURRENT_JOBS_COUNT)
+    echo "Concurrent jobs: $CONCURRENT_JOBS_COUNT (Overridden by the CONCURRENT_JOBS_COUNT environment variable)"
+  else
+    # No, so we read the number of CPU cores, and use that.
+    CONCURRENT_JOBS_COUNT="$(nproc)"
+
+    # If less than 4 CPU cores is found, we set it to 4.
+    CONCURRENT_JOBS_COUNT=$(( $CONCURRENT_JOBS_COUNT < 4 ? 4 : $CONCURRENT_JOBS_COUNT))
+    echo "Concurrent jobs: $CONCURRENT_JOBS_COUNT (Can be overridden by setting the CONCURRENT_JOBS_COUNT environment variable)"
+  fi
+
+  echo
+
+  declare -A JOB_RESULTS
+
+  # While there are more jobs to build.
+  while [ ${#JOBS[@]} -gt 0 ]
+  do
+    # Create a list to store the current "chunk" of jobs in.
+    declare -a CURRENT_JOBS
+
+    # Make sure it is empty.
+    CURRENT_JOBS=()
+
+    # While the number of jobs in the list is less than the concurrent job count.
+    while [ ${#CURRENT_JOBS[@]} -lt $CONCURRENT_JOBS_COUNT ]
+    do
+      # Are there any jobs left in the main list?
+      if [ ${#JOBS[@]} -gt 0 ]; then
+        # Yes, so we take the first element.
+        ELEMENT=${JOBS[0]}
+
+        # Remove it from the main list.
+        JOBS=("${JOBS[@]:1}")
+
+        # And add it to our current list.
+        CURRENT_JOBS+=( "$ELEMENT" )
+      else
+        # No more jobs, so we break out of the loop.
+        break
+      fi
+    done
+
+    # For each jobs in the current list.
+    for job in "${CURRENT_JOBS[@]}"; do
+      # Split into name and branch.
+      jobSplit=(${job//|/ })
+      JOB_NAME="${jobSplit[0]}"
+      JOB_BRANCH="${jobSplit[1]}"
+
+      # Download job data and parse it.
+      URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"
+      DATA=$(curl -Ss -g --fail-with-body "$URL")
+      NUMBER="$(echo $DATA | jq -r .number)"
+      INPROGRESS="$(echo $DATA | jq -r .inProgress)"
+      RESULT="$(echo $DATA | jq -r .result)"
+
+      # Get the branch build parameters.
+      JSON=`cat $1 | jq --arg jobName "$JOB_NAME" --arg branch "$JOB_BRANCH" '.[] | select(.name == $jobName) | .branchParameters[$branch]'`
+
+      # Build command line.
+      COMMAND="java -jar jenkins-cli.jar -s http://172.17.17.17:8080 -auth $USERNAME:$TOKEN build '$JOB_NAME/$JOB_BRANCH'"
+
+      # Construct the command line with the parameters.
+      if [[ $JSON != "null" ]]; then
+        while read variable
+        do
+          name=$(echo "$variable" | jq -r .key)
+          value=$(echo "$variable" | jq -r .value)
+
+          COMMAND="$COMMAND -p $name=$value"
+        done < <(echo "$JSON" | jq -c 'to_entries | .[]')
+      fi
+
+      # Is the latest job #1 (the branch indexing job)?
+      if [[ "${NUMBER}" == "1" ]]; then
+        # Yes, so we trigger a new build.
+        eval $COMMAND || true
+      # No, so if inProgress is not true, the result is not success and the result is not null.
+      elif [[ "${INPROGRESS}" != "true" ]] && [[ "${RESULT}" != "SUCCESS" ]] && [[ "${RESULT}" != "null" ]]; then
+        # We trigger a new build, since the last build is not running, but didn't succeed.
+        eval $COMMAND || true
+
+        # We need to store the build number we found in a variable.
+        LAST_BUILD_NUMBER=$NUMBER
+
+        # Keep downloading the info for the last build, until the build number doesn't match the one stored above.
+        while :
+        do
+          URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"
+          DATA=$(curl -Ss -g --fail-with-body "$URL")
+          NUMBER="$(echo $DATA | jq -r .number)"
+
+          # When that happens, the new build has been started, and we can move on.
+          if [[ "${NUMBER}" != "$LAST_BUILD_NUMBER" ]]; then
+            break
+          fi
+
+          # If not yet, we sleep 5 seconds and try again.
+          sleep 5
+        done
+      fi
+
+      # Once we get to here, we have asked Jenkins to start the job, so we create an initial status of "Not Started".
+      echo -e "[ ${LIGHTBLUE}Not Started${NOCOLOR} ] Package: $JOB_NAME - Branch: $JOB_BRANCH"
+    done
+
+    while :
+    do
+      # Define the current state, and set it to true.
+      # If anything isn't ready, we set it to false.
+      FINISHED_THIS_RUN="true"
+
+      # Move the cursor up one line for each job in the current job list.
+      for job in "${CURRENT_JOBS[@]}"; do
+        tput cuu1
+      done
+
+      # For each job in the current job list.
+      for job in "${CURRENT_JOBS[@]}"; do
+        # Split into name and branch.
+        jobSplit=(${job//|/ })
+        JOB_NAME="${jobSplit[0]}"
+        JOB_BRANCH="${jobSplit[1]}"
+
+        # Download job data and parse it.
+        URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"
+        DATA=$(curl -Ss -g --fail-with-body "$URL")
+        NUMBER="$(echo $DATA | jq -r .number)"
+        INPROGRESS="$(echo $DATA | jq -r .inProgress)"
+        RESULT="$(echo $DATA | jq -r .result)"
+
+        if [[ "${NUMBER}" == "1" ]]; then
+          # Job number is 1, so we have the branching indexing job.
+          PrintJobNotStarted $JOB_NAME $JOB_BRANCH
+          FINISHED_THIS_RUN="false"
+        else
+          if [[ "${INPROGRESS}" == "true" ]]; then
+            # inProgress is true, so the job is running.
+            PrintJobRunning $JOB_NAME $JOB_BRANCH
+            FINISHED_THIS_RUN="false"
+          else
+            if [[ "${RESULT}" == "SUCCESS" ]]; then
+              # result is SUCCESS, so the job is done.
+              PrintJobCompleted $JOB_NAME $JOB_BRANCH
+              JOB_RESULTS[$job]="OK"
+            else
+              if [[ "${RESULT}" == "null" ]]; then
+                # result is null, which means we can download the data for the job, but it hasn't started yet.
+                PrintJobNotStarted $JOB_NAME $JOB_BRANCH
+                FINISHED_THIS_RUN="false"
+              else
+                # If we end up here, the job has failed.
+                PrintJobFailed $JOB_NAME $JOB_BRANCH
+                JOB_RESULTS[$job]="FAILED"
+                BUILD_FAILED="true"
+              fi
+            fi
+          fi
+        fi
+      done
+
+      # When we get here, if FINISHED_THIS_RUN is true, everything is ready
+      if [[ $FINISHED_THIS_RUN == "true" ]]; then
+        break;
+      else
+        # Sleep 5 seconds
+        sleep 5
+      fi
+    done
+  done
+
+  if [[ $BUILD_FAILED == "false" ]]; then
+    # All builds succeeded.
+    return 0
+  else
+    # One or more builds failed.
+    # Print the name of those who failed.
+    echo
+    echo "List of failed jobs:"
+    for job in "${!JOB_RESULTS[@]}"
+    do
+      jobSplit=(${job//|/ })
+      JOB_NAME="${jobSplit[0]}"
+      JOB_BRANCH="${jobSplit[1]}"
+
+      if [[ ${JOB_RESULTS[$job]} == "FAILED" ]]; then
+        echo -e "[   ${RED}Failed!${NOCOLOR}   ] Package: $JOB_NAME - Branch: $JOB_BRANCH"
+      fi
+    done
+
+    return 1
+  fi
+}
+
+function CreateMarkerFile {
+  touch "/tmp/installer_stage_${1}_completed"
+}
+
+function EnsureStageIsComplete {
+  if [ ! -f "/tmp/installer_stage_${1}_completed" ]; then
+    echo -e "${RED}Stage ${1} has not been completed - please run that first.${NOCOLOR}"
+    exit
+  fi
+}

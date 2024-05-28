@@ -1,0 +1,14 @@
+[
+  {
+    "name": "vyos-build-container",
+    "description": "shared",
+    "gitUrl": "https://github.com/dd010101/vyos-build.git",
+    "branchRegex": "(equuleus|sagitta|current)",
+    "jenkinsfilePath": "packages/vyos-build-container/Jenkinsfile",
+    "branchParameters": {
+      "equuleus": {
+        "ELTS_MIRROR": "http://172.17.17.17:3142/deb.freexian.com/extended-lts"
+      }
+    }
+  }
+]
