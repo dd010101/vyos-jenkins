@@ -47,12 +47,28 @@ to docker container and thus if you see for example that the build fails due to 
 install cmake on the Jenkins host or as Jenkins plugin, since that's not how it is used. In this case you would need
 to install such package inside the docker container.
 
+Before you install Jenkins, create its user and group
+--
+
+Most of Jenkinfiles do respect your UID/GID but not all, for
+example [linux-kernel/Jenkinsfile](https://github.com/vyos/vyos-build/blob/equuleus/packages/linux-kernel/Jenkinsfile)
+has hardcoded UID and GID to 1006 and this will fail build if you don't have 1006:1006 user.
+
+That's why we want to create jenkins user and group with ID 1006 before installing Jenkins from apt.
+
+```
+groupadd --system --gid 1006 jenkins
+useradd --system --comment Jenkins --shell /bin/bash --uid 1006 --gid 1006 --home-dir /var/lib/jenkins jenkins
+```
+
+If you have already existing user then please [change its UID/GID](legacy-uid-gid.md).
+
 Install Jenkins, and it's java
 --
 
-Just follow the usual guide via APT https://www.jenkins.io/doc/book/installing/linux/#debianubuntu
-
 Install java, then Jenkins. Let setup guide to install recommended plugins.
+
+Just follow the usual guide via APT https://www.jenkins.io/doc/book/installing/linux/#debianubuntu
 
 Install docker
 --
@@ -86,22 +102,6 @@ ifup dummy0
 ```
 
 Now we can locally point to known IP `172.17.17.17` as it was the host itself.
-
-UID / GID issue
---
-
-Most of Jenkinfiles do respect your UID/GID but not all, for
-example https://github.com/vyos/vyos-build/blob/equuleus/packages/linux-kernel/Jenkinsfile has hardcoded UID and GID to
-1006 and this will fail build if you don't have 1006:1006 user.
-
-That's why we want change Jenkins to 1006/1006:
-
-```
-systemctl stop jenkins.service
-usermod -u 1006 jenkins
-groupmod -g 1006 jenkins
-chown -R jenkins:jenkins /var/lib/jenkins/ /var/cache/jenkins/ /var/log/jenkins/
-```
 
 After adding docker group and/or after UID/GID change restart Jenkins
 --
@@ -218,7 +218,7 @@ Name: DEV_PACKAGES_VYOS_NET_HOST
 Value: jenkins@172.17.17.17
 ```
 
-This user+IP/host will be used for SSH access to reprepro, it can be another host, we use the host itself, 
+This user+IP/host will be used for SSH access to reprepro, it can be another host, we use the host itself,
 this IP needs to be accesible from docker container thus this should be LAN IP not localhost.
 
 **Global properties -> Environmental Variables -> Add**
