@@ -1119,4 +1119,80 @@ How to use your mirror:
 Smoketest
 --
 
-TODO: include instructions how to run standalone smoketest
+It's not bad idea to sanity check your ISO image. This is why VyOS has testing procedure called smoketest.
+This test checks mainly configuration, it's not complete test, it will only tell you if something
+is very wrong, passed test doesn't mean image will be necessarily fully functional - with that said it's still useful,
+just don't put too much trust in it.
+
+You will need host that supports virtualization and thus can run KVM. Main test (`make test`) takes around two hours
+to complete, additional tests are significantly faster.
+
+I like to run smoketest individually, there is way to run automated smoketest via `vyos-build/Jenkinsfile` but
+that requires Jenkins, and also it starts all tests in parallel thus requiring more RAM since multiple virtual
+machines run in parallel.
+
+There is requirement to include `vyos-1x-smoketest` package in your ISO image build. By default, ISO build doesn't
+include smoketest thus you need to include it via the usual parameter for custom packages.
+When you run `./configure` (equuleus) or `./build-vyos-image` (sagitta) add `--custom-package vyos-1x-smoketest`.
+
+If you have your image with smoketest then you can test it. If you did build it yourself, then your likely already
+have clone of `vyos-build` repository.
+
+If not clone it and switch to your branch.
+
+```
+git clone https://github.com/dd010101/vyos-build.git
+cd vyos-build
+
+# pick one
+git checkout sagitta
+git checkout equuleus
+```
+
+There is known issue with smoketest that it will fail if you have too many CPU cores/threads. The test is designed
+to use half of your cores, but it will fail if calculates more than 4, thus if you have 6 or more cores/threads
+then test likely will fail. If you do apply this patch to cap cores to 3:
+
+```
+sed -i 's~cpu /= 2~cpu = 3~' scripts/check-qemu-install
+```
+
+More cores don't increase speed, the test is single process anyway, it usually uses <2 cores and thus 3 is more than
+enough. More cores will not speed up the test - it will only make the test fail due to OOM
+inside the test virtual machine.
+
+If you did build your image, then you should have `build` directory and there should be your ISO as
+`live-image-amd64.hybrid.iso`. If you want to test arbitrary ISO then you can plant whatever ISO into
+the expected path `build/live-image-amd64.hybrid.iso`. You of course need ISO image that includes
+`vyos-1x-smoketest` package.
+
+Install dependencies:
+
+```
+apt install qemu-kvm python3-tomli python3-pexpect
+```
+
+And then you can launch virtual machine to do tests thing via `make`. There are multiple tests:
+
+CLI configuration test
+
+```
+make test
+```
+
+Configuration file load test
+
+```
+make testc
+```
+
+RAID1 test
+
+```
+make testraid
+```
+
+You can as well run smoketest directly from installed VyOS, but you need many network interfaces otherwise
+some tests will fail. The test is expecting 8 or more network ports. You do it by simply including
+`vyos-1x-smoketest` package in your ISO image build. Then you can boot and run `vyos-smoketest`.
+I'm not sure if all 8 are required but with few the test will fail for sure.
