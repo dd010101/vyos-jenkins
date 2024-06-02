@@ -519,7 +519,7 @@ This setup doesn't require much maintenance, but you will need to do some manual
 you will need to rebuild the docker containers from time to time. There is also possible that some jobs
 will change and of course major overhaul is required to add support for next major release of VyOS.
 
-You can also create Multibranch Pipelines manually, [see bellow](readme.md#multibranch-pipelines-manual).
+You can also create Multibranch Pipelines manually, [see bellow](#multibranch-pipelines-manual).
 
 How to build ISO
 --
