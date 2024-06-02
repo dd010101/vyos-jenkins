@@ -13,7 +13,7 @@ E: The repository 'http://dev.packages.vyos.net/repositories/sagitta sagitta InR
 Then don't be surprised. Are you not blocked - everyone is blocked. This is due to 
 [change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds) where
 they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to stable
-branches like (1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with official
+branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with
 `dev.packages.vyos.net/repositories`.
 
 You want to continue to use VyOS long term? Then you can switch to current/development branch if you think 
