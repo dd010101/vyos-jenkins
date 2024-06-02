@@ -69,7 +69,7 @@ useradd --system --comment Jenkins --shell /bin/bash --uid 1006 --gid 1006 --hom
 
 If you have already existing user then please [change its UID/GID](legacy-uid-gid.md).
 
-Install Jenkins, and it's java
+Install Jenkins, and its java
 --
 
 Install java, then Jenkins. Let setup guide to install recommended plugins.
@@ -474,7 +474,7 @@ Check the `jenkins-scripts/seed-jobs.sh` for details.
 
 **Get the script seed-jobs.sh**
 
-And it's assets (jobs.json, jobTemplate.xml).
+And its assets (jobs.json, jobTemplate.xml).
 
 ```
 git clone git@github.com:dd010101/vyos-jenkins.git
