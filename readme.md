@@ -1,51 +1,57 @@
+Prologue
+--
+
+If you're trying to build VyOS ISO image with the usual way and get following errors:
+
+```
+E: Failed to fetch http://dev.packages.vyos.net/repositories/equuleus/dists/equuleus/InRelease  403  Forbidden [IP: 104.18.30.79 443]
+E: The repository 'http://dev.packages.vyos.net/repositories/equuleus equuleus InRelease' is not signed.
+E: Failed to fetch http://dev.packages.vyos.net/repositories/sagitta/dists/sagitta/InRelease  403  Forbidden [IP: 104.18.30.79 443]
+E: The repository 'http://dev.packages.vyos.net/repositories/sagitta sagitta InRelease' is not signed.
+```
+
+Then don't be surprised. Are you not blocked - everyone is blocked. This is due to 
+[change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds) where
+they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to stable
+branches like (1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with official
+`dev.packages.vyos.net/repositories`.
+
+You want to continue to use VyOS long term? Then you can switch to current/development branch if you think 
+that's good idea for your use case. If you like to use stable branch then you would need to pay for
+[VyOS subscription](https://vyos.io/subscriptions/support). The only other option currently is to build your own
+`dev.packages.vyos.net` package repository and that's what this project is all about.
+
 State
 --
 
 Currently, it should be possible to use this information to build all required packages for equuleus and sagitta and
 as result you get apt repository that can be used to build ISO images.
 
-The goal of this project is to reproduce atp repositories of stable branches formerly available at
+The goal of this project is to reproduce package repositories of stable branches formerly available at
 `dev.packages.vyos.net`. This isn't exactly possible due to the state of VyOS build system and VyOS packages.
 Many patches and workarounds for the build system were required to be developed and couple packages were required
-to be forked due to their broken or non-existent build script. The nature of the build system makes it impossible
-to build exactly the same packages and thus for some packages slight variation exist. In result, it's possible to
-recreate nearly identical replacement for `dev.packages.vyos.net` and produce ISO images that will pass smoketest,
-and are expected to be equivalent but of course with any custom image build you need to verify and test the resulting
+to be forked due to their broken or non-existent build script. Thus, for some packages slight variation exist. 
+In result, it's possible to recreate nearly identical replacement for `dev.packages.vyos.net` and produce ISO images
+that are expected to be equivalent but of course with any custom image build you need to verify and test the resulting 
 image yourself.
 
-This guide is work in progress and meant only for local experimentation and development.
+Thanks to @pittagurneyi for providing build scripts for missing packages.
 
-Thanks to @pittagurneyi for provding build scripts for missing packages.
-
-Notes for hosting
---
-TODO: recommend best practices. Also include guide how to mirror repositories
-to another host.
-
-Notes for development
+Host requirements and precautions
 --
 
-I recommend debian and dedicated virtual machine for security purposes. Since this setup isn't isolating the build
-from the host and in theory Jenkins can compromise your build host if you execute some malicious
-build so don't share the OS with anything else. This isn't the ideal setup - this guides describes the simple way
-not the ideal or proper way.
+I recommend stable Debian and dedicated virtual machine for security purposes. This setup isn't isolating the build 
+from the Jenskins and in theory if you execute malicious build it can compromise your Jenkins and possible your
+host. Thus don't share the Jenkins with other projects and ideally don't share the operating system with anything else
+either. This risk isn't likely, but it does exist since you will execute code from GitHub under the jenkins user.
 
-8GB RAM, 100GB HDD and appropriate CPU should be enough. Some builds are big and thus for debugging
-purposes it would be good to have fast CPU - so you don't need to wait as much. It's not bad idea to make
-8GB swap just to make be sure there will not be OOM situation. It's known that some builds are memory hogs and will
-fail with 4GB total memory due to OOM.
+The hardware requirements are significant - 8GB RAM, 100GB HDD and appropriate CPU. You will need 16GB of RAM but
+this doesn't need to be RAM, you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
 
 I assume single shared host for Jenkins and x86 node (Built-In Node). I also assume the SSH host for reprepro
-repositories is the same as the Jenkins host. Not recommended, but it's the simple way to get experimental
-environment started all in one. Normally you would have these roles split into more VMs but that's redundant
-for our purpose and thus everything is on one host under one single user.
-
-The basic mode of operation is that Jenkins fetches sources from repository then executes build commands
-inside docker container (vyos-build from dockerhub), at last Jenkins picks up what docker produces and puts
-it over SSH into reprepro repository. Thus, Jenkins itself is not doing the build - it delegates build
-to docker container and thus if you see for example that the build fails due to missing cmake don't try to
-install cmake on the Jenkins host or as Jenkins plugin, since that's not how it is used. In this case you would need
-to install such package inside the docker container.
+repositories is the same as the Jenkins host. It's the simple way to get simple environment started all in one. 
+Normally you would have these roles split into more VMs but that's redundant for our purpose and thus everything is 
+on one host under one single user.
 
 Before you install Jenkins, create its user and group
 --
