@@ -17,7 +17,7 @@ branches (like 1.3 equuleus/1.4 sagitta), you can still build current/developmen
 `dev.packages.vyos.net/repositories`.
 
 You want to continue to use VyOS long term? Then you can switch to current/development branch if you think 
-that's good idea for your use case. If you like to use stable branch then you would need to pay for
+that's good idea for your use case. If you like to use stable branch then you would need to obtain
 [VyOS subscription](https://vyos.io/subscriptions/support). The only other option currently is to build your own
 `dev.packages.vyos.net` package repository and that's what this project is all about.
 
@@ -39,14 +39,14 @@ Host requirements and precautions
 --
 
 I recommend stable Debian and dedicated virtual machine for security purposes. This setup isn't isolating the build 
-from the Jenskins and in theory if you execute malicious build it can compromise your Jenkins and possible your
+from the Jenskins and in theory if you execute malicious build it can compromise your Jenkins and possibly your
 host. Thus don't share the Jenkins with other projects and ideally don't share the operating system with anything else
 either. This risk isn't likely, but it does exist since you will execute code from GitHub under the jenkins user.
 
 The hardware requirements are significant - 8GB RAM, 100GB HDD and appropriate CPU. You will need 16GB of RAM but
 this doesn't need to be RAM, you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
 
-Originally this setup was designed to use 3 or more virtual machines that's why some part may seem bit unusual. This guide merges everything to single host under single user to make it simpler and faster to get started. You may use another machine as build node for Jenkins (or multiple nodes), you may also use dedicated machine for reprepro but here it's assumed everything is one host and one user.
+The build system was designed to use 3 or more machines that's why some steps may seem bit unusual. This guide merges everything to single host under single user to make it simpler and faster to get started. You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine for reprepro but here it's assumed everything is one host under one user.
 
 Before you install Jenkins, create its user and group
 --
