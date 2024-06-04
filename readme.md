@@ -10,10 +10,10 @@ E: Failed to fetch http://dev.packages.vyos.net/repositories/sagitta/dists/sagit
 E: The repository 'http://dev.packages.vyos.net/repositories/sagitta sagitta InRelease' is not signed.
 ```
 
-Then don't be surprised - you aren't blocked - everyone is blocked. This is due to 
-[change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds) where
-they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to stable
-branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with
+You may also see `Sorry, you have been blocked` if you try to visit these links, but you aren't blocked - everyone 
+is blocked. This is due to [change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds) 
+where they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to
+stable branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with
 `dev.packages.vyos.net/repositories`.
 
 You want to continue to use VyOS long term? Then you can switch to current/development branch if you think 
@@ -29,9 +29,9 @@ as result you get apt repository that can be used to build ISO images.
 
 The goal of this project is to reproduce package repositories of stable branches formerly available at
 `dev.packages.vyos.net`. This isn't exactly possible due to the state of VyOS build system and VyOS packages.
-The result isn't exactly the same but it's nearly identical replacement for `dev.packages.vyos.net` and it produces ISO images
-that are expected to be equivalent but of course with any custom image build you need to verify and test the resulting 
-image yourself.
+The result isn't exactly the same, but it's nearly identical replacement for `dev.packages.vyos.net` and it
+produces ISO images that are expected to be equivalent but of course with any custom image build you need
+to verify and test the resulting image yourself.
 
 Thanks to @pittagurneyi for providing build scripts for missing packages.
 
@@ -43,10 +43,13 @@ from the Jenskins and in theory if you execute malicious build it can compromise
 host. Thus don't share the Jenkins with other projects and ideally don't share the operating system with anything else
 either. This risk isn't likely, but it does exist since you will execute code from GitHub under the jenkins user.
 
-The hardware requirements are significant - 8GB RAM, 100GB HDD and appropriate CPU. You will need 16GB of RAM but
+The hardware requirements are significant - 8GB RAM, 200GB HDD and appropriate CPU. You will need 16GB of RAM but
 this doesn't need to be RAM, you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
 
-The build system was designed to use 3 or more machines that's why some steps may seem bit unusual. This guide merges everything to single host under single user to make it simpler and faster to get started. You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine for reprepro but here it's assumed everything is one host under one user.
+The build system was designed to use 3 or more machines that's why some steps may seem a bit unusual. 
+This guide merges everything to single host under single user to make it simpler and faster to get started.
+You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine 
+for reprepro but here it's assumed everything is one host under one user.
 
 Before you install Jenkins, create its user and group
 --
@@ -85,8 +88,8 @@ usermod -a -G docker jenkins
 Setup local IP
 --
 
-This guide will simplify the unknown by using static IP on dummy interface, this is hopefully outside your subnet if not
-please change all references of this IP with your own.
+This guide will simplify the unknown by using static IP on dummy interface, this is hopefully outside your subnet if
+not please change all references of this IP with your own.
 
 ```
 cat << EOT >> /etc/network/interfaces
@@ -138,7 +141,7 @@ Then restart docker:
 systemctl restart docker.service
 ```
 
-Build patched vyos-build docker image and create local registry
+Build patched vyos-build docker images
 --
 
 The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus I made some
@@ -519,8 +522,8 @@ You can also create Multibranch Pipelines manually, [see bellow](#multibranch-pi
 How to build ISO
 --
 
-Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg singing
-key `--custom-apt-key`.
+Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg 
+singing key `--custom-apt-key`.
 
 To make `--vyos-mirror` is easy, you just install your favorite webserver and point the webroot
 to `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/`. For example nginx vhost looks
