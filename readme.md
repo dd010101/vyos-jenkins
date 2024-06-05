@@ -10,13 +10,13 @@ E: Failed to fetch http://dev.packages.vyos.net/repositories/sagitta/dists/sagit
 E: The repository 'http://dev.packages.vyos.net/repositories/sagitta sagitta InRelease' is not signed.
 ```
 
-You may also see `Sorry, you have been blocked` if you try to visit these links, but you aren't blocked - everyone 
-is blocked. This is due to [change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds) 
+You may also see `Sorry, you have been blocked` if you try to visit these links, but you aren't blocked - everyone
+is blocked. This is due to [change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds)
 where they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to
 stable branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with
 `dev.packages.vyos.net/repositories`.
 
-You want to continue to use VyOS long term? Then you can switch to current/development branch if you think 
+You want to continue to use VyOS long term? Then you can switch to current/development branch if you think
 that's good idea for your use case. If you like to use stable branch then you would need to obtain
 [VyOS subscription](https://vyos.io/subscriptions/support). The only other option currently is to build your own
 `dev.packages.vyos.net` package repository and that's what this project is all about.
@@ -38,7 +38,7 @@ Thanks to @pittagurneyi for providing build scripts for missing packages.
 Host requirements and precautions
 --
 
-I recommend stable Debian and dedicated virtual machine for security purposes. This setup isn't isolating the build 
+I recommend stable Debian and dedicated virtual machine for security purposes. This setup isn't isolating the build
 from the Jenskins and in theory if you execute malicious build it can compromise your Jenkins and possibly your
 host. Thus don't share the Jenkins with other projects and ideally don't share the operating system with anything else
 either. This risk isn't likely, but it does exist since you will execute code from GitHub under the jenkins user.
@@ -46,9 +46,9 @@ either. This risk isn't likely, but it does exist since you will execute code fr
 The hardware requirements are significant - 8GB RAM, 200GB HDD and appropriate CPU. You will need 16GB of RAM but
 this doesn't need to be RAM, you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
 
-The build system was designed to use 3 or more machines that's why some steps may seem a bit unusual. 
+The build system was designed to use 3 or more machines that's why some steps may seem a bit unusual.
 This guide merges everything to single host under single user to make it simpler and faster to get started.
-You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine 
+You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine
 for reprepro but here it's assumed everything is one host under one user.
 
 Before you install Jenkins, create its user and group
@@ -249,6 +249,16 @@ if package is built from non-vyos repository. Unfortunately VyOS has bugs not on
 well in their packages, some packages are also missing, thus it's currently impossible to build all packages
 from VyOS repositories, and thus we need to use custom repositories.
 
+**Global properties -> Environmental Variables -> Add**
+
+```
+Name: CUSTOM_DOCKER_REPO
+Value: 172.17.17.17:5000
+```
+
+This variable is used to specify local docker registry for automatic `vyos-build` docker image rebuild, 
+[see bellow for details](#additional-jobs).
+
 **Global Pipeline Libraries -> Add**
 
 ```
@@ -269,7 +279,7 @@ since some packages will use current and some sagitta branch.
 Docker registry URL: http://172.17.17.17:5000
 ```
 
-This will allow Jenkins to use your own (patched) vyos-build docker image. 
+This will allow Jenkins to use your own (patched) vyos-build docker image.
 
 Credentials for ssh-agent
 --
@@ -522,7 +532,7 @@ You can also create Multibranch Pipelines manually, [see bellow](#multibranch-pi
 How to build ISO
 --
 
-Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg 
+Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg
 singing key `--custom-apt-key`.
 
 To make `--vyos-mirror` is easy, you just install your favorite webserver and point the webroot
@@ -1202,3 +1212,23 @@ repositories/sagitta/pool/main/w/wpa/wpasupplicant_2.10-1028-g6b9c86466_amd64.de
 ```
 
 </details>
+
+Additional jobs
+--
+
+These jobs aren't packages, but they are made in the same spirit to make configuration simpler. Configuration on
+Jenkins side is identical to configuration for packages.
+
+| Job                  | GIT repository                                   | Branch       | Location of Jenkinsfile                   |
+|----------------------|--------------------------------------------------|--------------|-------------------------------------------|
+| vyos-build-container | **https://github.com/dd010101/vyos-missing.git** | **equuleus** | packages/vyos-build-container/Jenkinsfile |
+| vyos-build-container | **https://github.com/dd010101/vyos-missing.git** | **sagitta**  | packages/vyos-build-container/Jenkinsfile |
+| vyos-build-container | **https://github.com/dd010101/vyos-missing.git** | **current**  | packages/vyos-build-container/Jenkinsfile |
+
+
+Job `vyos-build-container` builds `vyos-build` docker container image. This image is pushed to local registry specified
+with environment variable `CUSTOM_DOCKER_REPO`. The `vyos-build` docker container is used to build all packages.
+This job is used as automation to do the same process as described above in 
+[Build patched vyos-build docker images](#build-patched-vyos-build-docker-images)
+to keep the docker images up to date - this replaces the need to rebuild images from time to time and thus reduces
+maintenance.

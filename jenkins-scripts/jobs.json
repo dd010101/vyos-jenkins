@@ -439,5 +439,12 @@
   "gitUrl": "https://github.com/vyos/vyos-xe-guest-utilities.git",
   "branchRegex": "(equuleus|sagitta|current)",
   "jenkinsfilePath": "Jenkinsfile"
+ },
+ {
+  "name": "vyos-build-container",
+  "description": "shared",
+  "gitUrl": "https://github.com/dd010101/vyos-missing.git",
+  "branchRegex": "(equuleus|sagitta|current)",
+  "jenkinsfilePath": "packages/vyos-build-container/Jenkinsfile"
  }
 ]
