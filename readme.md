@@ -1,7 +1,7 @@
 Prologue
 --
 
-If you're trying to build VyOS ISO image with the usual way and get following errors:
+If you're trying to build VyOS ISO image with the usual way you may see following errors:
 
 ```
 E: Failed to fetch http://dev.packages.vyos.net/repositories/equuleus/dists/equuleus/InRelease  403  Forbidden [IP: 104.18.30.79 443]
