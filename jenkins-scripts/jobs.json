@@ -446,5 +446,12 @@
   "gitUrl": "https://github.com/dd010101/vyos-build.git",
   "branchRegex": "(equuleus|sagitta|current)",
   "jenkinsfilePath": "packages/vyos-build-container/Jenkinsfile"
+ },
+ {
+  "name": "wide-dhcpv6",
+  "description": "shared",
+  "gitUrl": "https://github.com/vyos/vyos-build.git",
+  "branchRegex": "(equuleus|sagitta)",
+  "jenkinsfilePath": "packages/wide-dhcpv6/Jenkinsfile"
  }
 ]
