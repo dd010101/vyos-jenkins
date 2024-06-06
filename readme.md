@@ -165,7 +165,7 @@ cd vyos-build/docker
 # Build and Push equuleus
 
 git checkout equuleus
-docker build . -t vyos/vyos-build:equuleus
+docker build --no-cache -t vyos/vyos-build:equuleus .
 
 docker tag vyos/vyos-build:equuleus ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
 docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
@@ -174,7 +174,7 @@ docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
 # Build and Push sagitta
 
 git checkout sagitta
-docker build . -t vyos/vyos-build:sagitta
+docker build --no-cache -t vyos/vyos-build:sagitta .
 
 docker tag vyos/vyos-build:sagitta ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:sagitta
 docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:sagitta
@@ -183,7 +183,7 @@ docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:sagitta
 # Build and Push current -- (current is required for some sagitta packages)
 
 git checkout current
-docker build . -t vyos/vyos-build:current
+docker build --no-cache -t vyos/vyos-build:current .
 
 docker tag vyos/vyos-build:current ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:current
 docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:current
