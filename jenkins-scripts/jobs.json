@@ -443,7 +443,7 @@
  {
   "name": "vyos-build-container",
   "description": "shared",
-  "gitUrl": "https://github.com/dd010101/vyos-missing.git",
+  "gitUrl": "https://github.com/dd010101/vyos-build.git",
   "branchRegex": "(equuleus|sagitta|current)",
   "jenkinsfilePath": "packages/vyos-build-container/Jenkinsfile"
  }

@@ -256,7 +256,7 @@ Name: CUSTOM_DOCKER_REPO
 Value: 172.17.17.17:5000
 ```
 
-This variable is used to specify local docker registry for automatic `vyos-build` docker image rebuild, 
+This variable is used to specify local docker registry for automatic `vyos-build` docker image rebuild,
 [see bellow for details](#additional-jobs).
 
 **Global Pipeline Libraries -> Add**
@@ -1219,16 +1219,15 @@ Additional jobs
 These jobs aren't packages, but they are made in the same spirit to make configuration simpler. Configuration on
 Jenkins side is identical to configuration for packages.
 
-| Job                  | GIT repository                                   | Branch       | Location of Jenkinsfile                   |
-|----------------------|--------------------------------------------------|--------------|-------------------------------------------|
-| vyos-build-container | **https://github.com/dd010101/vyos-missing.git** | **equuleus** | packages/vyos-build-container/Jenkinsfile |
-| vyos-build-container | **https://github.com/dd010101/vyos-missing.git** | **sagitta**  | packages/vyos-build-container/Jenkinsfile |
-| vyos-build-container | **https://github.com/dd010101/vyos-missing.git** | **current**  | packages/vyos-build-container/Jenkinsfile |
-
+| Job                  | GIT repository                                 | Branch       | Location of Jenkinsfile                   |
+|----------------------|------------------------------------------------|--------------|-------------------------------------------|
+| vyos-build-container | **https://github.com/dd010101/vyos-build.git** | **equuleus** | packages/vyos-build-container/Jenkinsfile |
+| vyos-build-container | **https://github.com/dd010101/vyos-build.git** | **sagitta**  | packages/vyos-build-container/Jenkinsfile |
+| vyos-build-container | **https://github.com/dd010101/vyos-build.git** | **current**  | packages/vyos-build-container/Jenkinsfile |
 
 Job `vyos-build-container` builds `vyos-build` docker container image. This image is pushed to local registry specified
 with environment variable `CUSTOM_DOCKER_REPO`. The `vyos-build` docker container is used to build all packages.
-This job is used as automation to do the same process as described above in 
+This job is used as automation to do the same process as described above in
 [Build patched vyos-build docker images](#build-patched-vyos-build-docker-images)
 to keep the docker images up to date - this replaces the need to rebuild images from time to time and thus reduces
 maintenance.
