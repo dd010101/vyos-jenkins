@@ -43,8 +43,9 @@ from the Jenskins and in theory if you execute malicious build it can compromise
 host. Thus don't share the Jenkins with other projects and ideally don't share the operating system with anything else
 either. This risk isn't likely, but it does exist since you will execute code from GitHub under the jenkins user.
 
-The hardware requirements are significant - 8GB RAM, 200GB HDD and appropriate CPU. You will need 16GB of RAM but
-this doesn't need to be RAM, you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
+The hardware requirements are significant - 8GB RAM, 150GB HDD and appropriate CPU. You will need 16GB of RAM if
+you want to run many builds all at once (like with `seed-jobs.sh build`) but this doesn't need to be RAM,
+you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
 
 The build system was designed to use 3 or more machines that's why some steps may seem a bit unusual.
 This guide merges everything to single host under single user to make it simpler and faster to get started.
@@ -223,7 +224,7 @@ Value: jenkins@172.17.17.17
 ```
 
 This user+IP/host will be used for SSH access to reprepro, it can be another host, we use the host itself,
-this IP needs to be accesible from docker container thus this should be LAN IP not localhost.
+this IP needs to be accessible from docker container thus this should be LAN IP not localhost.
 
 **Global properties -> Environmental Variables -> Add**
 
@@ -245,9 +246,10 @@ Value: true
 ```
 
 This is used to disable custom build check. Custom build check would normally skip upload to reprepro repository
-if package is built from non-vyos repository. Unfortunately VyOS has bugs not only in their build system but as
-well in their packages, some packages are also missing, thus it's currently impossible to build all packages
-from VyOS repositories, and thus we need to use custom repositories.
+if package is built from non-vyos repository. Unfortunately currently it's impossible to build all packages
+from VyOS repositories, and thus we need to use custom repositories. Because some packages don't have
+functional build scripts or don't exist at all. This check doesn't make sense anyway since we are using our
+reprepro repository.
 
 **Global properties -> Environmental Variables -> Add**
 
