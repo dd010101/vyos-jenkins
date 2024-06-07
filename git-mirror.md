@@ -113,10 +113,17 @@ server {
         fastcgi_param GIT_HTTP_EXPORT_ALL "";
         fastcgi_param GIT_PROJECT_ROOT /var/lib/git;
         fastcgi_param PATH_INFO $1;
+        fastcgi_param LANGUAGE en_US.UTF-8;
         fastcgi_pass unix:/var/run/fcgiwrap.socket;
     }
 }
 ```
+
+The `git-http-backend` will use your system language and will send messages in this language to whoever
+interacts with it - like with git clone. English-speaking GIT server is more common and that's why I would
+recommend using `en_US.UTF-8`. If you have other system locale then you can add `en_US.UTF-8` as secondary
+via `dpkg-reconfigure locales` - pick your locale as default and `git-http-backend` can use english via `LANGUAGE`
+variable.
 
 This gives your `https://git.some.tld` for viewing and `git clone https://git.some.tld/repository.git` support.
 The gitweb viewer shows URL for cloning for each repository in summary section.
