@@ -95,24 +95,27 @@ server {
     server_name git.some.tld;
 
     root /usr/share/gitweb;
+    
+    index index.cgi;
 
-    location = / {
-        rewrite .* /index.cgi last;
+    location / {
+        try_files $uri $uri/ =404;
     }
 
-    location = /index.cgi {
+    location /index.cgi {
         include fastcgi_params;
         fastcgi_param SCRIPT_NAME $uri;
         fastcgi_param GITWEB_CONFIG /etc/gitweb.conf;
         fastcgi_pass unix:/var/run/fcgiwrap.socket;
     }
 
-    location ~ (^/.+) {
+    location ~ \.git/ {
+        client_max_body_size 0;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME /usr/lib/git-core/git-http-backend;
         fastcgi_param GIT_HTTP_EXPORT_ALL "";
         fastcgi_param GIT_PROJECT_ROOT /var/lib/git;
-        fastcgi_param PATH_INFO $1;
+        fastcgi_param PATH_INFO $uri;
         fastcgi_param LANGUAGE en_US.UTF-8;
         fastcgi_pass unix:/var/run/fcgiwrap.socket;
     }
