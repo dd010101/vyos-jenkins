@@ -627,7 +627,7 @@ then test likely will fail. If you do apply this patch to cap cores to 3:
 sed -i 's~cpu /= 2~cpu = 3~' scripts/check-qemu-install
 ```
 
-More cores don't increase speed, the test is single threas anyway, it usually uses <2 cores and thus 3 is more than
+More cores don't increase speed, the test is single thread anyway, it usually uses <2 cores and thus 3 is more than
 enough. More cores will not speed up the test - it will only make the test fail due to OOM
 inside the test virtual machine.
 
@@ -718,7 +718,7 @@ worrying about what to use it for.
 Script Path: packages/dropbear/Jenkinsfile
 ```
 
-(if you want to bulild package from vyos/vyos-build repository)
+(if you want to build package from vyos/vyos-build repository)
 
 ```
 Script Path: Jenkinsfile
