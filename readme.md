@@ -487,7 +487,7 @@ Check the `jenkins-scripts/seed-jobs.sh` for details.
 And its assets (jobs.json, jobTemplate.xml).
 
 ```
-git clone git@github.com:dd010101/vyos-jenkins.git
+git clone https://github.com/dd010101/vyos-jenkins.git
 cd vyos-jenkins/jenkins-scripts
 ```
 
