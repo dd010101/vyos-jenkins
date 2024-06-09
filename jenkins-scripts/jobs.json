@@ -238,13 +238,6 @@
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
-  "name": "vpp",
-  "description": "shared",
-  "gitUrl": "https://github.com/dd010101/vyos-missing.git",
-  "branchRegex": "(equuleus|sagitta)",
-  "jenkinsfilePath": "packages/vpp/Jenkinsfile"
- },
- {
   "name": "vyatta-bash",
   "description": "shared",
   "gitUrl": "https://github.com/vyos/vyatta-bash.git",
