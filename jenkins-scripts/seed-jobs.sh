@@ -21,6 +21,11 @@ set -e
 #
 # dependency: apt install -y xmlstarlet jq
 #
+# Refer to Jenkins documentation to create a token
+# https://www.jenkins.io/doc/book/system-administration/authenticating-scripted-clients/
+#   The API token is available in your personal configuration page.
+#   Click your name on the top right corner on every page, then click "Configure"
+#   to see your API token.
 
 jenkinsUser="" # fill your username here or set via export JENKINS_USER
 jenkinsToken="" # fill your token here or set via export JENKINS_TOKEN
