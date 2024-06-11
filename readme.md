@@ -52,6 +52,15 @@ This guide merges everything to single host under single user to make it simpler
 You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine
 for reprepro but here it's assumed everything is one host under one user.
 
+General expectations
+--
+
+Unless specified otherwise all commands/scripts in the instructions should run as `root`. 
+If you don't use root account then use `sudo -i` from your user to switch to root.
+Where other user is expected I provide note and `su` command.
+
+The current working directory doesn't matter unless specified with `cd`.
+
 Before you install Jenkins, create its user and group
 --
 
