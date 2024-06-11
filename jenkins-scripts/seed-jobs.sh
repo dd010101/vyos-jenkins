@@ -30,7 +30,7 @@ set -e
 jenkinsUser="" # fill your username here or set via export JENKINS_USER
 jenkinsToken="" # fill your token here or set via export JENKINS_TOKEN
 jenkinsHost="172.17.17.17:8080"
-workDir="/opt/jenkins-cli"
+workDir="/tmp/seed-jobs"
 
 mkdir -p "$workDir"
 
