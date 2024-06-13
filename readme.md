@@ -352,6 +352,9 @@ Generate GPG singing key (without passphrase):
 sudo -u jenkins gpg --pinentry-mode loopback --full-gen-key
 ```
 
+This key **needs to be without passphrase**. The reprepro uses this key in background thus there is no way to enter
+passphrase.
+
 Remember your pub key, it's random string like "934824D5C6A72DA964B3AFBD27A7E25D86BB7E2A".
 
 Create expected folder structure, prepare reprepro config and give Jenkins access, this is done for each release
