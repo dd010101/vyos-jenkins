@@ -409,11 +409,19 @@ uncron
 --
 This is required addition for the reprepro.
 
-```
-# install dependencies
-apt install opam ocaml socat
+**Install dependencies**
 
-# login as reprepro user and build uncon, then exit (if asked - confirm defaults)
+```
+apt install opam ocaml socat
+```
+
+**Login as reprepro user and build uncon, then exit (if asked - confirm defaults)**
+
+You may have default opem switch already, then you will 
+see `[ERROR] There already is an installed switch named default` -
+if you do then ignore this message and continue.
+
+```
 su - jenkins
 
 git clone https://github.com/vyos/uncron.git
@@ -427,8 +435,11 @@ eval $(opam env)
 
 dune build
 exit
+```
 
-# setup uncron service
+**Setup uncron service**
+
+```
 cp /var/lib/jenkins/uncron/_build/install/default/bin/uncron /usr/local/sbin/
 
 cat <<'EHLO' > /etc/systemd/system/uncron.service
@@ -457,6 +468,8 @@ systemctl enable --now uncron.service
 
 chmod +x /var/lib/jenkins/uncron/src/uncron-add
 ```
+
+**Create uncron-add script**
 
 We also use this as hack to fix some of VyOS packaging issues.
 
