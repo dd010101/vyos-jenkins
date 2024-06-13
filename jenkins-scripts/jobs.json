@@ -92,9 +92,9 @@
  },
  {
   "name": "libnss-tacplus",
-  "description": "shared",
+  "description": "sagitta-only",
   "gitUrl": "https://github.com/dd010101/vyos-missing.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(sagitta)",
   "jenkinsfilePath": "packages/libnss-tacplus/Jenkinsfile"
  },
  {
@@ -127,9 +127,9 @@
  },
  {
   "name": "mdns-repeater",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/mdns-repeater.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
@@ -253,23 +253,23 @@
  },
  {
   "name": "vyatta-cfg-firewall",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-cfg-firewall.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-cfg-qos",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-cfg-qos.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-cfg-quagga",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-cfg-quagga.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
@@ -281,9 +281,9 @@
  },
  {
   "name": "vyatta-cfg-vpn",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-cfg-vpn.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
@@ -295,51 +295,51 @@
  },
  {
   "name": "vyatta-cluster",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-cluster.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-config-mgmt",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-config-mgmt.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-conntrack",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-conntrack.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-nat",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-nat.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-op-firewall",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-op-firewall.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-op-qos",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-op-qos.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyatta-op-vpn",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-op-vpn.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
@@ -358,9 +358,9 @@
  },
  {
   "name": "vyatta-zone",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyatta-zone.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
@@ -386,23 +386,23 @@
  },
  {
   "name": "vyos-nhrp",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyos-nhrp.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyos-opennhrp",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyos-opennhrp.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
   "name": "vyos-strongswan",
-  "description": "shared",
+  "description": "equuleus-only",
   "gitUrl": "https://github.com/vyos/vyos-strongswan.git",
-  "branchRegex": "(equuleus|sagitta)",
+  "branchRegex": "(equuleus)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
@@ -430,7 +430,7 @@
   "name": "vyos-xe-guest-utilities",
   "description": "shared",
   "gitUrl": "https://github.com/vyos/vyos-xe-guest-utilities.git",
-  "branchRegex": "(equuleus|sagitta|current)",
+  "branchRegex": "(equuleus|current)",
   "jenkinsfilePath": "Jenkinsfile"
  },
  {
