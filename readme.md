@@ -725,7 +725,7 @@ sudo ./build-vyos-image iso --architecture amd64 --build-by "myself@localhost" \
 This will take a while - after all is done then you can `exit` the container and you should have
 `build/live-image-amd64.hybrid.iso`.
 
-Something isn't right
+Something is wrong
 --
 
 You may face situation when Jenkins build may fail or doesn't produce .deb packages and thus ISO build fails
