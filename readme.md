@@ -534,9 +534,6 @@ builds then read Console Output to see why it did failed.
 
 This process is required only once. After you create Jenkins jobs, and you do first build then Jenkins will
 periodically check if GIT repository for job changed and will do automatically build given job/packages.
-This setup doesn't require much maintenance, but you will need to do some manual maintenance - for example
-you will need to rebuild the docker containers from time to time. There is also possible that some jobs
-will change and of course major overhaul is required to add support for next major release of VyOS.
 
 You can also create Multibranch Pipelines manually, [see bellow](#multibranch-pipelines-manual).
 
@@ -728,6 +725,24 @@ sudo ./build-vyos-image iso --architecture amd64 --build-by "myself@localhost" \
 This will take a while - after all is done then you can `exit` the container and you should have
 `build/live-image-amd64.hybrid.iso`.
 
+Something isn't right
+--
+
+You may face situation when Jenkins build may fail or doesn't produce .deb packages and thus ISO build fails
+with unmet dependencies.
+
+There are two logs you should check for pointers.
+
+1) In Jenkins - find the job/packages of your interest - select branch of interest and find last run with
+   `Git SHA1: ...`. There may be other runs without `Git SHA1: ...` - those aren't build run, those are
+   branch indexing runs that check if package needs rebuild - ignore those.
+2) The `uncron.service` has log file you can access via `journalctl --no-pager -b -u uncron.service`, look
+   for package in question and check if there isn't error output or `Job exited with code 0` other than 0.
+
+If you face errors that doesn't make sense then it's likely your docker container is outdated or your Jenkins
+configuration is missing some pieces. Thus, as first thing you can try to rebuild the
+[docker container](#build-patched-vyos-build-docker-images) and if that doesn't help then verify all the Jenkins
+configuration is in its place.
 
 Smoketest
 --
@@ -805,10 +820,12 @@ RAID1 test
 make testraid
 ```
 
-You can as well run smoketest directly from installed VyOS, but you need many network interfaces otherwise
+You can as well run smoketest directly from **installed** VyOS, but you need many network interfaces otherwise
 some tests will fail. The test is expecting 8 or more network ports. You do it by simply including
 `vyos-1x-smoketest` package in your ISO image build. Then you can boot and run `vyos-smoketest`.
 I'm not sure if all 8 are required but with few the test will fail for sure.
+Also make sure you have <= 4 cores/threads and 4GB or more of RAM. If you have more cores/threads then you need more
+RAM as well, try to keep it 1:1. Smoketest eats a lot of RAM and more so if you have more cores/threads.
 
 Multibranch Pipelines (manual)
 --
