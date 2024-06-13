@@ -740,7 +740,7 @@ There are two logs you should check for pointers.
 2) The `uncron.service` has log file you can access via `journalctl --no-pager -b -u uncron.service`, look
    for package in question and check if there isn't error output or `Job exited with code 0` other than 0.
 
-If you face errors that doesn't make sense then it's likely your docker container is outdated or your Jenkins
+If you face errors that don't make sense then it's likely your docker container is outdated or your Jenkins
 configuration is missing some pieces. Thus, as first thing you can try to rebuild the
 [docker container](#build-patched-vyos-build-docker-images) and if that doesn't help then verify all the Jenkins
 configuration is in its place.
