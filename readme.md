@@ -55,7 +55,7 @@ for reprepro but here it's assumed everything is one host under one user.
 General expectations
 --
 
-Unless specified otherwise all commands/scripts in the instructions should run as `root`. 
+Unless specified otherwise all commands/scripts in the instructions should run as `root`.
 If you don't use root account then use `sudo -i` from your user to switch to root.
 Where other user is expected I provide note and `su` command.
 
@@ -221,7 +221,7 @@ Configure Built-In node
 
 Separated by space thus "Docker docker ec2_amd64" as result
 
-Configure environment variables and add global vyos-build Jenkins library
+Configure Jenkins System
 --
 **Manage Jenkins -> System**
 
@@ -290,7 +290,7 @@ since some packages will use current and some sagitta branch.
 Docker registry URL: http://172.17.17.17:5000
 ```
 
-This will allow Jenkins to use your own (patched) vyos-build docker image.
+This is required to tell Jenkins to use your own (patched) vyos-build docker image and not the DockerHub version.
 
 Credentials for ssh-agent
 --
@@ -594,6 +594,140 @@ How to use your mirror:
    `--vyos-mirror http://172.17.17.17/equuleus` or `--vyos-mirror http://172.17.17.17/sagitta` and your singing key
    ` --custom-apt-key /opt/apt.gpg.key`.
 4) Now the builder uses your mirror instead of `http://dev.packages.vyos.net/`.
+
+How to actually build ISO
+--
+
+Complete instructions to illustrate how to build ISO via Docker method included with the extra options outline above.
+
+We assume you already have Docker running if not follow
+the [official instructions](https://docs.docker.com/engine/install/debian/) for your OS.
+
+**Obtain the sources:**
+
+```
+git clone https://github.com/dd010101/vyos-build
+cd vyos-build
+```
+
+**Select branch of your choice**
+
+For all following steps will use BRANCH environment variable since the branch repeats a lot.
+
+```
+export BRANCH=equuleus
+```
+
+or
+
+```
+export BRANCH=sagitta
+```
+
+**Switch to branch**
+
+```
+git checkout "$BRANCH"
+```
+
+**Clear previous build resources (if any)**
+
+There is `make clean` but that doesn't always clean everything and may produce corrupted build environment.
+The `make clean` is trying to remove specific parts of `build` directory, but it doesn't always do so correctly.
+This happens mainly if you switch branches - that's why it's better to always delete the whole `build` directory.
+
+```
+rm -rf build/
+```
+
+**Obtain vyos-build docker container**
+
+You can reuse your docker container image if you already
+have [custom registry](#launch-local-registry-and-set-it-so-it-always-runs-when-docker-runs)
+with [patched vyos-build docker container](#build-patched-vyos-build-docker-images).
+
+Change the registry URL if you build on other machine.
+
+```
+docker pull "172.17.17.17:5000/vyos/vyos-build:$BRANCH"
+docker tag "172.17.17.17:5000/vyos/vyos-build:$BRANCH" "vyos/vyos-build:$BRANCH"
+```
+
+If you don't have custom registry then build the container - this will take a while:
+
+```
+docker build -t "vyos/vyos-build:$BRANCH" docker
+```
+
+You should rebuild the container from time to time - not very frequently but sometimes the build will break
+if you have too old container.
+
+**Obtain apt singing key for your custom mirror**
+
+```
+wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
+```
+
+**Launch the vyos-build docker container**
+
+This is the usual run command from official documentation, we need to add extra mount for out apt singing key
+for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`:
+
+```
+docker run --rm -it \
+    -v "$(pwd)":/vyos \
+    -v "$HOME/.gitconfig":/etc/gitconfig \
+    -v "$HOME/.bash_aliases":/home/vyos_bld/.bash_aliases \
+    -v "$HOME/.bashrc":/home/vyos_bld/.bashrc \
+    -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" \
+    -w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0 \
+    -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
+    "vyos/vyos-build:$BRANCH" bash
+```
+
+Now we should be inside the container.
+
+**Configure and build the ISO**
+
+Command for configuring changed over time, equuleus has `./configure`, sagitta has `./build-vyos-image iso` instead.
+
+You may want to customize the configuration options, see what is available:
+
+```
+sudo ./configure --help
+```
+
+or
+
+```
+sudo ./build-vyos-image --help
+```
+
+We need to add extra two options to configure `--vyos-mirror` and `--custom-apt-key`. We also add smoketest
+via `--custom-package vyos-1x-smoketest` for good measure.
+
+Here are examples - please adjust options to your liking:
+
+```
+sudo ./configure --architecture amd64 --build-by "myself@localhost" \
+   --build-type release --version "1.3.x" \
+   --vyos-mirror http://172.17.17.17/equuleus --custom-apt-key /opt/apt.gpg.key \
+   --custom-package vyos-1x-smoketest \
+   && sudo make iso
+```
+
+or
+
+```
+sudo ./build-vyos-image iso --architecture amd64 --build-by "myself@localhost" \
+   --build-type release --version "1.4.x" \
+   --vyos-mirror http://172.17.17.17/sagitta --custom-apt-key /opt/apt.gpg.key \
+   --custom-package vyos-1x-smoketest
+```
+
+This will take a while - after all is done then you can `exit` the container and you should have
+`build/live-image-amd64.hybrid.iso`.
+
 
 Smoketest
 --
