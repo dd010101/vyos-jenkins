@@ -204,6 +204,7 @@ Install Jenkins plugins
 **Manage Jenkins -> Plugins -> Available plugins**
 
 - Docker Pipeline
+- Docker plugin
 - Copy Artifact
 - SSH Agent
 - Pipeline Utility Steps
