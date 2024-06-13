@@ -667,7 +667,7 @@ wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
 
 **Launch the vyos-build docker container**
 
-This is the usual run command from official documentation, we need to add extra mount for out apt singing key
+This is the usual run command from official documentation, we need to add extra mount for our apt singing key
 for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`:
 
 ```
@@ -734,8 +734,9 @@ with unmet dependencies.
 There are two logs you should check for pointers.
 
 1) In Jenkins - find the job/packages of your interest - select branch of interest and find last run with
-   `Git SHA1: ...`. There may be other runs without `Git SHA1: ...` - those aren't build run, those are
-   branch indexing runs that check if package needs rebuild - ignore those.
+   `Git SHA1: ...`. There may be other runs without `Git SHA1: ...` - those aren't build runs, those are
+   branch indexing runs that check if package needs rebuild - ignore those. If you don't see any runs then
+   use the **Build now** action to trigger new build run.
 2) The `uncron.service` has log file you can access via `journalctl --no-pager -b -u uncron.service`, look
    for package in question and check if there isn't error output or `Job exited with code 0` other than 0.
 
