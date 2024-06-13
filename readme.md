@@ -736,7 +736,7 @@ There are two logs you should check for pointers.
 1) In Jenkins - find the job/packages of your interest - select branch of interest and find last run with
    `Git SHA1: ...`. There may be other runs without `Git SHA1: ...` - those aren't build runs, those are
    branch indexing runs that check if package needs rebuild - ignore those. If you don't see any runs then
-   use the **Build now** action to trigger new build run.
+   use the **Build now** action to trigger new build run. In specific run you should see **Console Output**.
 2) The `uncron.service` has log file you can access via `journalctl --no-pager -b -u uncron.service`, look
    for package in question and check if there isn't error output or `Job exited with code 0` other than 0.
 
