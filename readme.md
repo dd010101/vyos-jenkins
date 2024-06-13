@@ -919,6 +919,9 @@ Package info for equuleus
 
 List of required packages and their Jenkinsfile:
 
+Some packages (`wide-dhcpv6`) are broken right now, that's why
+fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
+
 Some packages aren't in the VyOS repositories at all (`python3-inotify`), that's why
 `https://github.com/dd010101/vyos-missing.git` is required.
 
@@ -971,7 +974,7 @@ Some packages aren't in the VyOS repositories at all (`python3-inotify`), that's
 | vyos-utils              | https://github.com/vyos/vyos-utils.git              | equuleus | Jenkinsfile                          |
 | vyos-world              | https://github.com/vyos/vyos-world.git              | equuleus | Jenkinsfile                          |
 | vyos-xe-guest-utilities | https://github.com/vyos/vyos-xe-guest-utilities.git | equuleus | Jenkinsfile                          |
-| wide-dhcpv6             | https://github.com/vyos/vyos-build.git              | equuleus | packages/wide-dhcpv6/Jenkinsfile     |
+| wide-dhcpv6             | **https://github.com/dd010101/vyos-build.git**      | equuleus | packages/wide-dhcpv6/Jenkinsfile     |
 
 <details>
 <summary>Expected list of resulting .deb files after build (/home/sentrium/web/dev.packages.vyos.net/public_html):</summary>
