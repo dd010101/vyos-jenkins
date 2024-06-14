@@ -417,7 +417,7 @@ apt install opam ocaml socat
 
 **Login as reprepro user and build uncon, then exit (if asked - confirm defaults)**
 
-You may have default opem switch already, then you will 
+You may have default opem switch already, then you will
 see `[ERROR] There already is an installed switch named default` -
 if you do then ignore this message and continue.
 
@@ -685,9 +685,9 @@ wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
 **Launch the vyos-build docker container**
 
 This is the usual run command from official documentation, we need to add extra mount for our apt singing key
-for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`. 
+for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`.
 
-The docker run command will mount current working directory for use inside the container that's why you need to 
+The docker run command will mount current working directory for use inside the container that's why you need to
 execute this command inside the `vyos-build` directory (that is the GIT repository you cloned above).
 You can also replace the `-v "$(pwd)":/vyos` with static path if you like not to depend on current directory
 (for example `-v /opt/vyos-build:/vyos`).
@@ -1154,7 +1154,7 @@ Package info for sagitta
 
 List of required packages and their Jenkinsfile:
 
-Some packages (`pam_tacplus`, `strongswan`) are broken right now, that's why
+Some packages (`pam_tacplus`, `strongswan`, `linux-kernel`) are broken right now, that's why
 fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
 
 Some packages aren't in the vyos repositories at all (`libnss-tacplus`), that's why
@@ -1179,7 +1179,7 @@ Another special case is `vyos-xe-guest-utilities` where `current` branch is requ
 | libnss-tacplus                           | **https://github.com/dd010101/vyos-missing.git**    | sagitta     | packages/libnss-tacplus/Jenkinsfile                           |
 | libpam-radius-auth                       | https://github.com/vyos/libpam-radius-auth.git      | sagitta     | Jenkinsfile                                                   |
 | libvyosconfig                            | https://github.com/vyos/libvyosconfig.git           | sagitta     | Jenkinsfile                                                   |
-| linux-kernel                             | https://github.com/vyos/vyos-build.git              | sagitta     | packages/linux-kernel/Jenkinsfile                             |
+| linux-kernel                             | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/linux-kernel/Jenkinsfile                             |
 | live-boot                                | https://github.com/vyos/live-boot.git               | sagitta     | Jenkinsfile                                                   |
 | ndppd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ndppd/Jenkinsfile                                    |
 | netfilter                                | https://github.com/vyos/vyos-build.git              | sagitta     | packages/netfilter/Jenkinsfile                                |
