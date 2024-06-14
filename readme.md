@@ -685,14 +685,16 @@ wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
 **Launch the vyos-build docker container**
 
 This is the usual run command from official documentation, we need to add extra mount for our apt singing key
-for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`:
+for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`. 
+
+The docker run command will mount current working directory for use inside the container that's why you need to 
+execute this command inside the `vyos-build` directory (that is the GIT repository you cloned above).
+You can also replace the `-v "$(pwd)":/vyos` with static path if you like not to depend on current directory
+(for example `-v /opt/vyos-build:/vyos`).
 
 ```
 docker run --rm -it \
     -v "$(pwd)":/vyos \
-    -v "$HOME/.gitconfig":/etc/gitconfig \
-    -v "$HOME/.bash_aliases":/home/vyos_bld/.bash_aliases \
-    -v "$HOME/.bashrc":/home/vyos_bld/.bashrc \
     -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" \
     -w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0 \
     -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
