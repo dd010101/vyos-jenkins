@@ -682,6 +682,14 @@ if you have too old container.
 wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
 ```
 
+**Install apt-cacher-ng for ELTS mirror**
+
+This is currently used only by equuleus.
+
+```
+apt install apt-cacher-ng
+```
+
 **Launch the vyos-build docker container**
 
 This is the usual run command from official documentation, we need to add extra mount for our apt singing key
@@ -724,15 +732,18 @@ via `--custom-package vyos-1x-smoketest` for good measure.
 
 Here are examples - please adjust options to your liking:
 
+For equuleus:
+
 ```
 sudo ./configure --architecture amd64 --build-by "myself@localhost" \
    --build-type release --version "1.3.x" \
    --vyos-mirror http://172.17.17.17/equuleus --custom-apt-key /opt/apt.gpg.key \
+   --debian-elts-mirror http://172.17.17.17:3142/deb.freexian.com/extended-lts \
    --custom-package vyos-1x-smoketest \
    && sudo make iso
 ```
 
-or
+For sagitta:
 
 ```
 sudo ./build-vyos-image iso --architecture amd64 --build-by "myself@localhost" \
