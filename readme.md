@@ -554,7 +554,7 @@ periodically check if GIT repository for job changed and will do automatically b
 
 You can also create Multibranch Pipelines manually, [see bellow](#multibranch-pipelines-manual).
 
-How to build ISO
+Mirror preparation
 --
 
 Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg
@@ -600,16 +600,10 @@ sudo -u jenkins gpg --armor --output /home/sentrium/web/dev.packages.vyos.net/pu
 This will give you `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/apt.gpg.key` or
 `http://172.17.17.17/apt.gpg.key`.
 
-How to use your mirror:
+If you have the `--vyos-mirror` URL of your own repository and your own singing key `--custom-apt-key` then you
+can use these two pieces to build ISO from your own package mirror.
 
-1) Download your `apt.gpg.key` to where you want to build your ISO.
-2) Mount your `apt.gpg.key` when your run `docker run` by adding `-v /where/is/your/key:/opt/apt.gpg.key`
-3) When you run `./configure` (equuleus) or `./build-vyos-image` (sagitta) add your mirror
-   `--vyos-mirror http://172.17.17.17/equuleus` or `--vyos-mirror http://172.17.17.17/sagitta` and your singing key
-   ` --custom-apt-key /opt/apt.gpg.key`.
-4) Now the builder uses your mirror instead of `http://dev.packages.vyos.net/`.
-
-How to actually build ISO
+How to build ISO
 --
 
 Complete instructions to illustrate how to build ISO via Docker method included with the extra options outline above.
