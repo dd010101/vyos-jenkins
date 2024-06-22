@@ -717,11 +717,13 @@ Command for configuring changed over time, equuleus has `./configure`, sagitta h
 
 You may want to customize the configuration options, see what is available:
 
+For equuleus:
+
 ```
 sudo ./configure --help
 ```
 
-or
+For sagitta:
 
 ```
 sudo ./build-vyos-image --help
