@@ -2,6 +2,7 @@
 set -e
 
 CUSTOM_DOCKER_REPO="172.17.17.17:5000"
+ELTS_MIRROR="http://172.17.17.17:3142/deb.freexian.com/extended-lts"
 
 #
 # Clone (patched) vyos-build
@@ -13,7 +14,8 @@ cd vyos-build/docker
 # Build and Push equuleus
 
 git checkout equuleus
-docker build --no-cache -t vyos/vyos-build:equuleus .
+docker build --build-arg "ELTS_MIRROR=$ELTS_MIRROR" \
+    --no-cache -t vyos/vyos-build:equuleus .
 
 docker tag vyos/vyos-build:equuleus ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
 docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus

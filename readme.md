@@ -151,6 +151,16 @@ Then restart docker:
 systemctl restart docker.service
 ```
 
+**Install apt-cacher-ng for ELTS mirror**
+
+This is currently used only by equuleus.
+
+```
+apt install apt-cacher-ng
+```
+
+This will allow us to use `http://172.17.17.17:3142/deb.freexian.com/extended-lts` as ELTS mirror.
+
 Build patched vyos-build docker images
 --
 
@@ -164,6 +174,7 @@ The below script clones the (patched) vyos-build, then builds and pushes the ima
 set -e
 
 CUSTOM_DOCKER_REPO="172.17.17.17:5000"
+ELTS_MIRROR="http://172.17.17.17:3142/deb.freexian.com/extended-lts"
 
 #
 # Clone (patched) vyos-build
@@ -175,7 +186,8 @@ cd vyos-build/docker
 # Build and Push equuleus
 
 git checkout equuleus
-docker build --no-cache -t vyos/vyos-build:equuleus .
+docker build --build-arg "ELTS_MIRROR=$ELTS_MIRROR" \
+    --no-cache -t vyos/vyos-build:equuleus .
 
 docker tag vyos/vyos-build:equuleus ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
 docker push ${CUSTOM_DOCKER_REPO}/vyos/vyos-build:equuleus
@@ -674,14 +686,6 @@ if you have too old container.
 
 ```
 wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
-```
-
-**Install apt-cacher-ng for ELTS mirror**
-
-This is currently used only by equuleus.
-
-```
-apt install apt-cacher-ng
 ```
 
 **Launch the vyos-build docker container**
