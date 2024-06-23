@@ -151,7 +151,8 @@ Then restart docker:
 systemctl restart docker.service
 ```
 
-**Install apt-cacher-ng for ELTS mirror**
+Install apt-cacher-ng for ELTS mirror
+--
 
 This is currently used only by equuleus.
 
