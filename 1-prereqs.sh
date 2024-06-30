@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "1-prereqs.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -245,7 +245,7 @@ fi
 
 echo
 echo "Part 1 of the installer is now done."
-echo "Please run part two to set up Jenkins."
+echo "Please run part two (2-jenkins.sh) to set up Jenkins."
 
 # Create marker file
 CreateMarkerFile 1

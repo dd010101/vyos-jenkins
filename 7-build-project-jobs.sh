@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "7-build-project-jobs.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -40,14 +40,14 @@ if [ $? -eq 0 ]; then
   echo
   echo "All packages have been built."
   echo "Part 7 of the installer is now done."
-  echo "Please run part eight to set up NGINX."
+  echo "Please run part eight (8-nginx.sh) to set up NGINX."
   echo
 else
   echo
   echo "One or more packages failed to build."
   echo "A list of failed jobs is printed above."
   echo "Please check inside Jenkins to see what went wrong, and run a new build of the failed package."
-  echo "Once this is done, please run part eight to set up NGINX."
+  echo "Once this is done, please run part eight (8-nginx.sh) to set up NGINX."
   echo
 fi
 

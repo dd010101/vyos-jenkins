@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "5-docker-jobs.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -45,13 +45,13 @@ if [ $? -eq 0 ]; then
   echo
   echo "Containers has been built."
   echo "Part 5 of the installer is now done."
-  echo "Please run part six to set up the project jobs."
+  echo "Please run part six (6-provision-project-jobs.sh) to set up the project jobs."
   echo
 else
   echo
   echo "One or more container failed to build."
   echo "Please check inside Jenkins to see what went wrong, and run a new build of the failed container."
-  echo "Once this is done, please run part six to set up the project job."
+  echo "Once this is done, please run part six (6-provision-project-jobs.sh) to set up the project job."
   echo
 fi
 

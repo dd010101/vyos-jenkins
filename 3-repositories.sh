@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "3-repositories.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -104,7 +104,7 @@ chown -R jenkins:jenkins /home/sentrium
 
 echo
 echo "Part 3 of the installer is now done."
-echo "Please run part four to set up uncron."
+echo "Please run part four (4-uncron.sh) to set up uncron."
 
 # Create marker file
 CreateMarkerFile 3

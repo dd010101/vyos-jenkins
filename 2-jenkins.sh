@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "2-jenkins.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -339,7 +339,7 @@ fi
 
 echo
 echo "Part 2 of the installer is now done."
-echo "Please run part three to set up the reprepro repositories."
+echo "Please run part three (3-repositories.sh) to set up the reprepro repositories."
 
 # Create marker file
 CreateMarkerFile 2

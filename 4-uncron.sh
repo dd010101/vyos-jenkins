@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "4-uncron.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -84,7 +84,7 @@ systemctl enable --now uncron.service > /dev/null 2>&1
 
 echo
 echo "Part 4 of the installer is now done."
-echo "Please run part five to set up the vyos build container jobs."
+echo "Please run part five (5-docker-jobs.sh) to set up the vyos build container jobs."
 
 # Create marker file
 CreateMarkerFile 4

@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "6-provision-project-jobs.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -39,7 +39,7 @@ ProvisionJobs "jobs/project-jobs.json"
 echo
 echo "The project jobs has been provisioned."
 echo "Part 6 of the installer is now done."
-echo "Please run part seven to build the project jobs."
+echo "Please run part seven (7-build-project-jobs.sh) to build the project jobs."
 
 # Create marker file
 CreateMarkerFile 6

@@ -39,6 +39,10 @@ function PrintHeader {
   echo "# Unofficial VyOS package mirror installer v1.0 #"
   echo "#################################################"
   echo
+  if [ "$1" != "" ]; then
+      echo "Currently running $1"
+      echo
+  fi
 }
 
 function EnsureRoot {

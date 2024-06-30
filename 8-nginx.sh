@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader
+PrintHeader "8-nginx.sh"
 
 # Ensure we are running as root
 EnsureRoot
@@ -75,7 +75,7 @@ Run "RestartNginx" \
 
 echo
 echo "Part 8 of the installer is now done."
-echo "The installation is now done - you can build the ISO by running the build-iso bash script."
+echo "The installation is now done - you can build the ISO by running the build-iso.sh bash script."
 
 # Create marker file
 CreateMarkerFile 8
