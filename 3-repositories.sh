@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader "3-repositories.sh"
+PrintHeader
 
 # Ensure we are running as root
 EnsureRoot

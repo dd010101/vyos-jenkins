@@ -3,7 +3,7 @@
 source ./auto/helper-logic
 
 # Clear the screen and print the header
-PrintHeader "2-jenkins.sh"
+PrintHeader
 
 # Ensure we are running as root
 EnsureRoot
