@@ -579,9 +579,7 @@ Script exists to automate pipeline/job creation.
 > **Name:** CLI\
 > -> [Generate] -> [copy generated key and save it for later use]
 
-**Get the script seed-jobs.sh**
-
-And its assets (jobs.json, jobTemplate.xml).
+**Get the script**
 
 ```bash
 git clone https://github.com/dd010101/vyos-jenkins.git

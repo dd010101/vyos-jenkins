@@ -35,6 +35,8 @@ workDir="/tmp/seed-jobs"
 mkdir -p "$workDir"
 
 templatePath="../jobs/jobTemplate.xml"
+dockerContainerJobsPath="../jobs/docker-container-jobs.json"
+projectsJobsPath="../jobs/project-jobs.json"
 jenkinsUser=${jenkinsUser:-$JENKINS_USER}
 jenkinsToken=${jenkinsToken:-$JENKINS_TOKEN}
 jenkinsUrl="http://${jenkinsUser}:${jenkinsToken}@$jenkinsHost"
@@ -43,15 +45,15 @@ mode="$1"
 availableModes=("create" "build")
 
 get() {
-  curl -sS -g --fail-with-body "${jenkinsUrl}${1}"
+    curl -sS -g --fail-with-body "${jenkinsUrl}${1}"
 }
 
 post() {
-  curl -sS -g --fail-with-body -X POST "${jenkinsUrl}${1}"
+    curl -sS -g --fail-with-body -X POST "${jenkinsUrl}${1}"
 }
 
 push() {
-  curl -sS -g --fail-with-body -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
+    curl -sS -g --fail-with-body -X POST -d "@${2}" -H "Content-Type: text/xml" "${jenkinsUrl}${1}"
 }
 
 echo -n "testing jenkins connection: "
@@ -59,58 +61,60 @@ get > /dev/null
 echo "ok"
 
 if [[ "$mode" == "create" ]]; then
-  while read item
-  do
-    jobName=$(echo "$item" | jq -r .name)
-    echo -n "$jobName:"
+    jobsPath="$workDir/jobs.json"
+    cat "$dockerContainerJobsPath" "$projectsJobsPath" | jq -s 'add' > "$jobsPath"
 
-    description=$(echo "$item" | jq -r .description)
-    gitUrl=$(echo "$item" | jq -r .gitUrl)
-    branchRegex=$(echo "$item" | jq -r .branchRegex)
-    jenkinsfilePath=$(echo "$item" | jq -r .jenkinsfilePath)
+    while read item
+    do
+        jobName=$(echo "$item" | jq -r .name)
+        echo -n "$jobName:"
 
-    # create job.xml by using jobTemplate.xml
-    jobPath="$workDir/$jobName.xml"
-    project="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
-    branchSource="$project/sources/data/jenkins.branch.BranchSource/source"
-    regexTrait="$branchSource/traits/jenkins.scm.impl.trait.RegexSCMHeadFilterTrait"
-    xmlstarlet ed --update "//$project/description" --value "$description" \
-      --update "//$branchSource/remote" --value "$gitUrl" \
-      --update "//$regexTrait/regex" --value "$branchRegex" \
-      --update "//$project/factory/scriptPath" --value "$jenkinsfilePath" \
-      "$templatePath" > "$jobPath" 2>/dev/null
+        description=$(echo "$item" | jq -r .description)
+        gitUrl=$(echo "$item" | jq -r .gitUrl)
+        branchRegex=$(echo "$item" | jq -r .branchRegex)
+        jenkinsfilePath=$(echo "$item" | jq -r .jenkinsfilePath)
 
-    # check if job exists
-    result=$(get "/checkJobName?value=$jobName" || true)
-    if [[ "$result" == *"already exists"* ]]; then
-      # update job
-      push "/job/$jobName/config.xml" "$jobPath"
-    else
-      # create job
-      push "/createItem?name=$jobName" "$jobPath"
-    fi
+        # create job.xml by using jobTemplate.xml
+        jobPath="$workDir/$jobName.xml"
+        project="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
+        branchSource="$project/sources/data/jenkins.branch.BranchSource/source"
+        regexTrait="$branchSource/traits/jenkins.scm.impl.trait.RegexSCMHeadFilterTrait"
+        xmlstarlet ed --update "//$project/description" --value "$description" \
+            --update "//$branchSource/remote" --value "$gitUrl" \
+            --update "//$regexTrait/regex" --value "$branchRegex" \
+            --update "//$project/factory/scriptPath" --value "$jenkinsfilePath" \
+            "$templatePath" > "$jobPath" 2>/dev/null
 
-    echo " ok"
+        # check if job exists
+        result=$(get "/checkJobName?value=$jobName" || true)
+        if [[ "$result" == *"already exists"* ]]; then
+            # update job
+            push "/job/$jobName/config.xml" "$jobPath"
+        else
+            # create job
+            push "/createItem?name=$jobName" "$jobPath"
+        fi
 
-  done < <(cat jobs.json | jq -c '.[]')
+        echo " ok"
+    done < <(cat "$jobsPath" | jq -c '.[]')
 
 elif [[ "$mode" == "build" ]]; then
 
-  get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName || [ -n "$jobName" ]; do
+    get "/api/xml?tree=jobs[name]" | xmlstarlet sel -t -v "//hudson/job/name" | while read jobName || [ -n "$jobName" ]; do
 
-    echo -n "$jobName:"
+        echo -n "$jobName:"
 
-    # trigger build - it's not easy to know what branches job has
-    # thus we trigger all possible ones and ignore not found
-    post "/job/$jobName/job/equuleus/build" > /dev/null 2>/dev/null || true
-    post "/job/$jobName/job/sagitta/build" > /dev/null 2>/dev/null || true
-    post "/job/$jobName/job/current/build" > /dev/null 2>/dev/null || true
+        # trigger build - it's not easy to know what branches job has
+        # thus we trigger all possible ones and ignore not found
+        post "/job/$jobName/job/equuleus/build" > /dev/null 2>/dev/null || true
+        post "/job/$jobName/job/sagitta/build" > /dev/null 2>/dev/null || true
+        post "/job/$jobName/job/current/build" > /dev/null 2>/dev/null || true
 
-    echo " ok"
+        echo " ok"
 
-  done
+    done
 
 else
-  echo "ERROR: unknown mode '$mode'"
-  echo "available modes: ${availableModes[*]}"
+    echo "ERROR: unknown mode '$mode'"
+    echo "available modes: ${availableModes[*]}"
 fi
