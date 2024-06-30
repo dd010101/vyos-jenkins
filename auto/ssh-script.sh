@@ -2,9 +2,9 @@
 set -e
 
 # Ensure we are jenkins user
-if [ "$EUID" -ne 1006 ]
-  then echo "Please run as jenkins"
-  exit
+if [ "$EUID" -ne 1006 ]; then
+  >&2 echo "Please run as jenkins"
+  exit 1
 fi
 
 if [ -f ~/.ssh/id_ed25519.pub ]; then

@@ -44,8 +44,8 @@ function PrintHeader {
 function EnsureRoot {
   # Ensure we are root
   if [ "$EUID" -ne 0 ]; then
-    echo -e "${RED}Please run as root${NOCOLOR}"
-    exit
+    >&2 echo -e "${RED}Please run as root${NOCOLOR}"
+    exit 1
   fi
 }
 
@@ -63,8 +63,8 @@ function PrintOkIndicator {
 }
 
 function PrintErrorIndicator {
-  echo -e "$ERROR_INDICATOR $1"
-  exit
+  >&2 echo -e "$ERROR_INDICATOR $1"
+  exit 1
 }
 
 function PrintJobNotStarted {
@@ -84,7 +84,7 @@ function PrintJobCompleted {
 
 function PrintJobFailed {
   tput el
-  echo -e "[   ${RED}Failed!${NOCOLOR}   ] Package: $1 - Branch: $2"
+  >&2 echo -e "[   ${RED}Failed!${NOCOLOR}   ] Package: $1 - Branch: $2"
 }
 
 function Run {
@@ -158,7 +158,7 @@ function TestJenkinsConnection {
       rm $TOKEN_FILE
     fi
 
-    exit
+    exit 1
   fi
 }
 
@@ -578,7 +578,7 @@ function CreateMarkerFile {
 
 function EnsureStageIsComplete {
   if [ ! -f "/tmp/installer_stage_${1}_completed" ]; then
-    echo -e "${RED}Stage ${1} has not been completed - please run that first.${NOCOLOR}"
-    exit
+    >&2 echo -e "${RED}Stage ${1} has not been completed - please run that first.${NOCOLOR}"
+    exit 1
   fi
 }

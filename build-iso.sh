@@ -22,8 +22,8 @@ read -p "Please enter your email address: " EMAIL
 echo
 
 if ([ "$BRANCH" != "equuleus" ] && [ "$BRANCH" != "sagitta" ]); then
-  echo -e "${RED}Invalid branch${NOCOLOR}"
-  exit
+  >&2 echo -e "${RED}Invalid branch${NOCOLOR}"
+  exit 1
 fi
 
 if [ -d vyos-build ]; then
@@ -166,13 +166,13 @@ elif [ "$BRANCH" == "sagitta" ]; then
 
   BUILD_EXIT_CODE=$?
 else
-  echo -e "${RED}Invalid branch${NOCOLOR}"
-  exit
+  >&2 echo -e "${RED}Invalid branch${NOCOLOR}"
+  exit 1
 fi
 
 if [ $BUILD_EXIT_CODE != 0 ]; then
-  echo -e "${RED}ISO build failed${NOCOLOR}"
-  exit
+  >&2 echo -e "${RED}ISO build failed${NOCOLOR}"
+  exit 1
 fi
 
 if [ -f vyos-build/build/live-image-amd64.hybrid.iso ]; then
@@ -182,8 +182,8 @@ if [ -f vyos-build/build/live-image-amd64.hybrid.iso ]; then
   echo -e "The file is called: ${GREEN}vyos-${RELEASE_NAME}-iso-amd64.iso${NOCOLOR}".
 else
   echo
-  echo -e "${RED}Failed to locate ISO file.${NOCOLOR}"
-  exit
+  >&2 echo -e "${RED}Failed to locate ISO file.${NOCOLOR}"
+  exit 1
 fi
 
 if [ -d vyos-build ]; then
