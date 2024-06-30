@@ -569,9 +569,15 @@ chmod +x /usr/local/bin/uncron-add
 Multibranch Pipelines (by script)
 --
 
-Experimental script exists to automate pipeline/job creation.
+Script exists to automate pipeline/job creation.
 
-Check the `manual/jenkins/seed-jobs.sh` for details.
+**Generate Jenkins API token:**
+
+**User account (click on your username - top-right corner) -> Configure**\
+**API Token -> Current token(s) -> Add new Token**
+
+> **Name:** CLI\
+> -> [Generate] -> [copy generated key and save it for later use]
 
 **Get the script seed-jobs.sh**
 
@@ -579,7 +585,7 @@ And its assets (jobs.json, jobTemplate.xml).
 
 ```bash
 git clone https://github.com/dd010101/vyos-jenkins.git
-cd vyos-jenkins/manual/jenkins
+cd vyos-jenkins/manual
 ```
 
 **Install dependencies**
@@ -591,7 +597,8 @@ apt install -y xmlstarlet jq
 **Adjust settings to suit your Jenkins**
 
 ```bash
-cat seed-jobs.sh
+export JENKINS_USER=<your-username>
+export JENKINS_TOKEN=<your-token>
 ```
 
 **Create jobs**

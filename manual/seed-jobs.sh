@@ -34,7 +34,7 @@ workDir="/tmp/seed-jobs"
 
 mkdir -p "$workDir"
 
-templatePath="jobTemplate.xml"
+templatePath="../jobs/jobTemplate.xml"
 jenkinsUser=${jenkinsUser:-$JENKINS_USER}
 jenkinsToken=${jenkinsToken:-$JENKINS_TOKEN}
 jenkinsUrl="http://${jenkinsUser}:${jenkinsToken}@$jenkinsHost"
