@@ -1,4 +1,4 @@
-Here I post some scripts as example how to manage Jenkins automatically.
+Example scripts how to manage Jenkins automatically.
 
 In order to make scripts work you need to create API token update script to use your credentials.
 

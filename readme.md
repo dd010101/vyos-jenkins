@@ -1,7 +1,7 @@
 Prologue
 --
 
-If you're trying to build VyOS ISO image with the usual way you may see following errors:
+If you're trying to build VyOS equuleus/sagitta ISO image with the usual way you may see following errors:
 
 ```
 E: Failed to fetch http://dev.packages.vyos.net/repositories/equuleus/dists/equuleus/InRelease  403  Forbidden [IP: 104.18.30.79 443]
@@ -13,53 +13,122 @@ E: The repository 'http://dev.packages.vyos.net/repositories/sagitta sagitta InR
 You may also see `Sorry, you have been blocked` if you try to visit these links, but you aren't blocked - everyone
 is blocked. This is due to [change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds)
 where they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to
-stable branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch as usual with
-`dev.packages.vyos.net/repositories`.
+stable branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch with official
+repository.
 
 You want to continue to use VyOS long term? Then you can switch to current/development branch if you think
 that's good idea for your use case. If you like to use stable branch then you would need to obtain
 [VyOS subscription](https://vyos.io/subscriptions/support). The only other option currently is to build your own
 `dev.packages.vyos.net` package repository and that's what this project is all about.
 
-State
+Purpose
 --
 
-Currently, it should be possible to use this information to build all required packages for equuleus and sagitta and
-as result you get apt repository that can be used to build ISO images.
-
 The goal of this project is to reproduce package repositories of stable branches formerly available at
-`dev.packages.vyos.net`. This isn't exactly possible due to the state of VyOS build system and VyOS packages.
-The result isn't exactly the same, but it's nearly identical replacement for `dev.packages.vyos.net` and it
-produces ISO images that are expected to be equivalent but of course with any custom image build you need
-to verify and test the resulting image yourself.
-
-Thanks to @pittagurneyi for providing build scripts for missing packages.
+`dev.packages.vyos.net` and currently it's possible to use the automated scripts or the manual guide to reproduce
+the package repositories for **1.3.x equuleus** and **1.4.x sagitta**. The package repositories allow you to build
+*LTS* ISO with the usual slightly modified way.
 
 Host requirements and precautions
 --
 
-I recommend stable Debian and dedicated virtual machine for security purposes. This setup isn't isolating the build
-from the Jenskins and in theory if you execute malicious build it can compromise your Jenkins and possibly your
-host. Thus don't share the Jenkins with other projects and ideally don't share the operating system with anything else
-either. This risk isn't likely, but it does exist since you will execute code from GitHub under the jenkins user.
+All examples and scripts assume clean installation of **Debian 12 (Bookworm)**. Basic installation with
+`standard system utilities` is enough.
 
-The hardware requirements are significant - 8GB RAM, 150GB HDD and appropriate CPU. You will need 16GB of RAM if
-you want to run many builds all at once (like with `seed-jobs.sh build`) but this doesn't need to be RAM,
-you can do 8GB RAM + 8GB swap, and you will still get good performance this way.
+We also recommend **dedicated virtual machine**.
 
-The build system was designed to use 3 or more machines that's why some steps may seem a bit unusual.
-This guide merges everything to single host under single user to make it simpler and faster to get started.
-You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine
-for reprepro but here it's assumed everything is one host under one user.
+The build scripts are running under the `jenkins` user and thus in theory if you
+execute malicious build it can compromise your Jenkins and possibly your host. That's why you want dedicated OS
+and you don't want to share the Jenkins with other projects and ideally don't share the operating system with
+anything else either. This risk isn't likely - it would require compromised GitHub repositories to happen.
+
+The hardware requirements are significant:
+
+- 16GB total RAM (8GB RAM + 8GB swap is good option)
+- 100GB HDD
+- CPU will make builds faster or slower, there is no hard requirement
+
+The builds are memory hungry, but you don't need 16GB of physical RAM. You can have large swap to compensate,
+and you will still get good performance this way since the above 8GB threshold is reached only few times by few builds.
+
+Multiple options
+--
+
+Historically this project documented the process how to build all packages and create package repository
+as manual guide with light usage of scripts. This is legacy method.
+
+Today we have possibility to do all steps from manual guide via automated scripts thanks to work of
+[@GurliGebis](https://github.com/GurliGebis). This is preferred method.
+
+We keep both methods in sync with changes.
+
+---
+
+Option 1: Automated scripts
+==
+
+The automated scripts execute all manual steps with minimal interaction. The process is divided into 8 steps/scripts.
+These 8 scripts configure Jenkins, prepare the package repositories, build the packages and there is also one
+additional script to build ISO.
+
+**Obtain the scripts:**
+
+```bash
+wget https://github.com/dd010101/vyos-jenkins/archive/refs/heads/master.tar.gz -O /tmp/vyos-jenkins.tar.gz
+tar -xf /tmp/vyos-jenkins.tar.gz -C /tmp
+mv /tmp/vyos-jenkins-master /opt/vyos-jenkins
+cd /opt/vyos-jenkins
+```
+
+**Then execute each script and follow instructions:**
+
+- `1-prereqs.sh`- installs dependencies.
+- `2-jenkins.sh` - configures Jenkins, **interaction required**:
+    - It asks you to **log-in into Jenkins**, after you do then confirm.
+    - Then it asks you to **install recommended plugins in Jenkins**, after it's completed confirm.
+    - Then it asks you to **create admin Jenkins account**, after you do then enter your username and confirm.
+    - At last, it will ask you to **create Jenkins API Token**, after you do then you enter the token and confirm.
+- `3-repositories.sh` - creates empty package repositories.
+- `4-uncron.sh` - prepares uncron service.
+- `5-docker-jobs.sh` - builds vyos-build docker images, **takes a while**.
+- `6-provision-project-jobs.sh` - prepares package jobs in Jenkins.
+- `7-build-project-jobs.sh` - builds package jobs, **takes a long while**.
+- `8-nginx.sh` - configures nginx vhost for APT repositories.
+
+If all went well, then all steps should complete successfully and then you can:
+
+- `build-iso.sh` - builds the ISO :), **interaction required**, **takes a while**:
+    - It asks you to specify branch equuleus or sagitta, after you do then confirm.
+    - At least, it asks you to specify build-by, after you do then confirm and wait. This identifier is used
+      as the `--build-by` parameter, this can be e-mail or any other identifier.
+
+And you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
+
+You could be also interested in the [Smoketest](#smoketest).
+If something isn't right, then see [Something is wrong](#something-is-wrong).
+
+---
+
+Option 2: Manual guide
+==
+
+All following sections describe manual guide - if you use the automated scripts, then you
+don't need this information unless you face some issue, then this information is helpful to understand
+how things work and how to debug them.
 
 General expectations
 --
 
 Unless specified otherwise all commands/scripts in the instructions should run as `root`.
 If you don't use root account then use `sudo -i` from your user to switch to root.
-Where other user is expected I provide note and `su` command.
+Where other user is expected we provide note and `su` command.
 
 The current working directory doesn't matter unless specified with `cd`.
+
+The build system was designed to use 3 or more machines that's why some steps may seem a bit unusual.
+This guide merges everything to single host under single user to make it simpler and faster to get started.
+You may use another machine as build node for Jenkins (or multiple nodes), you may also use another machine
+for reprepro but here it's assumed everything is one host under one user.
 
 Before you install Jenkins, create its user and group
 --
@@ -70,12 +139,12 @@ has hardcoded UID and GID to 1006 and this will fail build if you don't have 100
 
 That's why we want to create jenkins user and group with ID 1006 before installing Jenkins from apt.
 
-```
+```bash
 groupadd --system --gid 1006 jenkins
 useradd --system --comment Jenkins --shell /bin/bash --uid 1006 --gid 1006 --home-dir /var/lib/jenkins jenkins
 ```
 
-If you have already existing user then please [change its UID/GID](legacy-uid-gid.md).
+If you have already existing user then please [change its UID/GID](extras/legacy-uid-gid.md).
 
 Install Jenkins, and its java
 --
@@ -91,7 +160,7 @@ Just follow the usual guide via APT https://docs.docker.com/engine/install/debia
 
 Allow Jenkins to use docker:
 
-```
+```bash
 usermod -a -G docker jenkins
 ```
 
@@ -101,7 +170,7 @@ Setup local IP
 This guide will simplify the unknown by using static IP on dummy interface, this is hopefully outside your subnet if
 not please change all references of this IP with your own.
 
-```
+```bash
 cat << EOT >> /etc/network/interfaces
 
 auto dummy0
@@ -111,7 +180,7 @@ iface dummy0 inet static
 EOT
 ```
 
-```
+```bash
 ifup dummy0
 ```
 
@@ -120,14 +189,14 @@ Now we can locally point to known IP `172.17.17.17` as it was the host itself.
 After adding docker group and/or after UID/GID change restart Jenkins
 --
 
-```
+```bash
 systemctl restart jenkins.service
 ```
 
 Launch local registry and set it, so it always runs when Docker runs
 --
 
-```
+```bash
 docker run -d -p 5000:5000 --restart always --name registry registry:2.7
 ```
 
@@ -135,7 +204,7 @@ docker run -d -p 5000:5000 --restart always --name registry registry:2.7
 
 Add your local IP with 5000 port to `insecure-registries` section in `/etc/docker/daemon.json`, something like this:
 
-```
+```bash
 cat << EOF > /etc/docker/daemon.json
 {
    "insecure-registries": [
@@ -147,7 +216,7 @@ EOF
 
 Then restart docker:
 
-```
+```bash
 systemctl restart docker.service
 ```
 
@@ -156,7 +225,7 @@ Install apt-cacher-ng for ELTS mirror
 
 This is currently used only by equuleus.
 
-```
+```bash
 apt install apt-cacher-ng
 ```
 
@@ -165,7 +234,7 @@ This will allow us to use `http://172.17.17.17:3142/deb.freexian.com/extended-lt
 Build patched vyos-build docker images
 --
 
-The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus I made some
+The vyos/vyos-build docker image from dockerhub doesn't work for all packages as of now, thus we made some
 patches to make it work. If this changed in future then this step can be skipped.
 
 The below script clones the (patched) vyos-build, then builds and pushes the images to your custom Docker repository.
@@ -241,20 +310,17 @@ Configure Jenkins System
 
 **Global properties -> Environmental Variables -> Add**
 
-```
-Name: DEV_PACKAGES_VYOS_NET_HOST
-Value: jenkins@172.17.17.17
-```
+> **Name:** DEV_PACKAGES_VYOS_NET_HOST\
+> **Value:** jenkins@172.17.17.17
 
 This user+IP/host will be used for SSH access to reprepro, it can be another host, we use the host itself,
 this IP needs to be accessible from docker container thus this should be LAN IP not localhost.
 
 **Global properties -> Environmental Variables -> Add**
 
-```
-Name: ARM64_BUILD_DISABLED
-Value: true
-```
+
+> **Name:** ARM64_BUILD_DISABLED\
+> **Value:** true
 
 This is used to disable ARM64 support. The vyos-build expects that you have ARM64 build node and that's not
 something that is easy to obtain or emulate on x86. If you have ARM64 build node then skip this step and make sure
@@ -263,10 +329,8 @@ and eventually fail.
 
 **Global properties -> Environmental Variables -> Add**
 
-```
-Name: CUSTOM_BUILD_CHECK_DISABLED
-Value: true
-```
+> **Name:** CUSTOM_BUILD_CHECK_DISABLED\
+> **Value:** true
 
 This is used to disable custom build check. Custom build check would normally skip upload to reprepro repository
 if package is built from non-vyos repository. Unfortunately currently it's impossible to build all packages
@@ -276,20 +340,16 @@ reprepro repository.
 
 **Global properties -> Environmental Variables -> Add**
 
-```
-Name: CUSTOM_DOCKER_REPO
-Value: 172.17.17.17:5000
-```
+> **Name:** CUSTOM_DOCKER_REPO\
+> **Value:** 172.17.17.17:5000
 
 This variable is used to specify local docker registry for automatic `vyos-build` docker image rebuild,
 [see bellow for details](#additional-jobs).
 
 **Global Pipeline Libraries -> Add**
 
-```
-Name: vyos-build
-Project repository: https://github.com/dd010101/vyos-build.git
-```
+> **Name:** vyos-build\
+> **Project** repository: https://github.com/dd010101/vyos-build.git
 
 Currently patched version of vyos-build is required, in the future the official
 `https://github.com/vyos/vyos-build.git` may work but doesn't currently.
@@ -300,9 +360,7 @@ since some packages will use current and some sagitta branch.
 
 **Declarative Pipeline (Docker)**
 
-```
-Docker registry URL: http://172.17.17.17:5000
-```
+> **Docker registry URL:** http://172.17.17.17:5000
 
 This is required to tell Jenkins to use your own (patched) vyos-build docker image and not the DockerHub version.
 
@@ -313,25 +371,25 @@ Basically we want to allow Jenkins to SSH into itself with its own SSH key.
 
 Login as target user:
 
-```
+```bash
 su - jenkins
 ```
 
 Generate regular SSH key:
 
-```
+```bash
 ssh-keygen -t ed25519 -C "jenkins"
 ```
 
 Update authenticated_keys to allow Jenkins to log in to itself, something like this:
 
-```
+```bash
 cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
 ```
 
 Accept signature and verify SSH works:
 
-```
+```bash
 ssh 172.17.17.17
 ```
 
@@ -339,30 +397,26 @@ Then you can add this private key to Jenkins:
 
 **Manage Jenkins -> Credentials -> System -> Global credentials (unrestricted) -> Add Credentials**
 
-```
-Kind: SSH Username with private key
-ID: SSH-dev.packages.vyos.net
-Username: jenkins
-```
+> **Kind:** SSH Username with private key\
+> **ID:** SSH-dev.packages.vyos.net\
+> **Username:** jenkins
 
 **Private Key -> Enter directly -> Add**
 
-```
-<paste private key of the generated ssh key like the contents of cat ~/.ssh/id_ed25519>
-```
+> <paste private key of the generated ssh key like the contents of cat ~/.ssh/id_ed25519>
 
 Preparation for reprepro SSH host
 --
 
 Install some packages:
 
-```
+```bash
 apt install reprepro gpg
 ```
 
 Generate GPG singing key (without passphrase):
 
-```
+```bash
 sudo -u jenkins gpg --pinentry-mode loopback --full-gen-key
 ```
 
@@ -376,27 +430,25 @@ codename.
 
 Set SIGN_PUB_KEY:
 
-```
+```bash
 export SIGN_PUB_KEY="<pub key idenitifier from step above>"
 ```
 
 Set RELEASE name:
 
-```
+```bash
 export RELEASE=equuleus
 ```
 
 or
 
-```
+```bash
 export RELEASE=sagitta
 ```
 
-...
-
 Then create reprepro repository for each RELEASE:
 
-```
+```bash
 export REPOSITORY=/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/$RELEASE
 mkdir -p $REPOSITORY
 mkdir $REPOSITORY/conf
@@ -424,7 +476,7 @@ This is required addition for the reprepro.
 
 **Install dependencies**
 
-```
+```bash
 apt install opam ocaml socat
 ```
 
@@ -434,7 +486,7 @@ You may have default opem switch already, then you will
 see `[ERROR] There already is an installed switch named default` -
 if you do then ignore this message and continue.
 
-```
+```bash
 su - jenkins
 
 git clone https://github.com/vyos/uncron.git
@@ -452,7 +504,7 @@ exit
 
 **Setup uncron service**
 
-```
+```bash
 cp /var/lib/jenkins/uncron/_build/install/default/bin/uncron /usr/local/sbin/
 
 cat <<'EHLO' > /etc/systemd/system/uncron.service
@@ -486,7 +538,7 @@ chmod +x /var/lib/jenkins/uncron/src/uncron-add
 
 We also use this as hack to fix some of VyOS packaging issues.
 
-```
+```bash
 cat << 'EOF' > /usr/local/bin/uncron-add
 #!/usr/bin/env bash
 set -e
@@ -519,26 +571,26 @@ Multibranch Pipelines (by script)
 
 Experimental script exists to automate pipeline/job creation.
 
-Check the `jenkins-scripts/seed-jobs.sh` for details.
+Check the `manual/jenkins/seed-jobs.sh` for details.
 
 **Get the script seed-jobs.sh**
 
 And its assets (jobs.json, jobTemplate.xml).
 
-```
+```bash
 git clone https://github.com/dd010101/vyos-jenkins.git
-cd vyos-jenkins/jenkins-scripts
+cd vyos-jenkins/manual/jenkins
 ```
 
 **Install dependencies**
 
-```
+```bash
 apt install -y xmlstarlet jq
 ```
 
 **Adjust settings to suit your Jenkins**
 
-```
+```bash
 cat seed-jobs.sh
 ```
 
@@ -546,7 +598,7 @@ cat seed-jobs.sh
 
 Then wait for branch indexing to complete.
 
-```
+```bash
 ./seed-jobs.sh create
 ```
 
@@ -555,7 +607,7 @@ Then wait for branch indexing to complete.
 Make sure you have >=16GB RAM or 8GB RAM + 8GB swap, since running build for everything like this eats more memory
 than building one by one this is also dependent on how many Number of executors you have.
 
-```
+```bash
 ./seed-jobs.sh build
 ```
 
@@ -605,7 +657,7 @@ This will give you HTTP APT repository, like this `http://172.17.17.17/equuleus`
 
 To create `--custom-apt-key` you need to export your gpg singing public key, for example:
 
-```
+```bash
 sudo -u jenkins gpg --armor --output /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/apt.gpg.key \
   --export-options export-minimal --export vyos
 ```
@@ -626,7 +678,7 @@ the [official instructions](https://docs.docker.com/engine/install/debian/) for 
 
 **Obtain the sources:**
 
-```
+```bash
 git clone https://github.com/dd010101/vyos-build
 cd vyos-build
 ```
@@ -635,19 +687,19 @@ cd vyos-build
 
 For all following steps will use BRANCH environment variable since the branch repeats a lot.
 
-```
+```bash
 export BRANCH=equuleus
 ```
 
 or
 
-```
+```bash
 export BRANCH=sagitta
 ```
 
 **Switch to branch**
 
-```
+```bash
 git checkout "$BRANCH"
 ```
 
@@ -657,7 +709,7 @@ There is `make clean` but that doesn't always clean everything and may produce c
 The `make clean` is trying to remove specific parts of `build` directory, but it doesn't always do so correctly.
 This happens mainly if you switch branches - that's why it's better to always delete the whole `build` directory.
 
-```
+```bash
 rm -rf build/
 ```
 
@@ -669,14 +721,14 @@ with [patched vyos-build docker container](#build-patched-vyos-build-docker-imag
 
 Change the registry URL if you build on other machine.
 
-```
+```bash
 docker pull "172.17.17.17:5000/vyos/vyos-build:$BRANCH"
 docker tag "172.17.17.17:5000/vyos/vyos-build:$BRANCH" "vyos/vyos-build:$BRANCH"
 ```
 
 If you don't have custom registry then build the container - this will take a while:
 
-```
+```bash
 docker build -t "vyos/vyos-build:$BRANCH" docker
 ```
 
@@ -685,7 +737,7 @@ if you have too old container.
 
 **Obtain apt singing key for your custom mirror**
 
-```
+```bash
 wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
 ```
 
@@ -699,7 +751,7 @@ execute this command inside the `vyos-build` directory (that is the GIT reposito
 You can also replace the `-v "$(pwd)":/vyos` with static path if you like not to depend on current directory
 (for example `-v /opt/vyos-build:/vyos`).
 
-```
+```bash
 docker run --rm -it \
     -v "$(pwd)":/vyos \
     -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" \
@@ -718,13 +770,13 @@ You may want to customize the configuration options, see what is available:
 
 For equuleus:
 
-```
+```bash
 sudo ./configure --help
 ```
 
 For sagitta:
 
-```
+```bash
 sudo ./build-vyos-image --help
 ```
 
@@ -735,7 +787,7 @@ Here are examples - please adjust options to your liking:
 
 For equuleus:
 
-```
+```bash
 sudo ./configure --architecture amd64 --build-by "myself@localhost" \
    --build-type release --version "1.3.x" \
    --vyos-mirror http://172.17.17.17/equuleus --custom-apt-key /opt/apt.gpg.key \
@@ -746,7 +798,7 @@ sudo ./configure --architecture amd64 --build-by "myself@localhost" \
 
 For sagitta:
 
-```
+```bash
 sudo ./build-vyos-image iso --architecture amd64 --build-by "myself@localhost" \
    --build-type release --version "1.4.x" \
    --vyos-mirror http://172.17.17.17/sagitta --custom-apt-key /opt/apt.gpg.key \
@@ -760,7 +812,8 @@ Something is wrong
 --
 
 You may face situation when Jenkins build may fail or doesn't produce .deb packages and thus ISO build fails
-with unmet dependencies.
+with unmet dependencies. Sometimes the Jenkins build fails for temporary reason like network/server issue, thus
+simple retry with **Build now** will fix the failure.
 
 There are two logs you should check for pointers.
 
@@ -787,9 +840,9 @@ just don't put too much trust in it.
 You will need host that supports virtualization and thus can run KVM. Main test (`make test`) takes around two hours
 to complete, additional tests are significantly faster.
 
-I like to run smoketest individually, there is way to run automated smoketest via `vyos-build/Jenkinsfile` but
-that requires Jenkins, and also it starts all tests in parallel thus requiring more RAM since multiple virtual
-machines run in parallel.
+There is way to run automated smoketest via `vyos-build/Jenkinsfile` but that requires Jenkins,
+and also it starts all tests in parallel thus requiring more RAM since multiple virtual machines run in parallel.
+This method doesn't allow selecting the test either.
 
 There is requirement to include `vyos-1x-smoketest` package in your ISO image build. By default, ISO build doesn't
 include smoketest thus you need to include it via the usual parameter for custom packages.
@@ -800,7 +853,7 @@ have clone of `vyos-build` repository.
 
 If not clone it and switch to your branch.
 
-```
+```bash
 git clone https://github.com/dd010101/vyos-build.git
 cd vyos-build
 
@@ -813,7 +866,7 @@ There is known issue with smoketest that it will fail if you have too many CPU c
 to use half of your cores, but it will fail if calculates more than 4, thus if you have 8 or more cores/threads
 then test likely will fail. If you do apply this patch to cap cores to 3:
 
-```
+```bash
 sed -i 's~cpu /= 2~cpu = 3~' scripts/check-qemu-install
 ```
 
@@ -828,7 +881,7 @@ the expected path `build/live-image-amd64.hybrid.iso`. You of course need ISO im
 
 Install dependencies:
 
-```
+```bash
 apt install qemu-kvm python3-tomli python3-pexpect
 ```
 
@@ -836,19 +889,22 @@ And then you can launch virtual machine to do tests thing via `make`. There are 
 
 CLI configuration test
 
+```bash
+make testd
 ```
-make test
-```
+
+There is also `make test` that runs identical tests to the `make testd` the difference is if the `vyos-configd.service`
+service is enabled or not and VyOS enables this service by default, that's why `make testd` is more accurate.
 
 Configuration file load test
 
-```
+```bash
 make testc
 ```
 
 RAID1 test
 
-```
+```bash
 make testraid
 ```
 
@@ -876,11 +932,11 @@ url. Rest of the packages have their own GIT repository with single root Jenkins
 "Jenkinsfile" and you change the GIT url only. The https://github.com/vyos/vyos-build.git repository has also its own
 root Jenkinsfile - ignore it since that one is trying to build ISO with default (blocked) apt mirror.
 
+You can see all packages and information about them in the [packages.md](extras/packages.md) file.
+
 **Branch Sources -> Add source -> Git**
 
-```
-Project Repository: https://github.com/vyos/vyos-build.git
-```
+> **Project Repository:** https://github.com/vyos/vyos-build.git
 
 (or any other repository, like https://github.com/vyos/vyos-1x.git)
 
@@ -888,15 +944,11 @@ You may want to restrict to only branches you care about, thus:
 
 **Behaviours -> Add -> Filter by name (with regular expression)**
 
-```
-Regular expression: (equuleus|sagitta)
-```
+> *Regular expression:** (equuleus|sagitta)
 
 **Behaviours -> Add -> Advanced clone behaviours**
 
-```
-Fetch tags: [✓]
-```
+> **Fetch tags:** [✓]
 
 (leave defaults)
 
@@ -906,25 +958,19 @@ worrying about what to use it for.
 
 **Build Configuration -> Mode (by Jenkinsfile)**
 
-```
-Script Path: packages/dropbear/Jenkinsfile
-```
+> **Script Path:** packages/dropbear/Jenkinsfile
 
 (if you want to build package from vyos/vyos-build repository)
 
-```
-Script Path: Jenkinsfile
-```
+> **Script Path:** Jenkinsfile
 
 (or leave just Jenkinsfile if you want to build repository like vyos/vyos-1x where there is just one package)
 
 **Scan Multibranch Pipeline Triggers**
 
-```
-[✓] Periodically if not otherwise run
-
-Interval: 1 hour
-```
+> [✓] **Periodically if not otherwise run**
+>
+> **Interval:** 1 hour
 
 Jenkins will check the source GIT repository if changes were made and execute automatic build if needed. This
 will keep packages up to date.
@@ -936,148 +982,8 @@ Now it's possible to select some **Multibranch Pipeline**, select your **branch*
 to see what happens! If all is well you should see .deb appearing in
 `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/`:
 
-```
+```bash
 find /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/ -name '*.deb' -print
 ```
 
 If build fails then click the specific build number and check **Console Output** for hints why it does so.
-
-Package info for equuleus
---
-
-List of required packages and their Jenkinsfile:
-
-Some packages (`wide-dhcpv6`) are broken right now, that's why
-fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
-
-Some packages aren't in the VyOS repositories at all (`python3-inotify`), that's why
-`https://github.com/dd010101/vyos-missing.git` is required.
-
-| Package                 | GIT repository                                      | Branch   | Location of Jenkinsfile              |
-|-------------------------|-----------------------------------------------------|----------|--------------------------------------|
-| dropbear                | https://github.com/vyos/vyos-build.git              | equuleus | packages/dropbear/Jenkinsfile        |
-| frr                     | https://github.com/vyos/vyos-build.git              | equuleus | packages/frr/Jenkinsfile             |
-| hostap                  | https://github.com/vyos/vyos-build.git              | equuleus | packages/hostap/Jenkinsfile          |
-| hvinfo                  | https://github.com/vyos/hvinfo.git                  | equuleus | Jenkinsfile                          |
-| ipaddrcheck             | https://github.com/vyos/ipaddrcheck.git             | equuleus | Jenkinsfile                          |
-| iproute2                | https://github.com/vyos/vyos-build.git              | equuleus | packages/iproute2/Jenkinsfile        |
-| keepalived              | https://github.com/vyos/vyos-build.git              | equuleus | packages/keepalived/Jenkinsfile      |
-| libnss-mapuser          | https://github.com/vyos/libnss-mapuser.git          | equuleus | Jenkinsfile                          |
-| libpam-radius-auth      | https://github.com/vyos/libpam-radius-auth.git      | equuleus | Jenkinsfile                          |
-| libvyosconfig           | https://github.com/vyos/libvyosconfig.git           | equuleus | Jenkinsfile                          |
-| linux-kernel            | https://github.com/vyos/vyos-build.git              | equuleus | packages/linux-kernel/Jenkinsfile    |
-| live-boot               | https://github.com/vyos/live-boot.git               | equuleus | Jenkinsfile                          |
-| mdns-repeater           | https://github.com/vyos/mdns-repeater.git           | equuleus | Jenkinsfile                          |
-| minisign                | https://github.com/vyos/vyos-build.git              | equuleus | packages/minisign/Jenkinsfile        |
-| netfilter               | https://github.com/vyos/vyos-build.git              | equuleus | packages/netfilter/Jenkinsfile       |
-| ocserv                  | https://github.com/vyos/vyos-build.git              | equuleus | packages/ocserv/Jenkinsfile          |
-| python3-inotify         | **https://github.com/dd010101/vyos-missing.git**    | equuleus | packages/python3-inotify/Jenkinsfile |
-| telegraf                | https://github.com/vyos/vyos-build.git              | equuleus | packages/telegraf/Jenkinsfile        |
-| udp-broadcast-relay     | https://github.com/vyos/udp-broadcast-relay.git     | equuleus | Jenkinsfile                          |
-| vyatta-bash             | https://github.com/vyos/vyatta-bash.git             | equuleus | Jenkinsfile                          |
-| vyatta-biosdevname      | https://github.com/vyos/vyatta-biosdevname.git      | equuleus | Jenkinsfile                          |
-| vyatta-cfg              | https://github.com/vyos/vyatta-cfg.git              | equuleus | Jenkinsfile                          |
-| vyatta-cfg-firewall     | https://github.com/vyos/vyatta-cfg-firewall.git     | equuleus | Jenkinsfile                          |
-| vyatta-cfg-qos          | https://github.com/vyos/vyatta-cfg-qos.git          | equuleus | Jenkinsfile                          |
-| vyatta-cfg-quagga       | https://github.com/vyos/vyatta-cfg-quagga.git       | equuleus | Jenkinsfile                          |
-| vyatta-cfg-system       | https://github.com/vyos/vyatta-cfg-system.git       | equuleus | Jenkinsfile                          |
-| vyatta-cfg-vpn          | https://github.com/vyos/vyatta-cfg-vpn.git          | equuleus | Jenkinsfile                          |
-| vyatta-cluster          | https://github.com/vyos/vyatta-cluster.git          | equuleus | Jenkinsfile                          |
-| vyatta-config-mgmt      | https://github.com/vyos/vyatta-config-mgmt.git      | equuleus | Jenkinsfile                          |
-| vyatta-conntrack        | https://github.com/vyos/vyatta-conntrack.git        | equuleus | Jenkinsfile                          |
-| vyatta-nat              | https://github.com/vyos/vyatta-nat.git              | equuleus | Jenkinsfile                          |
-| vyatta-op               | https://github.com/vyos/vyatta-op.git               | equuleus | Jenkinsfile                          |
-| vyatta-op-firewall      | https://github.com/vyos/vyatta-op-firewall.git      | equuleus | Jenkinsfile                          |
-| vyatta-op-qos           | https://github.com/vyos/vyatta-op-qos.git           | equuleus | Jenkinsfile                          |
-| vyatta-op-vpn           | https://github.com/vyos/vyatta-op-vpn.git           | equuleus | Jenkinsfile                          |
-| vyatta-wanloadbalance   | https://github.com/vyos/vyatta-wanloadbalance.git   | equuleus | Jenkinsfile                          |
-| vyatta-zone             | https://github.com/vyos/vyatta-zone.git             | equuleus | Jenkinsfile                          |
-| vyos-1x                 | https://github.com/vyos/vyos-1x.git                 | equuleus | Jenkinsfile                          |
-| vyos-cloud-init         | https://github.com/vyos/vyos-cloud-init.git         | equuleus | Jenkinsfile                          |
-| vyos-http-api-tools     | https://github.com/vyos/vyos-http-api-tools.git     | equuleus | Jenkinsfile                          |
-| vyos-nhrp               | https://github.com/vyos/vyos-nhrp.git               | equuleus | Jenkinsfile                          |
-| vyos-opennhrp           | https://github.com/vyos/vyos-opennhrp.git           | equuleus | Jenkinsfile                          |
-| vyos-strongswan         | https://github.com/vyos/vyos-strongswan.git         | equuleus | Jenkinsfile                          |
-| vyos-user-utils         | https://github.com/vyos/vyos-user-utils.git         | equuleus | Jenkinsfile                          |
-| vyos-utils              | https://github.com/vyos/vyos-utils.git              | equuleus | Jenkinsfile                          |
-| vyos-world              | https://github.com/vyos/vyos-world.git              | equuleus | Jenkinsfile                          |
-| vyos-xe-guest-utilities | https://github.com/vyos/vyos-xe-guest-utilities.git | equuleus | Jenkinsfile                          |
-| wide-dhcpv6             | **https://github.com/dd010101/vyos-build.git**      | equuleus | packages/wide-dhcpv6/Jenkinsfile     |
-
-Package info for sagitta
---
-
-List of required packages and their Jenkinsfile:
-
-Some packages (`pam_tacplus`, `strongswan`, `linux-kernel`) are broken right now, that's why
-fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
-
-Some packages aren't in the vyos repositories at all (`libnss-tacplus`), that's why
-`https://github.com/dd010101/vyos-missing.git` is required.
-
-Another special case is `vyos-xe-guest-utilities` where `current` branch is required.
-
-| Package                                  | GIT repository                                      | Branch      | Location of Jenkinsfile                                       |
-|------------------------------------------|-----------------------------------------------------|-------------|---------------------------------------------------------------|
-| aws-gateway-load-balancer-tunnel-handler | https://github.com/vyos/vyos-build.git              | sagitta     | packages/aws-gateway-load-balancer-tunnel-handler/Jenkinsfile |
-| ddclient                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ddclient/Jenkinsfile                                 |
-| dropbear                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/dropbear/Jenkinsfile                                 |
-| ethtool                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ethtool/Jenkinsfile                                  |
-| frr                                      | https://github.com/vyos/vyos-build.git              | sagitta     | packages/frr/Jenkinsfile                                      |
-| hostap                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/hostap/Jenkinsfile                                   |
-| hsflowd                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/hsflowd/Jenkinsfile                                  |
-| hvinfo                                   | https://github.com/vyos/hvinfo.git                  | sagitta     | Jenkinsfile                                                   |
-| ipaddrcheck                              | https://github.com/vyos/ipaddrcheck.git             | sagitta     | Jenkinsfile                                                   |
-| isc-dhcp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/isc-dhcp/Jenkinsfile                                 |
-| keepalived                               | https://github.com/vyos/vyos-build.git              | sagitta     | packages/keepalived/Jenkinsfile                               |
-| libnss-mapuser                           | https://github.com/vyos/libnss-mapuser.git          | sagitta     | Jenkinsfile                                                   |
-| libnss-tacplus                           | **https://github.com/dd010101/vyos-missing.git**    | sagitta     | packages/libnss-tacplus/Jenkinsfile                           |
-| libpam-radius-auth                       | https://github.com/vyos/libpam-radius-auth.git      | sagitta     | Jenkinsfile                                                   |
-| libvyosconfig                            | https://github.com/vyos/libvyosconfig.git           | sagitta     | Jenkinsfile                                                   |
-| linux-kernel                             | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/linux-kernel/Jenkinsfile                             |
-| live-boot                                | https://github.com/vyos/live-boot.git               | sagitta     | Jenkinsfile                                                   |
-| ndppd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ndppd/Jenkinsfile                                    |
-| netfilter                                | https://github.com/vyos/vyos-build.git              | sagitta     | packages/netfilter/Jenkinsfile                                |
-| opennhrp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/opennhrp/Jenkinsfile                                 |
-| openvpn-otp                              | https://github.com/vyos/vyos-build.git              | sagitta     | packages/openvpn-otp/Jenkinsfile                              |
-| owamp                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/owamp/Jenkinsfile                                    |
-| pam_tacplus                              | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/pam_tacplus/Jenkinsfile                              |
-| pmacct                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pmacct/Jenkinsfile                                   |
-| pyhumps                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pyhumps/Jenkinsfile                                  |
-| radvd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/radvd/Jenkinsfile                                    |
-| strongswan                               | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/strongswan/Jenkinsfile                               |
-| telegraf                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/telegraf/Jenkinsfile                                 |
-| udp-broadcast-relay                      | https://github.com/vyos/udp-broadcast-relay.git     | sagitta     | Jenkinsfile                                                   |
-| vyatta-bash                              | https://github.com/vyos/vyatta-bash.git             | sagitta     | Jenkinsfile                                                   |
-| vyatta-biosdevname                       | https://github.com/vyos/vyatta-biosdevname.git      | sagitta     | Jenkinsfile                                                   |
-| vyatta-cfg                               | https://github.com/vyos/vyatta-cfg.git              | sagitta     | Jenkinsfile                                                   |
-| vyatta-cfg-system                        | https://github.com/vyos/vyatta-cfg-system.git       | sagitta     | Jenkinsfile                                                   |
-| vyatta-op                                | https://github.com/vyos/vyatta-op.git               | sagitta     | Jenkinsfile                                                   |
-| vyatta-wanloadbalance                    | https://github.com/vyos/vyatta-wanloadbalance.git   | sagitta     | Jenkinsfile                                                   |
-| vyos-1x                                  | https://github.com/vyos/vyos-1x.git                 | sagitta     | Jenkinsfile                                                   |
-| vyos-cloud-init                          | https://github.com/vyos/vyos-cloud-init.git         | sagitta     | Jenkinsfile                                                   |
-| vyos-http-api-tools                      | https://github.com/vyos/vyos-http-api-tools.git     | sagitta     | Jenkinsfile                                                   |
-| vyos-user-utils                          | https://github.com/vyos/vyos-user-utils.git         | sagitta     | Jenkinsfile                                                   |
-| vyos-utils                               | https://github.com/vyos/vyos-utils.git              | sagitta     | Jenkinsfile                                                   |
-| vyos-world                               | https://github.com/vyos/vyos-world.git              | sagitta     | Jenkinsfile                                                   |
-| vyos-xe-guest-utilities                  | https://github.com/vyos/vyos-xe-guest-utilities.git | **current** | Jenkinsfile                                                   |
-| wide-dhcpv6                              | https://github.com/vyos/vyos-build.git              | sagitta     | packages/wide-dhcpv6/Jenkinsfile                              |
-
-Additional jobs
---
-
-These jobs aren't packages, but they are made in the same spirit to make configuration simpler. Configuration on
-Jenkins side is identical to configuration for packages.
-
-| Job                  | GIT repository                                 | Branch       | Location of Jenkinsfile                   |
-|----------------------|------------------------------------------------|--------------|-------------------------------------------|
-| vyos-build-container | **https://github.com/dd010101/vyos-build.git** | **equuleus** | packages/vyos-build-container/Jenkinsfile |
-| vyos-build-container | **https://github.com/dd010101/vyos-build.git** | **sagitta**  | packages/vyos-build-container/Jenkinsfile |
-| vyos-build-container | **https://github.com/dd010101/vyos-build.git** | **current**  | packages/vyos-build-container/Jenkinsfile |
-
-Job `vyos-build-container` builds `vyos-build` docker container image. This image is pushed to local registry specified
-with environment variable `CUSTOM_DOCKER_REPO`. The `vyos-build` docker container is used to build all packages.
-This job is used as automation to do the same process as described above in
-[Build patched vyos-build docker images](#build-patched-vyos-build-docker-images)
-to keep the docker images up to date - this replaces the need to rebuild images from time to time and thus reduces
-maintenance.
