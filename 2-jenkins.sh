@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper-logic
+source ./auto/helper-logic
 
 # Clear the screen and print the header
 PrintHeader
@@ -16,7 +16,7 @@ INITIAL_PASSWORD_FILE="/var/lib/jenkins/secrets/initialAdminPassword"
 NETWORK_INTERFACES=`ls /sys/class/net/ -1 |grep -v -w "lo" |grep -v docker |grep -v dummy |grep -v veth`
 
 #region Run SSH script
-cp install-files/ssh-script.sh /var/lib/jenkins
+cp ./auto/ssh-script.sh /var/lib/jenkins
 chown jenkins:jenkins /var/lib/jenkins/ssh-script.sh
 
 # This script create the SSH key, adds it to the trusted keys and trusts the host itself.
@@ -28,7 +28,7 @@ rm /var/lib/jenkins/ssh-script.sh > /dev/null 2>&1
 #endregion
 
 #region Run GnuPG script
-cp install-files/gpg-script.sh /var/lib/jenkins
+cp ./auto/gpg-script.sh /var/lib/jenkins
 chown jenkins:jenkins /var/lib/jenkins/gpg-script.sh
 
 # This script generates the GnuPG key pair.
@@ -235,7 +235,7 @@ fi
 # Sometimes the GlobalLibraries config file isn't there yet.
 if [ ! -f $JENKINS_GLOBALLIBRARIES_FILE ]; then
   # If that is the case, we copy a clean config into where it should be.
-  cp install-files/org.jenkinsci.plugins.workflow.libs.GlobalLibraries.xml $JENKINS_GLOBALLIBRARIES_FILE
+  cp ./auto/org.jenkinsci.plugins.workflow.libs.GlobalLibraries.xml $JENKINS_GLOBALLIBRARIES_FILE
 fi
 
 # Is the Global Libraries configured?
@@ -281,7 +281,7 @@ fi
 # Sometimes the Docker Declarative config file isn't there yet.
 if [ ! -f $JENKINS_DOCKERDECLARATIVE_FILE ]; then
   # If that is the case, we copy a clean config into where it should be.
-  cp install-files/org.jenkinsci.plugins.docker.workflow.declarative.GlobalConfig.xml $JENKINS_DOCKERDECLARATIVE_FILE
+  cp ./auto/org.jenkinsci.plugins.docker.workflow.declarative.GlobalConfig.xml $JENKINS_DOCKERDECLARATIVE_FILE
 fi
 
 # Is the Docker Declarative plugin configured?

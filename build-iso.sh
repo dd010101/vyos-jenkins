@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper-logic
+source ./auto/helper-logic
 
 # Clear the screen first
 clear

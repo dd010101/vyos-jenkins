@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper-logic
+source ./auto/helper-logic
 
 # Clear the screen and print the header
 PrintHeader
@@ -168,7 +168,7 @@ if [ -f /etc/network/interfaces.d/dummy0.interface ]; then
   PrintOkIndicator "Network interface dummy0 has already been configured."
 else
   function CopyInterfaceFile {
-    cp ./install-files/dummy0.interface /etc/network/interfaces.d
+    cp ./auto/dummy0.interface /etc/network/interfaces.d
   }
 
   Run "CopyInterfaceFile" \
@@ -194,7 +194,7 @@ if [ -f /etc/docker/daemon.json ]; then
   PrintOkIndicator "Docker Registry has already been configured."
 else
   function CreateDockerRegistryConfig {
-    cp ./install-files/daemon.json /etc/docker/
+    cp ./auto/daemon.json /etc/docker/
   }
 
   function RestartDocker {

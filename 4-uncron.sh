@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper-logic
+source ./auto/helper-logic
 
 # Clear the screen and print the header
 PrintHeader
@@ -12,7 +12,7 @@ EnsureRoot
 EnsureStageIsComplete 3
 
 #region Run Uncron script
-cp install-files/uncron-script.sh /var/lib/jenkins
+cp ./auto/uncron-script.sh /var/lib/jenkins
 chown jenkins:jenkins /var/lib/jenkins/uncron-script.sh
 
 # This script builds the uncron package.
@@ -43,7 +43,7 @@ if [ -f /etc/systemd/system/uncron.service ]; then
   PrintOkIndicator "SystemD service file has already been copied."
 else
   function CopySystemDServiceFile {
-    cp ./install-files/uncron.service /etc/systemd/system
+    cp ./auto/uncron.service /etc/systemd/system
   }
 
   Run "CopySystemDServiceFile" \
@@ -58,7 +58,7 @@ if [ -f /usr/local/bin/uncron-add ]; then
   PrintOkIndicator "Uncron Add has already been installed."
 else
   function InstallUncronAdd {
-    cp ./install-files/uncron-add /usr/local/bin
+    cp ./auto/uncron-add /usr/local/bin
     chmod +x /usr/local/bin/uncron-add
     chmod +x /var/lib/jenkins/uncron/src/uncron-add
   }

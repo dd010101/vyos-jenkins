@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./helper-logic
+source ./auto/helper-logic
 
 # Clear the screen and print the header
 PrintHeader
@@ -40,7 +40,7 @@ if [ -f /etc/nginx/sites-available/apt-mirror ]; then
 fi
 
 function CopyAvailableSiteFile {
-  cp install-files/nginx-site /etc/nginx/sites-available/apt-mirror
+  cp ./auto/nginx-site /etc/nginx/sites-available/apt-mirror
 }
 
 Run "CopyAvailableSiteFile" \
