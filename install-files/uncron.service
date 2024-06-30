@@ -1,0 +1,16 @@
+[Unit]
+Description=Command Queue Service
+After=auditd.service systemd-user-sessions.service time-sync.target
+
+[Service]
+EnvironmentFile=/etc/uncron.conf
+ExecStart=/usr/local/sbin/uncron
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+User=jenkins
+Group=jenkins
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
