@@ -57,7 +57,7 @@ Multiple options
 Historically this project documented the process how to build all packages and create package repository
 as manual guide with light usage of scripts. This is legacy method.
 
-Today we have possibility to do all steps from manual guide via automated scripts thanks to work of
+Now we have possibility to do all steps from manual guide via automated scripts thanks to work of
 [@GurliGebis](https://github.com/GurliGebis). This is preferred method.
 
 We keep both methods in sync with changes.
