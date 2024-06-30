@@ -18,7 +18,7 @@ EnsureRoot
 EnsureStageIsComplete 8
 
 read -p "Please enter which branch you want to build (equuleus or sagitta): " BRANCH
-read -p "Please enter your email address: " EMAIL
+read -p "Please enter your build-by identifier (like e-mail): " BUILD_BY
 echo
 
 if ([ "$BRANCH" != "equuleus" ] && [ "$BRANCH" != "sagitta" ]); then
@@ -137,7 +137,7 @@ if [ "$BRANCH" == "equuleus" ]; then
   }
 
   (
-    FilterStderr "( RunWithLazyStdout \"DockerBuild $EMAIL $RELEASE_NAME\" )" "(useradd warning)"
+    FilterStderr "( RunWithLazyStdout \"DockerBuild $BUILD_BY $RELEASE_NAME\" )" "(useradd warning)"
     exit $?
   )
 
@@ -160,7 +160,7 @@ elif [ "$BRANCH" == "sagitta" ]; then
   }
 
   (
-    FilterStderr "( RunWithLazyStdout \"DockerBuild $EMAIL $RELEASE_NAME\" )" "(useradd warning)"
+    FilterStderr "( RunWithLazyStdout \"DockerBuild $BUILD_BY $RELEASE_NAME\" )" "(useradd warning)"
     exit $?
   )
 
