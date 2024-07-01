@@ -15,7 +15,7 @@ set -e
 # that doesn't need to be as efficient as rsync is since it will run only when necessary.
 #
 # Extra dependencies:
-#   apt install curl jq rsync
+#   apt install --no-install-recommends -y curl jq rsync procmail
 #
 # Configuration:
 #   export TARGET_PATH=mirror@10.0.0.127:/var/www/...
@@ -43,10 +43,15 @@ markerFiles=(
 # Metadata.
 workDir="/tmp/reprepro-mirror"
 lastSyncPath="$workDir/lastSync"
+lockPath="$workDir/lock"
 
 # Should be synchronization postponed? Return 1 if yes otherwise 0.
 function isSynchronizationPostponed {
     jenkinsIdle=$(curl -Ss -g --fail-with-body "$jenkinsUrl/computer/api/json" | jq .computer[0].idle)
+    exitCode=$?
+    if [ "$exitCode" -ne 0 ]; then
+        exit $exitCode
+    fi
     if [ "$jenkinsIdle" == "true" ]; then
         return 0
     fi
@@ -54,6 +59,16 @@ function isSynchronizationPostponed {
 }
 
 # The logic.
+if lockfile -0 -r 0 -! "$lockPath" > /dev/null 2>&1; then
+    echo "Other synchronization is already in progress."
+    exit 0
+fi
+
+function cleanup {
+    rm -f "$lockPath"
+}
+trap '(exit 130)' INT; trap '(exit 143)' TERM; trap cleanup EXIT
+
 function formatDate {
     echo $(date -d "@$1" "+%Y-%m-%d %H:%M:%S")
 }
