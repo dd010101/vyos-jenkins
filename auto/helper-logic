@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Define colors.
-RED='\033[0;31m'
+RED='\033[0;91m'
 GREEN='\033[0;32m'
 LIGHTBLUE='\033[0;94m'
 NOCOLOR='\033[0m'
@@ -29,6 +29,12 @@ JENKINS_DOCKERDECLARATIVE_FILE=/var/lib/jenkins/org.jenkinsci.plugins.docker.wor
 # Define the job template variables.
 TEMPLATE_FILE="jobs/jobTemplate.xml"
 WORKDIR="/tmp/seed-jobs"
+
+# Skip the stage check
+STAGE_CHECK_DISABLED=false
+if [ "$1" == "--force" ]; then
+  STAGE_CHECK_DISABLED=true
+fi
 
 function PrintHeader {
   # Print banner
@@ -576,8 +582,9 @@ function CreateMarkerFile {
 }
 
 function EnsureStageIsComplete {
-  if [ ! -f "/tmp/installer_stage_${1}_completed" ]; then
+  if [ ! -f "/tmp/installer_stage_${1}_completed" ] && [ $STAGE_CHECK_DISABLED == false ]; then
     >&2 echo -e "${RED}Stage ${1} has not been completed - please run that first.${NOCOLOR}"
+    echo "You can override this check via --force option."
     exit 1
   fi
 }
