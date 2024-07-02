@@ -67,8 +67,10 @@ if [ "$selectedBranch" == "sagitta" ]; then
 elif [ "$selectedBranch" == "equuleus" ]; then
     excludedDescription="sagitta-only"
 else
-  >&2 echo -e "ERROR: Unknown branch: $selectedBranch, please provide valid \$BRANCH (sagitta or equuleus)"
-  exit 1
+  if [ "$selectedBranch" != "" ]; then
+    >&2 echo -e "ERROR: Unknown branch: $selectedBranch, please provide valid \$BRANCH (sagitta or equuleus)"
+    exit 1
+  fi
 fi
 
 if [[ "$mode" == "create" ]]; then

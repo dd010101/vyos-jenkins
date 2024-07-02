@@ -47,8 +47,10 @@ elif [ "$BRANCH" == "equuleus" ]; then
   EXCLUDED_DESCRIPTION="sagitta-only"
   SELECTED_BRANCH_REGEX="equuleus"
 else
-  >&2 echo -e "${RED}Unknown branch: $SELECTED_BRANCH, please provide valid \$BRANCH (sagitta or equuleus)${NOCOLOR}"
-  exit 1
+  if [ "$BRANCH" != "" ]; then
+    >&2 echo -e "${RED}Unknown branch: $SELECTED_BRANCH, please provide valid \$BRANCH (sagitta or equuleus)${NOCOLOR}"
+    exit 1
+  fi
 fi
 
 function PrintHeader {
