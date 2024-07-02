@@ -31,15 +31,12 @@ TEMPLATE_FILE="jobs/jobTemplate.xml"
 WORKDIR="/tmp/seed-jobs"
 
 function PrintHeader {
-  # Clear the screen first
-  clear
-
   # Print banner
   echo "#################################################"
   echo "# Unofficial VyOS package mirror installer v1.0 #"
   echo "#################################################"
   echo
-  echo "Currently executing '$(basename $0)'"
+  echo "-- Currently executing '$(basename $0)' --"
   echo
 }
 
