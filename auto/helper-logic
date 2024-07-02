@@ -4,6 +4,7 @@
 RED='\033[0;91m'
 GREEN='\033[0;32m'
 LIGHTBLUE='\033[0;94m'
+GRAY='\033[0;90m'
 NOCOLOR='\033[0m'
 
 # Define color indicators.
@@ -34,6 +35,20 @@ WORKDIR="/tmp/seed-jobs"
 STAGE_CHECK_DISABLED=false
 if [ "$1" == "--force" ]; then
   STAGE_CHECK_DISABLED=true
+fi
+
+# Filters to limit jobs to specific branch
+EXCLUDED_DESCRIPTION=""
+SELECTED_BRANCH="$BRANCH"
+if [ "$BRANCH" == "sagitta" ]; then
+  EXCLUDED_DESCRIPTION="equuleus-only"
+  SELECTED_BRANCH_REGEX="(sagitta|current)"
+elif [ "$BRANCH" == "equuleus" ]; then
+  EXCLUDED_DESCRIPTION="sagitta-only"
+  SELECTED_BRANCH_REGEX="equuleus"
+else
+  >&2 echo -e "${RED}Unknown branch: $SELECTED_BRANCH, please provide valid \$BRANCH (sagitta or equuleus)${NOCOLOR}"
+  exit 1
 fi
 
 function PrintHeader {
@@ -70,6 +85,11 @@ function PrintOkIndicator {
 function PrintErrorIndicator {
   >&2 echo -e "$ERROR_INDICATOR $1"
   exit 1
+}
+
+function PrintJobExcluded {
+  tput el
+  echo -e "[   ${GRAY}Skipped${NOCOLOR}   ] Package: $1 - Branch: $2 (excluded)"
 }
 
 function PrintJobNotStarted {
@@ -222,6 +242,23 @@ function ProvisionJob {
   BRANCH_REGEX=$(echo "$1" | jq -r .branchRegex)
   JENKINS_FILE_PATH=$(echo "$1" | jq -r .jenkinsfilePath)
 
+  # Branch filter
+  if [ "$SELECTED_BRANCH" != "" ] && [[ "$BRANCH_REGEX" == *"|"* ]]; then
+    if [ "$SELECTED_BRANCH" == "sagitta" ]; then
+      if [[ "$BRANCH_REGEX" == *"current"* ]]; then
+        if [[ "$BRANCH_REGEX" == *"sagitta"* ]]; then
+          BRANCH_REGEX="(sagitta|current)"
+        else
+          BRANCH_REGEX="current"
+        fi
+      else
+        BRANCH_REGEX="sagitta"
+      fi
+    else
+      BRANCH_REGEX="equuleus"
+    fi
+  fi
+
   # Create the job xml file.
   JOBPATH="$WORKDIR/$JOB_NAME.xml"
   PROJECT="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
@@ -285,6 +322,13 @@ function ProvisionJobs {
       JOBS+=( "$JOB_NAME|$BRANCH" )
     done
 
+    # Branch filter
+    DESCRIPTION=$(echo "$item" | jq -r .description)
+    if [ "$DESCRIPTION" == "$EXCLUDED_DESCRIPTION" ]; then
+      PrintEmptyIndicator "$JOB_NAME (excluded - $DESCRIPTION)"
+      continue
+    fi
+
     # Provision the job.
     ProvisionJob $item
   done < <(cat $1 | jq -c '.[]')
@@ -319,6 +363,12 @@ function ProvisionJobs {
       jobSplit=(${job//|/ })
       JOB_NAME="${jobSplit[0]}"
       JOB_BRANCH="${jobSplit[1]}"
+
+      # Branch filter
+      if ! echo $JOB_BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
+        PrintJobExcluded $JOB_NAME $JOB_BRANCH
+        continue
+      fi
 
       URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
 
@@ -432,6 +482,12 @@ function BuildJobs {
       JOB_NAME="${jobSplit[0]}"
       JOB_BRANCH="${jobSplit[1]}"
 
+      # Branch filter
+      if ! echo $JOB_BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
+        PrintJobExcluded $JOB_NAME $JOB_BRANCH
+        continue
+      fi
+
       # Download job data and parse it.
       URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"
       DATA=$(curl -Ss -g --fail-with-body "$URL")
@@ -506,6 +562,12 @@ function BuildJobs {
         jobSplit=(${job//|/ })
         JOB_NAME="${jobSplit[0]}"
         JOB_BRANCH="${jobSplit[1]}"
+
+        # Branch filter
+        if ! echo $JOB_BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
+          PrintJobExcluded $JOB_NAME $JOB_BRANCH
+          continue
+        fi
 
         # Download job data and parse it.
         URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"

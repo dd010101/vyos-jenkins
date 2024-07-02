@@ -40,6 +40,7 @@ projectsJobsPath="../jobs/project-jobs.json"
 jenkinsUser=${jenkinsUser:-$JENKINS_USER}
 jenkinsToken=${jenkinsToken:-$JENKINS_TOKEN}
 jenkinsUrl="http://${jenkinsUser}:${jenkinsToken}@$jenkinsHost"
+selectedBranch="$BRANCH"
 
 mode="$1"
 availableModes=("create" "build")
@@ -60,6 +61,16 @@ echo -n "testing jenkins connection: "
 get > /dev/null
 echo "ok"
 
+excludedDescription=""
+if [ "$selectedBranch" == "sagitta" ]; then
+    excludedDescription="equuleus-only"
+elif [ "$selectedBranch" == "equuleus" ]; then
+    excludedDescription="sagitta-only"
+else
+  >&2 echo -e "ERROR: Unknown branch: $selectedBranch, please provide valid \$BRANCH (sagitta or equuleus)"
+  exit 1
+fi
+
 if [[ "$mode" == "create" ]]; then
     jobsPath="$workDir/jobs.json"
     cat "$dockerContainerJobsPath" "$projectsJobsPath" | jq -s 'add' > "$jobsPath"
@@ -73,6 +84,11 @@ if [[ "$mode" == "create" ]]; then
         gitUrl=$(echo "$item" | jq -r .gitUrl)
         branchRegex=$(echo "$item" | jq -r .branchRegex)
         jenkinsfilePath=$(echo "$item" | jq -r .jenkinsfilePath)
+
+        if [ "$description" == "$excludedDescription" ]; then
+            echo " excluded ($description)"
+            continue
+        fi
 
         # create job.xml by using jobTemplate.xml
         jobPath="$workDir/$jobName.xml"
@@ -115,6 +131,7 @@ elif [[ "$mode" == "build" ]]; then
     done
 
 else
-    echo "ERROR: unknown mode '$mode'"
+    >&2 echo "ERROR: unknown mode '$mode'"
     echo "available modes: ${availableModes[*]}"
+    exit 1
 fi

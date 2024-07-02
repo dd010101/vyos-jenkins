@@ -80,6 +80,15 @@ mv /tmp/vyos-jenkins-master /opt/vyos-jenkins
 cd /opt/vyos-jenkins
 ```
 
+**If you want to build only specific branch**
+
+Configure `BRANCH` environment variable to desired branch before you run any script.
+Not defined or empty value means all branches (the default).
+
+```bash
+export BRANCH="sagitta"
+```
+
 **Then execute each script and follow instructions:**
 
 - `1-prereqs.sh`- installs dependencies.
@@ -597,6 +606,15 @@ apt install -y xmlstarlet jq
 ```bash
 export JENKINS_USER=<your-username>
 export JENKINS_TOKEN=<your-token>
+```
+
+**If you want to build only specific branch**
+
+Configure `BRANCH` environment variable to desired branch before you run the script.
+Not defined or empty value means all branches (the default).
+
+```bash
+export BRANCH="sagitta"
 ```
 
 **Create jobs**
