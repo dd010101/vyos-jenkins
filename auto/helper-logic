@@ -423,6 +423,11 @@ function BuildJobs {
 
     for BRANCH in $BRANCHES
     do
+      # Branch filter
+      if ! echo $BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
+        continue
+      fi
+
       JOBS+=( "$JOB_NAME|$BRANCH" )
     done
   done < <(cat $1 | jq -c '.[]')
@@ -483,12 +488,6 @@ function BuildJobs {
       jobSplit=(${job//|/ })
       JOB_NAME="${jobSplit[0]}"
       JOB_BRANCH="${jobSplit[1]}"
-
-      # Branch filter
-      if ! echo $JOB_BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
-        PrintJobExcluded $JOB_NAME $JOB_BRANCH
-        continue
-      fi
 
       # Download job data and parse it.
       URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"
@@ -564,12 +563,6 @@ function BuildJobs {
         jobSplit=(${job//|/ })
         JOB_NAME="${jobSplit[0]}"
         JOB_BRANCH="${jobSplit[1]}"
-
-        # Branch filter
-        if ! echo $JOB_BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
-          PrintJobExcluded $JOB_NAME $JOB_BRANCH
-          continue
-        fi
 
         # Download job data and parse it.
         URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/lastBuild/api/json"
