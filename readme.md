@@ -113,6 +113,11 @@ If all went well, then all steps should complete successfully and then you can:
 
 And you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
 
+Jenkins will automatically detect changes and build new packages, thus if you keep build server running then 
+it should keep the repositories up to date by itself. This way you can just use build-iso.sh again and again.
+You should check on the Jenkins **Build History** from time to time and/or before you build ISO to make sure all 
+is going well. This is the same way how the official repository works.
+
 You could be also interested in the [Smoketest](#smoketest).
 If something isn't right, then see [Something is wrong](#something-is-wrong).
 
