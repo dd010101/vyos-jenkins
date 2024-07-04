@@ -118,6 +118,12 @@ it should keep the repositories up to date by itself. This way you can just use 
 You should check on the Jenkins **Build History** from time to time and/or before you build ISO to make sure all 
 is going well. This is the same way how the official repository works.
 
+There is also option to shut down the OS and use it only when you need it. The Jenkins checks if any package needs
+rebuild in 1 hour interval, the check if 1 hour elapsed happens each 15th minute of hour. So if you boot the OS 
+and start the Jenkins, then in worse case you would need to wait up to 15 minutes (to the closest 15th minute of hour),
+before rebuild of package would start. Then you shall wait before the **Build Queue** and **Build Executor Status** 
+is empty, then make sure no build failed in the **Build History**, after this you can use build-iso.sh again.
+
 You could be also interested in the [Smoketest](#smoketest).
 If something isn't right, then see [Something is wrong](#something-is-wrong).
 
