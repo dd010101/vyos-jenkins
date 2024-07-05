@@ -25,7 +25,7 @@ set -e
 
 sourcePath="/home/sentrium/web/dev.packages.vyos.net/public_html/repositories"
 targetPath="/tmp/repositories/"
-targetPath=${targetPath:-$TARGET_PATH}
+targetPath=${TARGET_PATH:-$targetPath}
 
 # Jenkins configuration.
 jenkinsHost="172.17.17.17:8080"
