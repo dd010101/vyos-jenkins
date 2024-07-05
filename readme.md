@@ -89,6 +89,16 @@ Not defined or empty value means all branches (the default).
 export BRANCH="sagitta"
 ```
 
+**If you want to distribute ISO**
+
+Then you should remove VyOS branding, you can do this by configuring `NOT_VYOS` environment variable to `yes` 
+before you run any script. Beware - by default, the ISO will include VyOS branding thus you shall not distribute
+the ISO.
+
+```bash
+export NOT_VYOS="yes"
+```
+
 **Then execute each script and follow instructions:**
 
 - `1-prereqs.sh`- installs dependencies.

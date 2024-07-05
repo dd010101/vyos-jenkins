@@ -211,7 +211,7 @@ else
     -s "//tree-map" -t elem -n "default" -v "" \
     -s "//default" -t elem -n "comparator" -v "" \
     -i "//comparator" -t attr -n "class" -v "java.lang.String\$CaseInsensitiveComparator" \
-    -s "//tree-map" -t elem -n "int" -v "4" \
+    -s "//tree-map" -t elem -n "int" -v "5" \
     -s "//tree-map" -t elem -n "string" -v "ARM64_BUILD_DISABLED" \
     -s "//tree-map" -t elem -n "string" -v "true" \
     -s "//tree-map" -t elem -n "string" -v "CUSTOM_BUILD_CHECK_DISABLED" \
@@ -220,6 +220,8 @@ else
     -s "//tree-map" -t elem -n "string" -v "172.17.17.17:5000" \
     -s "//tree-map" -t elem -n "string" -v "DEV_PACKAGES_VYOS_NET_HOST" \
     -s "//tree-map" -t elem -n "string" -v "jenkins@172.17.17.17" \
+    -s "//tree-map" -t elem -n "string" -v "NOT_VYOS" \
+    -s "//tree-map" -t elem -n "string" -v "$NOT_VYOS" \
     $JENKINS_CONFIG_FILE 2>/dev/null
   }
 
