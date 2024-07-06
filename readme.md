@@ -121,7 +121,7 @@ If all went well, then all steps should complete successfully and then you can:
     - At least, it asks you to specify build-by, after you do then confirm and wait. This identifier is used
       as the `--build-by` parameter, this can be e-mail or any other identifier.
 
-And you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
+Now you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
 
 Jenkins will automatically detect changes and build new packages, thus if you keep build server running then 
 it should keep the repositories up to date by itself. This way you can just use build-iso.sh again and again.
@@ -136,6 +136,9 @@ is empty, then make sure no build failed in the **Build History**, after this yo
 
 You could be also interested in the [Smoketest](#smoketest).
 If something isn't right, then see [Something is wrong](#something-is-wrong).
+
+Beware - like with any custom ISO you shall test every ISO you build with your configuration and traffic flowing.
+The Smoketest isn't substitute for real world testing.
 
 ---
 
@@ -373,8 +376,7 @@ reprepro repository.
 > **Name:** CUSTOM_DOCKER_REPO\
 > **Value:** 172.17.17.17:5000
 
-This variable is used to specify local docker registry for automatic `vyos-build` docker image rebuild,
-[see bellow for details](#additional-jobs).
+This variable is used to specify local docker registry for automatic `vyos-build` docker image rebuild.
 
 **Global Pipeline Libraries -> Add**
 
