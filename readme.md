@@ -926,7 +926,8 @@ the expected path `build/live-image-amd64.hybrid.iso`. You of course need ISO im
 Install dependencies:
 
 ```bash
-apt install qemu-kvm python3-tomli python3-pexpect
+apt install qemu-kvm python3-tomli python3-pexpect python3-git python3-jinja2 python3-psutil \
+  sudo live-build pbuilder devscripts python3-pystache gdisk kpartx dosfstools
 ```
 
 And then you can launch virtual machine to do tests thing via `make`. There are multiple tests:
