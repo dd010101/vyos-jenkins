@@ -30,6 +30,10 @@ JENKINS_DOCKERDECLARATIVE_FILE=/var/lib/jenkins/org.jenkinsci.plugins.docker.wor
 # Define the job template variables.
 TEMPLATE_FILE="jobs/jobTemplate.xml"
 WORKDIR="/tmp/seed-jobs"
+SETTINGS_DIR="/var/cache/vyos-installer"
+if [ ! -d "$SETTINGS_DIR" ]; then
+  mkdir "$SETTINGS_DIR"
+fi
 
 # Skip the stage check
 STAGE_CHECK_DISABLED=false
@@ -37,17 +41,33 @@ if [ "$1" == "--force" ]; then
   STAGE_CHECK_DISABLED=true
 fi
 
+# Remember branding removal (load if present and $NOT_VYOS is unset)
+NOT_VYOS_MEMORY="$SETTINGS_DIR/vyos_branding_removal"
+if [[ -z ${NOT_VYOS+x} ]] && [ -f "$NOT_VYOS_MEMORY" ]; then
+  NOT_VYOS=$(cat "$NOT_VYOS_MEMORY")
+else
+  echo "$NOT_VYOS" > "$NOT_VYOS_MEMORY"
+fi
+
+# Remember branch (load if present and $BRANCH is unset)
+SELECTED_BRANCH_MEMORY="$SETTINGS_DIR/vyos_selected_branch"
+if [[ -z ${BRANCH+x} ]] && [ -f "$SELECTED_BRANCH_MEMORY" ]; then
+  BRANCH=$(cat "$SELECTED_BRANCH_MEMORY")
+else
+  echo "$BRANCH" > "$SELECTED_BRANCH_MEMORY"
+fi
+
 # Filters to limit jobs to specific branch
 EXCLUDED_DESCRIPTION=""
 SELECTED_BRANCH="$BRANCH"
-if [ "$BRANCH" == "sagitta" ]; then
+if [ "$SELECTED_BRANCH" == "sagitta" ]; then
   EXCLUDED_DESCRIPTION="equuleus-only"
   SELECTED_BRANCH_REGEX="(sagitta|current)"
-elif [ "$BRANCH" == "equuleus" ]; then
+elif [ "$SELECTED_BRANCH" == "equuleus" ]; then
   EXCLUDED_DESCRIPTION="sagitta-only"
   SELECTED_BRANCH_REGEX="equuleus"
 else
-  if [ "$BRANCH" != "" ]; then
+  if [ "$SELECTED_BRANCH" != "" ]; then
     >&2 echo -e "${RED}Unknown branch: $SELECTED_BRANCH, please provide valid \$BRANCH (sagitta or equuleus)${NOCOLOR}"
     exit 1
   fi

@@ -83,7 +83,7 @@ cd /opt/vyos-jenkins
 **If you want to build only specific branch**
 
 Configure `BRANCH` environment variable to desired branch before you run any script.
-Not defined or empty value means all branches (the default).
+Default or empty value means all branches. This setting is remembered, you can override by defining empty value. 
 
 ```bash
 export BRANCH="sagitta"
@@ -93,7 +93,7 @@ export BRANCH="sagitta"
 
 Then you should remove VyOS branding, you can do this by configuring `NOT_VYOS` environment variable to `yes` 
 before you run any script. Beware - by default, the ISO will include VyOS branding thus you shall not distribute
-the ISO.
+the ISO. This setting is remembered, you can override by defining empty value.
 
 ```bash
 export NOT_VYOS="yes"
