@@ -123,6 +123,12 @@ If all went well, then all steps should complete successfully and then you can:
 
 Now you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
 
+You could be also interested in the [Smoketest](#smoketest).
+If something isn't right, then see [Something is wrong](#something-is-wrong).
+
+Beware - like with any custom ISO you shall test every ISO you build with your configuration and traffic flowing.
+The Smoketest isn't substitute for real world testing.
+
 Jenkins will automatically detect changes and build new packages, thus if you keep build server running then 
 it should keep the repositories up to date by itself. This way you can just use build-iso.sh again and again.
 You should check on the Jenkins **Build History** from time to time and/or before you build ISO to make sure all 
@@ -133,12 +139,6 @@ rebuild in 1 hour interval, the check if 1 hour elapsed happens each 15th minute
 and start the Jenkins, then in worse case you would need to wait up to 15 minutes (to the closest 15th minute of hour),
 before rebuild of package would start. Then you shall wait before the **Build Queue** and **Build Executor Status** 
 is empty, then make sure no build failed in the **Build History**, after this you can use build-iso.sh again.
-
-You could be also interested in the [Smoketest](#smoketest).
-If something isn't right, then see [Something is wrong](#something-is-wrong).
-
-Beware - like with any custom ISO you shall test every ISO you build with your configuration and traffic flowing.
-The Smoketest isn't substitute for real world testing.
 
 ---
 
@@ -883,7 +883,7 @@ This test checks mainly configuration, it's not complete test, it will only tell
 is very wrong, passed test doesn't mean image will be necessarily fully functional - with that said it's still useful,
 just don't put too much trust in it.
 
-You will need host that supports virtualization and thus can run KVM. Main test (`make test`) takes around two hours
+You will need host that supports virtualization and thus can run KVM. Main test (`make testd`) takes around two hours
 to complete, additional tests are significantly faster.
 
 There is way to run automated smoketest via `vyos-build/Jenkinsfile` but that requires Jenkins,
@@ -892,7 +892,7 @@ This method doesn't allow selecting the test either.
 
 There is requirement to include `vyos-1x-smoketest` package in your ISO image build. By default, ISO build doesn't
 include smoketest thus you need to include it via the usual parameter for custom packages.
-When you run `./configure` (equuleus) or `./build-vyos-image` (sagitta) add `--custom-package vyos-1x-smoketest`.
+When you run `./configure` (equuleus) or `./build-vyos-image iso` (sagitta) add `--custom-package vyos-1x-smoketest`.
 
 If you have your image with smoketest then you can test it. If you did build it yourself, then your likely already
 have clone of `vyos-build` repository.
@@ -954,6 +954,9 @@ RAID1 test
 ```bash
 make testraid
 ```
+
+If you encounter failures please rerun the test multiple times - there are known race conditions that can occur and
+this causes false-positives.
 
 You can as well run smoketest directly from **installed** VyOS, but you need many network interfaces otherwise
 some tests will fail. The test is expecting 8 or more network ports. You do it by simply including
