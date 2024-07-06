@@ -46,15 +46,15 @@ function HandleBranding {
     defaultToml="./data/defaults.toml"
     if [ -f "$defaultToml" ]; then
       sed -i -E 's/website_url =.*/website_url = "localhost"/' "$defaultToml"
-      sed -i -E 's/support_url =.*/support_url = "There is no support."/' "$defaultToml"
-      sed -i -E 's/bugtracker_url =.*/bugtracker_url = "You are on your own. DO NOT report bugs to VyOS!"/' "$defaultToml"
+      sed -i -E 's/support_url =.*/support_url = "There is no official support."/' "$defaultToml"
+      sed -i -E 's/bugtracker_url =.*/bugtracker_url = "DO NOT report bugs to VyOS!"/' "$defaultToml"
       sed -i -E 's/project_news_url =.*/project_news_url = "This is unofficial NOTvyos build."/' "$defaultToml"
     fi
     defaultMotd="./data/live-build-config/includes.chroot/usr/share/vyos/default_motd"
     if [ -f "$defaultMotd" ]; then
       sed -i 's/VyOS/NOTvyos/' "$defaultMotd"
       sed -i -E 's/Check out project news at.*/This is unofficial NOTvyos build./' "$defaultMotd"
-      sed -i -E 's/and feel free to report bugs at.*/You are on your own. DO NOT report bugs to VyOS!/' "$defaultMotd"
+      sed -i -E 's/and feel free to report bugs at.*/DO NOT report bugs to VyOS!/' "$defaultMotd"
     fi
   fi
 }
