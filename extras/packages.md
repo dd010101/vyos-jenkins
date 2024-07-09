@@ -93,6 +93,7 @@ Another special case is `vyos-xe-guest-utilities` where `current` branch is requ
 | linux-kernel                             | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/linux-kernel/Jenkinsfile                             |
 | live-boot                                | https://github.com/vyos/live-boot.git               | sagitta     | Jenkinsfile                                                   |
 | ndppd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ndppd/Jenkinsfile                                    |
+| net-snmp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/net-snmp/Jenkinsfile                                 |
 | netfilter                                | https://github.com/vyos/vyos-build.git              | sagitta     | packages/netfilter/Jenkinsfile                                |
 | opennhrp                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/opennhrp/Jenkinsfile                                 |
 | openvpn-otp                              | https://github.com/vyos/vyos-build.git              | sagitta     | packages/openvpn-otp/Jenkinsfile                              |
