@@ -19,7 +19,7 @@ while [ $page -le 1000 ]
 do
     echo "Processing page $page"
 
-    path="$datadir/repos-$page.json"
+    path="$dataDir/repos-$page.json"
     curl -sS --fail-with-body "https://api.github.com/orgs/vyos/repos?per_page=50&page=$page" -o "$path"
 
     emptyPage=true
