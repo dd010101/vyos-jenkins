@@ -98,10 +98,10 @@ root-title=My mirror
 root-desc=Welcome to my mirror
 max-repo-count=0
 
+snapshots=tar.gz zip
 section-from-path=1
 scan-path=/var/lib/git/repos
 
-snapshots=tar.gz zip
 virtual-root=/
 ```
 
