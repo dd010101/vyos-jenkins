@@ -464,8 +464,8 @@ function ProvisionJobs {
       completed=false
       started=true
       url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/api/json"
-      nextBuildNumber=$(curl -Ss -g --fail-with-body "$url" | jq -r .nextBuildNumber)
-      if [ $nextBuildNumber -gt 2 ]; then
+      nextBuildNumber=$(curl -s -g "$url" | jq -r .nextBuildNumber 2> /dev/null)
+      if [ "$nextBuildNumber" != "" ] && [ $nextBuildNumber -gt 2 ]; then
         completed=true
       else
         url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
