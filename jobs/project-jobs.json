@@ -9,7 +9,7 @@
   {
     "name": "ddclient",
     "description": "sagitta-only",
-    "gitUrl": "https://github.com/vyos/vyos-build.git",
+    "gitUrl": "https://github.com/dd010101/vyos-build.git",
     "branchRegex": "sagitta",
     "jenkinsfilePath": "packages/ddclient/Jenkinsfile"
   },
