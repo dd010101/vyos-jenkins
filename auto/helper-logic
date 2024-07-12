@@ -134,6 +134,17 @@ function PrintJobFailed {
   >&2 echo -e "[   ${RED}Failed!${NOCOLOR}   ] Package: $1 - Branch: $2"
 }
 
+function IsFlagSet {
+    flag="$1"
+    shift
+    for arg; do
+        if [[ $arg == "$flag" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 function Run {
   command="$1"
   infoMessage="$2"
@@ -165,6 +176,64 @@ function Run {
     fi
     exit $exitCode
   fi
+}
+
+function RunWithLazyStdout {
+    set -e
+    command=$1
+
+    # stop the background command on ctrl+c
+    # and cleanup temporary file and tail on exit
+    stty -echoctl
+    trap stop INT TERM
+    trap cleanup EXIT
+
+    function stop {
+        kill $pid || true
+
+        wait $pid
+        exitCode=$?
+
+        cleanup
+        exit $exitCode
+    }
+
+    function cleanup {
+        stty echo
+        if [ "$buffer" != "" ]; then
+            rm -f $buffer 2> /dev/null || true
+        fi
+        if [ "$tailPid" != "" ]; then
+            kill $tailPid || true
+        fi
+    }
+
+    buffer=$(mktemp -p /tmp --suffix=-background-buffer)
+
+    $command > $buffer &
+    pid=$!
+
+    echo "Show output? Press y..."
+    while ps -p $pid > /dev/null
+    do
+        if [ "$tailPid" == "" ]; then
+            read -s -n 1 -t 1 input || true
+            if [ "$input" == "y" ]; then
+                tail -f -n +1 $buffer &
+                tailPid=$!
+            fi
+        else
+            sleep 1
+        fi
+    done
+
+    wait $pid
+    exit $?
+}
+
+function FilterStderr {
+    ( set -e; eval "$1" 2>&1 1>&3 | (grep -v -E "$2" || true); exit ${PIPESTATUS[0]}; ) 1>&2 3>&1
+    return $?
 }
 
 function EnsureJenkinsCli {

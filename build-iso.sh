@@ -32,11 +32,11 @@ if [ -d vyos-build ]; then
 fi
 
 echo "Cloning the VyOS build repository..."
-git clone https://github.com/dd010101/vyos-build > /dev/null 2>&1
+git clone -q https://github.com/dd010101/vyos-build > /dev/null
 pushd vyos-build > /dev/null
 
 echo "Checking out the $BRANCH branch..."
-git checkout "$BRANCH" > /dev/null 2>&1
+git checkout "$BRANCH" > /dev/null
 
 function HandleBranding {
   if [ "$NOT_VYOS" != "" ]; then
@@ -64,9 +64,12 @@ function HandleBranding {
   fi
 }
 (set -e; HandleBranding)
+if [ $? -ne 0 ]; then
+  PrintErrorIndicator "Branding removal failed"
+fi
 
 echo "Downloading apt signing key..."
-wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key > /dev/null 2>&1
+curl -s -S --fail-with-body http://172.17.17.17/apt.gpg.key -o /tmp/apt.gpg.key
 
 DATE=$(date +%Y%m%d)
 
@@ -74,7 +77,7 @@ popd > /dev/null
 
 function GetLatestTag {
   # Clone the vyos-1x repo
-  git clone --bare https://github.com/vyos/vyos-1x.git -b $1 temp-git-tag > /dev/null 2>&1
+  git clone -q --bare https://github.com/vyos/vyos-1x.git -b $1 temp-git-tag > /dev/null
   pushd temp-git-tag > /dev/null
 
   # The the latest tag for this branch
@@ -82,64 +85,6 @@ function GetLatestTag {
 
   popd > /dev/null
   rm -rf temp-git-tag
-}
-
-function RunWithLazyStdout {
-    set -e
-    command=$1
-
-    # stop the background command on ctrl+c
-    # and cleanup temporary file and tail on exit
-    stty -echoctl
-    trap stop INT TERM
-    trap cleanup EXIT
-
-    function stop {
-        kill $pid || true
-
-        wait $pid
-        exitCode=$?
-
-        cleanup
-        exit $exitCode
-    }
-
-    function cleanup {
-        stty echo
-        if [ "$buffer" != "" ]; then
-            rm -f $buffer 2> /dev/null || true
-        fi
-        if [ "$tailPid" != "" ]; then
-            kill $tailPid || true
-        fi
-    }
-
-    buffer=$(mktemp -p /tmp --suffix=-background-buffer)
-
-    $command > $buffer &
-    pid=$!
-
-    echo "Show output? Press y..."
-    while ps -p $pid > /dev/null
-    do
-        if [ "$tailPid" == "" ]; then
-            read -s -n 1 -t 1 input || true
-            if [ "$input" == "y" ]; then
-                tail -f -n +1 $buffer &
-                tailPid=$!
-            fi
-        else
-            sleep 1
-        fi
-    done
-
-    wait $pid
-    exit $?
-}
-
-function FilterStderr {
-    ( set -e; eval "$1" 2>&1 1>&3 | (grep -v -E "$2" || true); exit ${PIPESTATUS[0]}; ) 1>&2 3>&1
-    return $?
 }
 
 echo "Building the ISO..."
@@ -162,13 +107,6 @@ if [ "$BRANCH" == "equuleus" ]; then
     docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" -w /vyos --sysctl net.ipv6.conf.lo.disable_ipv6=0 -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) -w /vyos vyos/vyos-build:equuleus \
       sudo make iso
   }
-
-  (
-    FilterStderr "( RunWithLazyStdout \"DockerBuild $BUILD_BY $RELEASE_NAME\" )" "(useradd warning)"
-    exit $?
-  )
-
-  BUILD_EXIT_CODE=$?
 elif [ "$BRANCH" == "sagitta" ]; then
   LATEST=`GetLatestTag sagitta`
   RELEASE_NAME="$LATEST-release-$DATE"
@@ -185,17 +123,22 @@ elif [ "$BRANCH" == "sagitta" ]; then
       --custom-apt-key /opt/apt.gpg.key \
       --custom-package vyos-1x-smoketest
   }
-
-  (
-    FilterStderr "( RunWithLazyStdout \"DockerBuild $BUILD_BY $RELEASE_NAME\" )" "(useradd warning)"
-    exit $?
-  )
-
-  BUILD_EXIT_CODE=$?
 else
   >&2 echo -e "${RED}Invalid branch${NOCOLOR}"
   exit 1
 fi
+
+dockerBuild="DockerBuild $BUILD_BY $RELEASE_NAME"
+if ! IsFlagSet "-v" "$@"; then
+  dockerBuild="RunWithLazyStdout \"$dockerBuild\""
+fi
+
+(
+  FilterStderr "( $dockerBuild )" "(useradd warning)"
+  exit $?
+)
+
+BUILD_EXIT_CODE=$?
 
 if [ $BUILD_EXIT_CODE != 0 ]; then
   >&2 echo -e "${RED}ISO build failed${NOCOLOR}"
