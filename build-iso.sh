@@ -39,21 +39,26 @@ echo "Checking out the $BRANCH branch..."
 git checkout "$BRANCH" > /dev/null 2>&1
 
 function HandleBranding {
-  if [ "$NOT_VYOS" == "yes" ]; then
+  if [ "$NOT_VYOS" != "" ]; then
+    name="$NOT_VYOS"
+    if [ "$name" == "yes" ]; then
+      name="NOTvyos"
+    fi
+
     echo "Removing branding..."
     cp ../extras/not-vyos/splash.png ./data/live-build-config/includes.binary/isolinux/splash.png
-    sed -i 's/VyOS/NOTvyos/' ./data/live-build-config/includes.binary/isolinux/menu.cfg
+    sed -i "s/VyOS/$name/" ./data/live-build-config/includes.binary/isolinux/menu.cfg
     defaultToml="./data/defaults.toml"
     if [ -f "$defaultToml" ]; then
       sed -i -E 's/website_url =.*/website_url = "localhost"/' "$defaultToml"
       sed -i -E 's/support_url =.*/support_url = "There is no official support."/' "$defaultToml"
       sed -i -E 's/bugtracker_url =.*/bugtracker_url = "DO NOT report bugs to VyOS!"/' "$defaultToml"
-      sed -i -E 's/project_news_url =.*/project_news_url = "This is unofficial NOTvyos build."/' "$defaultToml"
+      sed -i -E "s/project_news_url =.*/project_news_url = \"This is unofficial $name build.\"/" "$defaultToml"
     fi
     defaultMotd="./data/live-build-config/includes.chroot/usr/share/vyos/default_motd"
     if [ -f "$defaultMotd" ]; then
-      sed -i 's/VyOS/NOTvyos/' "$defaultMotd"
-      sed -i -E 's/Check out project news at.*/This is unofficial NOTvyos build./' "$defaultMotd"
+      sed -i "s/VyOS/$name/" "$defaultMotd"
+      sed -i -E "s/Check out project news at.*/This is unofficial $name build./" "$defaultMotd"
       sed -i -E 's/and feel free to report bugs at.*/DO NOT report bugs to VyOS!/' "$defaultMotd"
     fi
   fi

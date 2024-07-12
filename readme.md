@@ -92,8 +92,10 @@ export BRANCH="sagitta"
 **If you want to distribute ISO**
 
 Then you should remove VyOS branding, you can do this by configuring `NOT_VYOS` environment variable to `yes` 
-before you run any script. Beware - by default, the ISO will include VyOS branding thus you shall not distribute
-the ISO. This setting is remembered, you can override by defining empty value.
+before you run any script. If you set `yes` then `NOTvyos` name would be used as replacement for VyOS. If you
+set any other non-empty value like `someos` then this name would be used instead of `NOTvyos`. 
+Beware - by default, the ISO will include VyOS branding thus you shall not distribute the ISO. This setting
+is remembered, you can override by defining empty value.
 
 ```bash
 export NOT_VYOS="yes"
