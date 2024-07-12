@@ -5,30 +5,56 @@ If you want simple & light self-hosted mirror of this or any other GIT repositor
 like these examples. I assume Debian and nginx as webserver, but you can easily translate the idea to whatever 
 Linux or webserver you like.
 
-This uses gitweb as viewer and git-http-backend for HTTP clone support. Both of these tools are part of git project.
+These examples use cgit as web viewer and git-http-backend for read-only HTTP clone support.
 
 **Install dependencies**
 
 ```
-apt install nginx git gitweb fcgiwrap
+apt install nginx git cgit fcgiwrap
 ```
 
 **Prepare GIT repositories and keep them up to date**
 
 You want to use such script to first clone bare repositories and then periodically update them.
 
-The `/your/path/vyos-build-git-mirror.sh` script:
+See and obtain the `extras/mirror/github-mirror.sh` script.
 
-```
-#!/bin/bash
+Example usage of `update-mirrors.sh`:
+
+```bash
+#!/usr/bin/env bash
 set -e
 
-destination="/var/lib/git"
+githubMirror="/opt/vyos-jenkins/extras/mirror/github-mirror.sh"
+export ROOT_PATH="/var/lib/git"
+
+export NAMESPACE="vyos"
+export GITHUB_KIND="org"
+export GITHUB_SUBJECT="vyos"
+$githubMirror
+
+export NAMESPACE="dd010101"
+export GITHUB_KIND="user"
+export GITHUB_SUBJECT="dd010101"
+$githubMirror
+```
+
+You may also mirror GIT repositories directly:
+
+```bash
+#!/usr/bin/env bash
+set -e
+
+destination="/var/lib/git/dd010101"
 sources=(
     "https://github.com/dd010101/vyos-jenkins.git"
     "https://github.com/dd010101/vyos-build.git"
     "https://github.com/dd010101/vyos-missing.git"
 )
+
+if [ ! -f "$destination" ]; then
+    mkdir -p "$destination"
+fi
 
 for gitUrl in "${sources[@]}"
 do
@@ -45,28 +71,41 @@ do
 done
 ```
 
-Run this first time to clone repositories:
+Run the mirror script(s) first time to clone repositories:
 
-```
-chown -R www-data: /var/lib/git
-su - www-data -s /bin/bash -c "/your/path/vyos-build-git-mirror.sh"
-```
-
-To keep repositories up to date execute this script periodically for example with CRON:
-
-```
-0 * * * * www-data /your/path/vyos-build-git-mirror.sh
+```bash
+adduser --system --group --disabled-password -d /var/lib/git git
+chown -R git: /var/lib/git
+su - git -s /bin/bash -c "/your/path/update-mirrors.sh"
 ```
 
-**gitweb configuration**
+To keep repositories up to date execute the script(s) periodically for example with CRON:
 
-We want to change `$projectroot` and also it's good idea to add `@git_base_url_list` so the gitweb shows
-repository URL meant for cloning.
+```
+0 * * * * git /your/path/update-mirrors.sh
+```
 
-Modify `/etc/gitweb.conf`:
+**cgit configuration**
 
-1) Update `$projectroot` to `/var/lib/git` (`$projectroot = "/var/lib/git"`) - if not already set.
-2) Add `@git_base_url_list` with `https://git.some.tld` value (`@git_base_url_list = "https://git.some.tld"`).
+Modify `/etc/cgitrc` and append following:
+
+```
+clone-prefix=https://git.some.tld
+
+css=/cgit.css
+logo=/cgit.png
+root-title=My mirror
+root-desc=Welcome to my mirror
+max-repo-count=0
+
+section-from-path=1
+scan-path=/var/lib/git/repos
+
+snapshots=tar.gz zip
+virtual-root=/
+```
+
+Adjust the values as you wish. It's important to set the `clone-prefix` to your URL.
 
 **nginx vhost**
 
@@ -94,30 +133,30 @@ server {
 
     server_name git.some.tld;
 
-    root /usr/share/gitweb;
-    
-    index index.cgi;
-
+    root /usr/lib/cgit;
+   
     location / {
-        try_files $uri $uri/ =404;
+        try_files $uri @cgit;
     }
 
-    location /index.cgi {
-        include fastcgi_params;
-        fastcgi_param SCRIPT_NAME $uri;
-        fastcgi_param GITWEB_CONFIG /etc/gitweb.conf;
+    location @cgit {
+        fastcgi_param SCRIPT_FILENAME /usr/lib/cgit/cgit.cgi;
+        fastcgi_param PATH_INFO $uri;
+        fastcgi_param QUERY_STRING $args;
+        fastcgi_param HTTP_HOST $server_name;
         fastcgi_pass unix:/var/run/fcgiwrap.socket;
+        include fastcgi_params;
     }
 
-    location ~ \.git/ {
+    location ~ /.+/(info/refs|git-upload-pack) {
         client_max_body_size 0;
-        include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME /usr/lib/git-core/git-http-backend;
         fastcgi_param GIT_HTTP_EXPORT_ALL "";
-        fastcgi_param GIT_PROJECT_ROOT /var/lib/git;
+        fastcgi_param GIT_PROJECT_ROOT /var/lib/git/repos;
         fastcgi_param PATH_INFO $uri;
         fastcgi_param LANGUAGE en_US.UTF-8;
         fastcgi_pass unix:/var/run/fcgiwrap.socket;
+        include fastcgi_params;
     }
 }
 ```
@@ -128,5 +167,6 @@ recommend using `en_US.UTF-8`. If you have other system locale then you can add 
 via `dpkg-reconfigure locales` - pick your locale as default and `git-http-backend` can use english via `LANGUAGE`
 variable.
 
-This gives your `https://git.some.tld` for viewing and `git clone https://git.some.tld/repository.git` support.
-The gitweb viewer shows URL for cloning for each repository in summary section.
+This gives your `https://git.some.tld` for viewing 
+and `git clone https://git.some.tld/namespace/repository.git` support.
+The cgit web viewer shows URL for cloning for each repository in summary section.
