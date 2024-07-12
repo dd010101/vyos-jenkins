@@ -35,9 +35,20 @@ fi
 USERNAME_FILE="$SETTINGS_DIR/installer_username"
 TOKEN_FILE="$SETTINGS_DIR/installer_token"
 
+function IsFlagSet {
+    flag="$1"
+    shift
+    for arg; do
+        if [[ $arg == "$flag" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 # Skip the stage check
 STAGE_CHECK_DISABLED=false
-if [ "$1" == "--force" ]; then
+if IsFlagSet "--force" "$@"; then
   STAGE_CHECK_DISABLED=true
 fi
 
@@ -132,17 +143,6 @@ function PrintJobCompleted {
 function PrintJobFailed {
   tput el
   >&2 echo -e "[   ${RED}Failed!${NOCOLOR}   ] Package: $1 - Branch: $2"
-}
-
-function IsFlagSet {
-    flag="$1"
-    shift
-    for arg; do
-        if [[ $arg == "$flag" ]]; then
-            return 0
-        fi
-    done
-    return 1
 }
 
 function Run {
