@@ -133,8 +133,8 @@ server {
 
     server_name git.some.tld;
 
-    root /usr/lib/cgit;
-   
+    root /usr/share/cgit;
+
     location / {
         try_files $uri @cgit;
     }
