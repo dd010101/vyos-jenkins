@@ -461,20 +461,36 @@ function ProvisionJobs {
         continue
       fi
 
-      URL="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
+      completed=false
+      started=true
+      url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/api/json"
+      nextBuildNumber=$(curl -Ss -g --fail-with-body "$url" | jq -r .nextBuildNumber)
+      if [ $nextBuildNumber -gt 2 ]; then
+        completed=true
+      else
+        url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
+        if [ "$(curl -o /dev/null -s -w "%{http_code}\n" "${url}")" -eq 404 ]; then
+          started=false
+        fi
+      fi
 
-      if [ "$(curl -o /dev/null -s -w "%{http_code}\n" "${URL}")" -eq 404 ]; then
+      if ! $started; then
         # The indexing hasn't started for this branch yet.
         PrintJobNotStarted $JOB_NAME $JOB_BRANCH
         FINISHED_THIS_RUN="false"
       else
         # Indexing has started.
-        RESULT=$(curl -Ss -g --fail-with-body "$URL" | jq -r .result)
-        if [[ "${RESULT}" != "SUCCESS" ]]; then
-          # But it hasn't finished yet.
-          PrintJobRunning $JOB_NAME $JOB_BRANCH
-          FINISHED_THIS_RUN="false"
-        else
+        if ! $completed; then
+          RESULT=$(curl -Ss -g --fail-with-body "$url" | jq -r .result)
+          if [[ "${RESULT}" != "SUCCESS" ]]; then
+            # But it hasn't finished yet.
+            PrintJobRunning $JOB_NAME $JOB_BRANCH
+            FINISHED_THIS_RUN="false"
+          else
+            completed=true
+          fi
+        fi
+        if $completed; then
           PrintJobCompleted $JOB_NAME $JOB_BRANCH
         fi
       fi
