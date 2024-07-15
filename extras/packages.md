@@ -65,7 +65,7 @@ Package info for sagitta
 
 List of required packages and their Jenkinsfile:
 
-Some packages (`pam_tacplus`, `strongswan`, `linux-kernel`, `ddclient`) are broken right now, that's why
+Some packages (`pam_tacplus`, `strongswan`, `linux-kernel`) are broken right now, that's why
 fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
 
 Some packages aren't in the vyos repositories at all (`libnss-tacplus`), that's why
@@ -76,7 +76,7 @@ Another special case is `vyos-xe-guest-utilities` where `current` branch is requ
 | Package                                  | GIT repository                                      | Branch      | Location of Jenkinsfile                                       |
 |------------------------------------------|-----------------------------------------------------|-------------|---------------------------------------------------------------|
 | aws-gateway-load-balancer-tunnel-handler | https://github.com/vyos/vyos-build.git              | sagitta     | packages/aws-gateway-load-balancer-tunnel-handler/Jenkinsfile |
-| ddclient                                 | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/ddclient/Jenkinsfile                                 |
+| ddclient                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ddclient/Jenkinsfile                                 |
 | dropbear                                 | https://github.com/vyos/vyos-build.git              | sagitta     | packages/dropbear/Jenkinsfile                                 |
 | ethtool                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/ethtool/Jenkinsfile                                  |
 | frr                                      | https://github.com/vyos/vyos-build.git              | sagitta     | packages/frr/Jenkinsfile                                      |
