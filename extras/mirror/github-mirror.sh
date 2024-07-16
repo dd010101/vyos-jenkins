@@ -69,7 +69,7 @@ do
             git -C "$fullPath" clone --mirror "$gitUrl" .
         fi
 
-        echo "$description" > "$fullPath/description"
+        echo "$description (mirror of $gitUrl)" > "$fullPath/description"
 
         webInfoPath="$fullPath/info/web"
         if [ ! -d "$webInfoPath" ]; then
