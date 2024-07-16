@@ -71,6 +71,14 @@ do
 
         echo "$description" > "$fullPath/description"
 
+        webInfoPath="$fullPath/info/web"
+        if [ ! -d "$webInfoPath" ]; then
+            mkdir -p "$webInfoPath"
+        fi
+
+        latestTimestamp=$(git -C "$fullPath" for-each-ref --sort=-committerdate refs/heads/ --format='%(refname) %(committerdate:raw)' | head -1 | cut -d ' ' -f2)
+        echo "$latestTimestamp" > "$webInfoPath/last-modified"
+
         emptyPage=false
     done < <(cat "$path" | jq -c '.[]')
 
