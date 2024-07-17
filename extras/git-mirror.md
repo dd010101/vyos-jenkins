@@ -194,7 +194,7 @@ Create duply profile:
     if number of full backups (chains) has reached `MAX_FULL_BACKUPS` value.
   - Thus, with `MAX_FULL_BACKUPS=3` and `MAX_FULLBKP_AGE=1M` duplicity will create increments until month elapses.
     Then it creates new full backup/chain and continues with increments. 
-    If we have meet 4th month then oldest full backup/chain is removed.
+    If we reach 4th month then oldest full backup/chain is removed.
     This will yield 2 full months of increments and partial third month with 1 to 30 days depending on the cycle,
     this results in rolling 60-90 days of coverage.
 
