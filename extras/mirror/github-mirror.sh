@@ -7,14 +7,18 @@ set -e
 # To make sure you can go back in time, if something you want from the repositories gets purged.
 #
 # Configuration:
-# The root path is the base directory for all repositories and metadata
+#
+# The root path is the base directory for all repositories and metadata:
 #   export ROOT_PATH="/opt/github-mirror"
-# Namespace is sub-directory, so you can divide repositories of multiple orgs/users
+#
+# Namespace is sub-directory, so you can divide repositories of multiple orgs/users:
 #   export NAMESPACE="vyos"
-# The GITHUB_SUBJECT sets the GitHub org/user you want to mirror and the GITHUB_KIND sets type of the subject
+#
+# The GITHUB_SUBJECT sets the GitHub org/user you want to mirror and the GITHUB_KIND sets type of the subject:
+# For the org:
 #   export GITHUB_KIND="org"
 #   export GITHUB_SUBJECT="vyos"
-# or
+# For the user:
 #   export GITHUB_KIND="user"
 #   export GITHUB_SUBJECT="dd010101"
 #
@@ -25,19 +29,26 @@ set -e
 
 namespace="vyos"
 namespace=${NAMESPACE:-$namespace}
-githubKind="org"
-githubKind=${GITHUB_KIND:-$githubKind}
-githubSubject="vyos"
-githubSubject=${GITHUB_SUBJECT:-$githubSubject}
 rootPath="/opt/github-mirror"
 rootPath=${ROOT_PATH:-$rootPath}
 dataDir="$rootPath/data/$namespace"
 reposDir="$rootPath/repos/$namespace"
+changeTimestampPath="$dataDir/change-timestamp"
+
+githubKind="org"
+githubKind=${GITHUB_KIND:-$githubKind}
+githubSubject="vyos"
+githubSubject=${GITHUB_SUBJECT:-$githubSubject}
 
 mkdir -p "$dataDir"
 mkdir -p "$reposDir"
 
+function formatDate {
+    date '+%Y-%m-%d %H:%M:%S' -d "@$1"
+}
+
 page=1
+changeTimestamp=0
 while [ $page -le 1000 ]
 do
     echo "Processing page $page"
@@ -79,6 +90,10 @@ do
         latestTimestamp=$(git -C "$fullPath" for-each-ref --sort=-committerdate refs/heads/ --format='%(refname) %(committerdate:raw)' | head -1 | cut -d ' ' -f2)
         echo "$latestTimestamp" > "$webInfoPath/last-modified"
 
+        if [ "$changeTimestamp" -lt "$latestTimestamp" ]; then
+            changeTimestamp="$latestTimestamp"
+        fi
+
         emptyPage=false
     done < <(cat "$path" | jq -c '.[]')
 
@@ -89,3 +104,6 @@ do
 
     page=$((page+1))
 done
+
+echo "$changeTimestamp" > "$changeTimestampPath"
+echo "Latest change: $(formatDate "$changeTimestamp")"

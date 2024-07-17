@@ -37,6 +37,9 @@ export NAMESPACE="dd010101"
 export GITHUB_KIND="user"
 export GITHUB_SUBJECT="dd010101"
 $githubMirror
+
+# uncomment if you want use automated backup, see the github-mirror-backup.sh for configuration
+#/opt/vyos-jenkins/extras/mirror/github-mirror-backup.sh
 ```
 
 You may also mirror GIT repositories directly:
@@ -170,3 +173,122 @@ variable.
 This gives your `https://git.some.tld` for viewing 
 and `git clone https://git.some.tld/namespace/repository.git` support.
 The cgit web viewer shows URL for cloning for each repository in summary section.
+
+**Duply backups for github-mirror.sh**
+
+Install additional dependencies:
+
+```bash
+apt install duply
+```
+
+You may need additional dependencies depending on the duplicity backend you want to use.
+
+Create duply profile:
+
+- Don't forget to update `TARGET` to your specific duplicity backend.
+- Check `SOURCE` to match `ROOT_PATH` of github-mirror.sh.
+- You may want to tune the `MAX_FULL_BACKUPS` and `MAX_FULLBKP_AGE`:
+  - `duply github-mirror backup` will create new full after `MAX_FULLBKP_AGE` time period.
+  - `duply github-mirror purgeFull --force` will automatically delete full backup (and its chain of increments)
+    if number of full backups (chains) has reached `MAX_FULL_BACKUPS` value.
+  - Thus, with `MAX_FULL_BACKUPS=3` and `MAX_FULLBKP_AGE=1M` duplicity will create increments until month elapses.
+    Then it creates new full backup/chain and continues with increments. 
+    If we have meet 4th month then oldest full backup/chain is removed.
+    This will yield 2 full months of increments and partial third month with 1 to 30 days depending on the cycle,
+    this results in rolling 60-90 days of coverage.
+
+```bash
+mkdir -p /etc/duply/github-mirror
+
+cat << 'EOF' > /etc/duply/github-mirror/conf
+# gpg encryption settings, simple settings:
+#  GPG_KEY='disabled' - disables encryption alltogether
+#  GPG_KEY='<key1>[,<key2>]'; GPG_PW='pass' - encrypt with keys,
+#   sign if secret key of key1 is available use GPG_PW for sign & decrypt
+#  Note: you can specify keys via all methods described in gpg manpage,
+#        section "How to specify a user ID", escape commas (,) via backslash (\)
+#        e.g. 'Mueller, Horst', 'Bernd' -> 'Mueller\, Horst, Bernd'
+#        as they are used to separate the entries
+#  GPG_PW='passphrase' - symmetric encryption using passphrase only
+GPG_KEY='disabled'
+GPG_PW='_GPG_PASSWORD_'
+
+# backend, credentials & location of the backup target (URL-Format)
+# generic syntax is
+#   scheme://[user[:password]@]host[:port]/[/]path
+# e.g.
+#   sftp://bob:secret@backupserver.com//home/bob/dupbkp
+# for details and available backends see duplicity manpage, section URL Format
+#   http://duplicity.us/vers8/duplicity.1.html#url-format
+# BE AWARE:
+#   some backends (cloudfiles, S3 etc.) need additional env vars to be set to
+#   work properly, read after the TARGET definition for more details.
+# ATTENTION:
+#   characters other than A-Za-z0-9.-_.~ in the URL have to be
+#   replaced by their url encoded pendants, see
+#     http://en.wikipedia.org/wiki/Url_encoding
+#   if you define the credentials as TARGET_USER, TARGET_PASS below $ME
+#   will try to url_encode them for you if the need arises.
+TARGET=''
+#TARGET_PASS=''
+
+# base directory to backup
+SOURCE='/opt/github-mirror'
+
+# Number of full backups to keep. Used for the "purgeFull" command. 
+# See duplicity man page, action "remove-all-but-n-full".
+MAX_FULL_BACKUPS=3
+
+# activates duplicity --full-if-older-than option (since duplicity v0.4.4.RC3) 
+# forces a full backup if last full backup reaches a specified age, for the 
+# format of MAX_FULLBKP_AGE see duplicity man page, chapter TIME_FORMATS
+# Uncomment the following two lines to enable this setting.
+MAX_FULLBKP_AGE=1M
+DUPL_PARAMS="$DUPL_PARAMS --full-if-older-than $MAX_FULLBKP_AGE "
+
+# sets duplicity --volsize option (available since v0.4.3.RC7)
+# set the size of backup chunks to VOLSIZE MB instead of the default 25MB.
+# VOLSIZE must be number of MB's to set the volume size to.
+# Uncomment the following two lines to enable this setting. 
+VOLSIZE=50
+DUPL_PARAMS="$DUPL_PARAMS --volsize $VOLSIZE "
+
+# more duplicity command line options can be added in the following way
+# don't forget to leave a separating space char at the end
+DUPL_PARAMS="$DUPL_PARAMS --progress "
+EOF
+
+cat << 'EOF' > /etc/duply/github-mirror/exclude
+# although called exclude, this file is actually a globbing file list
+# duplicity accepts some globbing patterns, even including ones here
+# here is an example, this incl. only 'dir/bar' except it's subfolder 'foo'
+# - dir/bar/foo
+# + dir/bar
+# - **
+# for more details see duplicity manpage, section File Selection
+# http://duplicity.nongnu.org/duplicity.1.html#sect9
+
+EOF
+```
+
+Useful links:
+
+- Basic usage: https://duply.net/Documentation
+- Full configuration example: https://salsa.debian.org/joowie-guest/maintain_duply/-/blob/debian/2.4.1-1/duply?ref_type=tags#L853
+  - Can also be created by running `duply NAME create`
+
+Restore:
+
+- List what backups we have:
+  - `duply github-mirror status`
+- We can restore the whole deal:
+  - Latest: `duply github-mirror restore /some/destination`
+  - Specific: `duply github-mirror restore /some/destination 2024-07-17T10:00:00+02:00`
+- Or just part:
+  - The path is relative to the `SOURCE`.
+    - We can also list what is in the backup to see the path:
+      - Latest: `duply github-mirror list`
+      - Specific: `duply github-mirror list 2024-07-17T10:00:00+02:00`
+  - Latest: `duply github-mirror fetch repos/vyos/vyos-1x.git /some/destination`
+  - Specific: `duply github-mirror fetch repos/vyos/vyos-1x.git 2024-07-17T10:00:00+02:00`
