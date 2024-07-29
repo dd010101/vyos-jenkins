@@ -164,11 +164,17 @@ fi
 #endregion
 
 #region Add dummy0 interface
-if [ -f /etc/network/interfaces.d/dummy0.interface ]; then
+if [ -f /etc/network/interfaces.d/dummy0.interface ] || [ -f /etc/systemd/network/dummy0.netdev ]; then
   PrintOkIndicator "Network interface dummy0 has already been configured."
 else
   function CopyInterfaceFile {
-    cp ./auto/dummy0.interface /etc/network/interfaces.d
+    if [ -d /etc/network/interfaces.d ]; then
+      cp ./auto/dummy0.interface /etc/network/interfaces.d/
+    else
+      cp ./auto/dummy0.netdev /etc/systemd/network/
+      cp ./auto/dummy0.network /etc/systemd/network/
+      networkctl reload
+    fi
   }
 
   Run "CopyInterfaceFile" \
@@ -182,7 +188,15 @@ fi
 if ip a show dummy0 2>/dev/null > /dev/null; then
   PrintOkIndicator "Network interface dummy0 is already started."
 else
-  Run "ifup dummy0" \
+  function BringDummyInterfaceUp {
+    if [ -d /etc/network/interfaces.d ]; then
+      ifup dummy0
+    else
+      networkctl up dummy0
+    fi
+  }
+
+  Run "BringDummyInterfaceUp" \
     "Starting network interface dummy0..." \
     "Failed to start network interface dummy0." \
     "Started network interface dummy0."
