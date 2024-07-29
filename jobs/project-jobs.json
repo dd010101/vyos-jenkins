@@ -203,6 +203,13 @@
     "jenkinsfilePath": "packages/pmacct/Jenkinsfile"
   },
   {
+    "name": "podman",
+    "description": "sagitta-only",
+    "gitUrl": "https://github.com/vyos/vyos-build.git",
+    "branchRegex": "sagitta",
+    "jenkinsfilePath": "packages/podman/Jenkinsfile"
+  },
+  {
     "name": "pyhumps",
     "description": "sagitta-only",
     "gitUrl": "https://github.com/vyos/vyos-build.git",

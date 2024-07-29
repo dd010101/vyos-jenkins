@@ -100,6 +100,7 @@ Another special case is `vyos-xe-guest-utilities` where `current` branch is requ
 | owamp                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/owamp/Jenkinsfile                                    |
 | pam_tacplus                              | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/pam_tacplus/Jenkinsfile                              |
 | pmacct                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pmacct/Jenkinsfile                                   |
+| podman                                   | https://github.com/vyos/vyos-build.git              | sagitta     | packages/podman/Jenkinsfile                                   |
 | pyhumps                                  | https://github.com/vyos/vyos-build.git              | sagitta     | packages/pyhumps/Jenkinsfile                                  |
 | radvd                                    | https://github.com/vyos/vyos-build.git              | sagitta     | packages/radvd/Jenkinsfile                                    |
 | strongswan                               | **https://github.com/dd010101/vyos-build.git**      | sagitta     | packages/strongswan/Jenkinsfile                               |
