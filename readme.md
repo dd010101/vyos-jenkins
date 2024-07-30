@@ -128,6 +128,10 @@ Now you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
 You could be also interested in the [Smoketest](#smoketest).
 If something isn't right, then see [Something is wrong](#something-is-wrong).
 
+You can rerun the scripts as you wish and the scripts should do only required/changed steps.
+It's also good idea to do this from time to time. If your scripts are somewhat old, and you face some error, 
+then please first try to download and run latest scripts.
+
 Beware - like with any custom ISO you shall test every ISO you build with your configuration and traffic flowing.
 The Smoketest isn't substitute for real world testing.
 
@@ -861,7 +865,11 @@ Something is wrong
 
 You may face situation when Jenkins build may fail or doesn't produce .deb packages and thus ISO build fails
 with unmet dependencies. Sometimes the Jenkins build fails for temporary reason like network/server issue, thus
-simple retry with **Build now** will fix the failure.
+find the package/job/branch in question (like linux-kernel/sagitta) and retry the build with **Build now**.
+
+Sometimes the build steps/instructions change over time (mainly due to changes on VyOS side), and thus for example 
+you need to change or add additional package. If you are using automated scripts then make sure you have the latest
+version, if not then download scripts again and rerun all them.
 
 There are two logs you should check for pointers.
 
