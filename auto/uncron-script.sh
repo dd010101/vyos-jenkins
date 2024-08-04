@@ -10,6 +10,7 @@ fi
 if [ -d uncron ]; then
   echo "Updating Uncron git repository..."
   cd uncron
+  git reset --hard origin/main > /dev/null 2>&1 # revert patches
   git pull > /dev/null 2>&1
 else
   echo "Cloning Uncron git repository..."
@@ -30,6 +31,10 @@ echo "Ensuring packages have been installed..."
 opam install lwt lwt_ppx logs containers -y > /dev/null 2>&1
 
 eval $(opam env)
+
+echo "Applying patches..."
+sed -i 's~/run/uncron.sock~/run/uncron/uncron.sock~' src/uncron-add
+sed -i 's~/run/uncron.sock~/run/uncron/uncron.sock~' src/uncron.ml
 
 echo "Building Uncron..."
 dune build

@@ -11,6 +11,7 @@ User=jenkins
 Group=jenkins
 Restart=on-failure
 RestartSec=5s
+RuntimeDirectory=uncron
 
 [Install]
 WantedBy=multi-user.target
