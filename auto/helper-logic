@@ -324,9 +324,6 @@ function ProvisionJob {
   # Extract the job name.
   JOB_NAME=$(echo "$1" | jq -r .name)
 
-  # Print the job name.
-  PrintEmptyIndicator "$JOB_NAME"
-
   # Parse the json.
   DESCRIPTION=$(echo "$1" | jq -r .description)
   GIT_URL=$(echo "$1" | jq -r .gitUrl)
@@ -377,10 +374,7 @@ function ProvisionJob {
     UrlPush "/createItem?name=$JOB_NAME" "$JOBPATH"
   fi
 
-  if [ $? -eq 0 ]; then
-    ClearPreviousLine
-    PrintOkIndicator "$JOB_NAME"
-  else
+  if [ $? -ne 0 ]; then
     ClearPreviousLine
     PrintErrorIndicator "Failed to create job: $JOB_NAME"
   fi
@@ -390,28 +384,18 @@ function ProvisionJobs {
   # Create the jobs.
   echo "Provisioning jobs in Jenkins..."
 
-  # Declare the JOBS list.
-  declare -a JOBS
-
   # Make sure the work directory exists.
   mkdir -p "$WORKDIR"
 
+  # Declare the JOBS list.
+  declare -a JOBS
+
   # Read one job at a time from the json file.
+  # Store the single jobs in the JOBS array.
   while read item
   do
     # Find the name of the job.
     JOB_NAME=$(echo "$item" | jq -r .name)
-
-    # Find the branches for the job.
-    BRANCH_REGEX=$(echo "$item" | jq -r .branchRegex)
-
-    # Split branch regex
-    BRANCHES=$(sed -e 's/(//g' -e 's/)//g' -e 's/|/\n/g' <<< "${BRANCH_REGEX}")
-
-    for BRANCH in $BRANCHES
-    do
-      JOBS+=( "$JOB_NAME|$BRANCH" )
-    done
 
     # Branch filter
     DESCRIPTION=$(echo "$item" | jq -r .description)
@@ -420,89 +404,135 @@ function ProvisionJobs {
       continue
     fi
 
-    # Provision the job.
-    ProvisionJob $item
+    JOBS+=( "$item" )
   done < <(cat $1 | jq -c '.[]')
 
-  echo
-  echo "Waiting for jobs to be provisioned in Jenkins..."
-  echo
-  echo "Total number of jobs: ${#JOBS[@]}"
+  BUILD_FAILED="false"
+
+  echo "Total number of pipelines: ${#JOBS[@]}"
+
+  # Has the CONCURRENT_JOBS_COUNT environment variable been set?
+  if [ "$(printenv CONCURRENT_JOBS_COUNT)" ]; then
+    # Yes, so we use that value to define the number of concurrent jobs.
+    CONCURRENT_JOBS_COUNT=$(printenv CONCURRENT_JOBS_COUNT)
+    echo "Concurrent jobs: $CONCURRENT_JOBS_COUNT (Overridden by the CONCURRENT_JOBS_COUNT environment variable)"
+  else
+    # No, so we read the number of CPU cores, and use that.
+    CONCURRENT_JOBS_COUNT="$(nproc)"
+
+    # If less than 4 CPU cores is found, we set it to 4.
+    CONCURRENT_JOBS_COUNT=$(( $CONCURRENT_JOBS_COUNT < 4 ? 4 : $CONCURRENT_JOBS_COUNT))
+    echo "Concurrent jobs: $CONCURRENT_JOBS_COUNT (Can be overridden by setting the CONCURRENT_JOBS_COUNT environment variable)"
+  fi
+
   echo
 
-  for job in "${JOBS[@]}"; do
-    jobSplit=(${job//|/ })
-    JOB_NAME="${jobSplit[0]}"
-    JOB_BRANCH="${jobSplit[1]}"
+  declare -A JOB_RESULTS
 
-    PrintJobNotStarted $JOB_NAME $JOB_BRANCH
-  done
-
-  while :
+  # While there are more jobs to build.
+  while [ ${#JOBS[@]} -gt 0 ]
   do
-    # Define the current state, and set it to true.
-    # If anything isn't ready, we set it to false.
-    FINISHED_THIS_RUN="true"
+    # Create a list to store the current "chunk" of jobs in.
+    declare -a CURRENT_JOBS
 
-    # Move the cursor up to the top of the list on screen.
-    for job in "${JOBS[@]}"; do
-      tput cuu1
+    # Make sure it is empty.
+    CURRENT_JOBS=()
+
+    # While the number of jobs in the list is less than the concurrent job count.
+    while [ ${#CURRENT_JOBS[@]} -lt $CONCURRENT_JOBS_COUNT ]
+    do
+      # Are there any jobs left in the main list?
+      if [ ${#JOBS[@]} -gt 0 ]; then
+        # Yes, so we take the first element.
+        item=${JOBS[0]}
+        # Remove it from the main list.
+        JOBS=("${JOBS[@]:1}")
+
+        ProvisionJob $item
+
+        # Find the branches for the job.
+        BRANCH_REGEX=$(echo "$item" | jq -r .branchRegex)
+        # Split branch regex
+        BRANCHES=$(sed -e 's/(//g' -e 's/)//g' -e 's/|/\n/g' <<< "${BRANCH_REGEX}")
+        for BRANCH in $BRANCHES
+        do
+          # Branch filter
+          if ! echo $BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
+            continue
+          fi
+
+          PrintJobNotStarted $JOB_NAME $BRANCH
+
+          # And add it to our current list.
+          CURRENT_JOBS+=( "$JOB_NAME|$BRANCH" )
+        done
+      else
+        # No more jobs, so we break out of the loop.
+        break
+      fi
     done
 
-    # Check the status for each job
-    for job in "${JOBS[@]}"; do
-      jobSplit=(${job//|/ })
-      JOB_NAME="${jobSplit[0]}"
-      JOB_BRANCH="${jobSplit[1]}"
+    while :
+    do
+      # Define the current state, and set it to true.
+      # If anything isn't ready, we set it to false.
+      FINISHED_THIS_RUN="true"
 
-      # Branch filter
-      if ! echo $JOB_BRANCH | grep -E "$SELECTED_BRANCH_REGEX" > /dev/null; then
-        PrintJobExcluded $JOB_NAME $JOB_BRANCH
-        continue
-      fi
+      # Move the cursor up one line for each job in the current job list.
+      for job in "${CURRENT_JOBS[@]}"; do
+        tput cuu1
+      done
 
-      completed=false
-      started=true
-      url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/api/json"
-      nextBuildNumber=$(curl -s -g "$url" | jq -r .nextBuildNumber 2> /dev/null)
-      if [ "$nextBuildNumber" != "" ] && [ $nextBuildNumber -gt 2 ]; then
-        completed=true
-      else
-        url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
-        if [ "$(curl -o /dev/null -s -w "%{http_code}\n" "${url}")" -eq 404 ]; then
-          started=false
-        fi
-      fi
+      # For each job in the current job list.
+      for job in "${CURRENT_JOBS[@]}"; do
+        # Split into name and branch.
+        jobSplit=(${job//|/ })
+        JOB_NAME="${jobSplit[0]}"
+        JOB_BRANCH="${jobSplit[1]}"
 
-      if ! $started; then
-        # The indexing hasn't started for this branch yet.
-        PrintJobNotStarted $JOB_NAME $JOB_BRANCH
-        FINISHED_THIS_RUN="false"
-      else
-        # Indexing has started.
-        if ! $completed; then
-          RESULT=$(curl -Ss -g --fail-with-body "$url" | jq -r .result)
-          if [[ "${RESULT}" != "SUCCESS" ]]; then
-            # But it hasn't finished yet.
-            PrintJobRunning $JOB_NAME $JOB_BRANCH
-            FINISHED_THIS_RUN="false"
-          else
-            completed=true
+        completed=false
+        started=true
+        url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/api/json"
+        nextBuildNumber=$(curl -s -g "$url" | jq -r .nextBuildNumber 2> /dev/null)
+        if [ "$nextBuildNumber" != "" ] && [ $nextBuildNumber -gt 2 ]; then
+          completed=true
+        else
+          url="${JENKINS_URL}/job/${JOB_NAME}/job/${JOB_BRANCH}/1/api/json"
+          if [ "$(curl -o /dev/null -s -w "%{http_code}\n" "${url}")" -eq 404 ]; then
+            started=false
           fi
         fi
-        if $completed; then
-          PrintJobCompleted $JOB_NAME $JOB_BRANCH
+
+        if ! $started; then
+          # The indexing hasn't started for this branch yet.
+          PrintJobNotStarted $JOB_NAME $JOB_BRANCH
+          FINISHED_THIS_RUN="false"
+        else
+          # Indexing has started.
+          if ! $completed; then
+            RESULT=$(curl -Ss -g --fail-with-body "$url" | jq -r .result)
+            if [[ "${RESULT}" != "SUCCESS" ]]; then
+              # But it hasn't finished yet.
+              PrintJobRunning $JOB_NAME $JOB_BRANCH
+              FINISHED_THIS_RUN="false"
+            else
+              completed=true
+            fi
+          fi
+          if $completed; then
+            PrintJobCompleted $JOB_NAME $JOB_BRANCH
+          fi
         fi
+      done
+
+      # When we get here, if FINISHED_THIS_RUN is true, everything is ready
+      if [[ $FINISHED_THIS_RUN == "true" ]]; then
+        break;
+      else
+        # Sleep 5 seconds
+        sleep 5
       fi
     done
-
-    # When we get here, if FINISHED_THIS_RUN is true, everything is ready
-    if [[ $FINISHED_THIS_RUN == "true" ]]; then
-      break;
-    else
-      # Sleep 5 seconds
-      sleep 5
-    fi
   done
 }
 
