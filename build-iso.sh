@@ -87,6 +87,10 @@ function GetLatestTag {
   rm -rf temp-git-tag
 }
 
+customPackages="vyos-1x-smoketest"
+customPackages=${CUSTOM_PACKAGES:-$customPackages}
+echo "Using CUSTOM_PACKAGES=$customPackages"
+
 echo "Building the ISO..."
 if [ "$BRANCH" == "equuleus" ]; then
   LATEST=`GetLatestTag equuleus`
@@ -102,7 +106,7 @@ if [ "$BRANCH" == "equuleus" ]; then
       --vyos-mirror http://172.17.17.17/equuleus \
       --debian-elts-mirror http://172.17.17.17:3142/deb.freexian.com/extended-lts \
       --custom-apt-key /opt/apt.gpg.key \
-      --custom-package vyos-1x-smoketest
+      --custom-package "$3"
 
     docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" -w /vyos --sysctl net.ipv6.conf.lo.disable_ipv6=0 -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) -w /vyos vyos/vyos-build:equuleus \
       sudo make iso
@@ -121,14 +125,14 @@ elif [ "$BRANCH" == "sagitta" ]; then
       --version "$2" \
       --vyos-mirror http://172.17.17.17/sagitta \
       --custom-apt-key /opt/apt.gpg.key \
-      --custom-package vyos-1x-smoketest
+      --custom-package "$3"
   }
 else
   >&2 echo -e "${RED}Invalid branch${NOCOLOR}"
   exit 1
 fi
 
-dockerBuild="DockerBuild $BUILD_BY $RELEASE_NAME"
+dockerBuild="DockerBuild $BUILD_BY $RELEASE_NAME $customPackages"
 if ! IsFlagSet "-v" "$@"; then
   dockerBuild="RunWithLazyStdout \"$dockerBuild\""
 fi

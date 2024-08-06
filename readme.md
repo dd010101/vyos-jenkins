@@ -116,6 +116,11 @@ If all went well, then all steps should complete successfully and then you can:
     - It asks you to specify branch equuleus or sagitta, after you do then confirm.
     - At least, it asks you to specify build-by, after you do then confirm and wait. This identifier is used
       as the `--build-by` parameter, this can be e-mail or any other identifier.
+    - There is also option to change what custom packages you want to include. By default, the only additional package
+      is `vyos-1x-smoketest`. If you want more or different custom packages
+      then you can override the default value via the `CUSTOM_PACKAGES` env variable, for example:
+      `export CUSTOM_PACKAGES="vyos-1x-smoketest emacs"`. 
+      If you want to use this then please set this variable always before you build ISO.
 
 Now you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
 
