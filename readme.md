@@ -178,30 +178,45 @@ it will only tell you if something is very wrong, passed test doesn't mean image
 functional - with that said it's still useful somewhat, just don't put too much trust in it. It also has tendencies
 to generate a lot of false positives, beware.
 
+### Requirements
+
 You will need host that supports virtualization and thus can run KVM. Main test (`make testd`) takes around two hours
-to complete, additional tests are significantly faster.
+to complete, additional tests aren't that slow.
 
-There is way to run automated smoketest via `vyos-build/Jenkinsfile` but that requires Jenkins,
-and also it starts all tests in parallel thus requiring more RAM since multiple virtual machines run in parallel.
-This method doesn't allow selecting the test either.
+There is requirement to include `vyos-1x-smoketest` package in your ISO image build. Automated scripts by default
+include the `vyos-1x-smoketest` unless you change it via `CUSTOM_PACKAGES`. If you build ISO via other means
+then you need to include the package via the `--custom-package vyos-1x-smoketest` option when you run 
+`./configure` (equuleus) or `./build-vyos-image iso` (sagitta).
 
-There is requirement to include `vyos-1x-smoketest` package in your ISO image build. By default, ISO build doesn't
-include smoketest thus you need to include it via the usual parameter for custom packages.
-When you run `./configure` (equuleus) or `./build-vyos-image iso` (sagitta) add `--custom-package vyos-1x-smoketest`.
+### Testing environment
 
-If you have your image with smoketest then you can test it. If you did build it yourself, then your likely already
-have clone of `vyos-build` repository.
+The automated scripts purge the vyos-build and rename the ISO, thus we need to reverse this if we want to run tests.
+If you build your ISO manually then you can skip these steps since you should already have `vyos-build` repository
+with the ISO in the `build` directory with the default name.
 
-If not clone it and switch to your branch.
+Clone the `vyos-build` repo:
 
 ```bash
 git clone https://github.com/dd010101/vyos-build.git
 cd vyos-build
-
-# pick one
-git checkout sagitta
-git checkout equuleus
 ```
+
+Switch to correct branch (`equuleus` or `sagitta`):
+
+```bash
+git checkout sagitta
+```
+
+Copy your ISO to the `build` directory as `build/live-image-amd64.hybrid.iso`:
+
+```bash
+mkdir build
+cp THE_PATH_TO_YOUR_ISO build/live-image-amd64.hybrid.iso
+```
+
+Change the `THE_PATH_TO_YOUR_ISO` to whatever location and name your ISO has.
+
+### Workaround
 
 There is known issue with smoketest that it will fail if you have too many CPU cores/threads. The test is designed
 to use half of your cores, but it will fail if calculates more than 4, thus if you have 8 or more cores/threads
@@ -215,10 +230,7 @@ More cores don't increase speed, the test is single thread anyway, it usually us
 enough. More cores will not speed up the test - it will only make the test fail due to OOM
 inside the test virtual machine.
 
-If you did build your image, then you should have `build` directory and there should be your ISO as
-`live-image-amd64.hybrid.iso`. If you want to test arbitrary ISO then you can plant whatever ISO into
-the expected path `build/live-image-amd64.hybrid.iso`. You of course need ISO image that includes
-`vyos-1x-smoketest` package.
+### Dependencies
 
 Install dependencies:
 
@@ -227,24 +239,35 @@ apt install qemu-kvm python3-tomli python3-pexpect python3-git python3-jinja2 py
   sudo live-build pbuilder devscripts python3-pystache gdisk kpartx dosfstools
 ```
 
-And then you can launch virtual machine to do tests thing via `make`. There are multiple tests:
+### The tests
 
-CLI configuration test
+There are multiple tests executed via the `make`:
+
+**CLI configuration test:**
+
+This test aims to verify that commands in the `configure` mode have correct result after `commit`. 
+For example - if some command configures routes, then the test checks if those routes are correctly propagated
+to the underlying system - in this example to the kernel/OS.
 
 ```bash
 make testd
 ```
 
-There is also `make test` that runs identical tests to the `make testd` the difference is if the `vyos-configd.service`
-service is enabled or not and VyOS enables this service by default, that's why `make testd` is more accurate.
+There is also `make test` that runs identical tests to the `make testd` and the difference is if 
+the `vyos-configd.service` service is enabled or not. VyOS enables this service by default, that's 
+why `make testd` is more accurate since it represents how VyOS runs in the wild.
 
-Configuration file load test
+**Configuration file load test:**
+
+This test loads various `boot.config` like files and checks if `commit` doesn't fail.
 
 ```bash
 make testc
 ```
 
-RAID1 test
+**RAID1 test:**
+
+This checks if the MDADM RAID1 installation works and if MDADM is able to resync after disk failure.
 
 ```bash
 make testraid
