@@ -180,7 +180,7 @@ function Run {
 
 function RunWithLazyStdout {
     set -e
-    command=$1
+    command="$1"
 
     # stop the background command on ctrl+c
     # and cleanup temporary file and tail on exit
@@ -210,7 +210,7 @@ function RunWithLazyStdout {
 
     buffer=$(mktemp -p /tmp --suffix=-background-buffer)
 
-    $command > $buffer &
+    eval "$command" > $buffer &
     pid=$!
 
     echo "Show output? Press y..."

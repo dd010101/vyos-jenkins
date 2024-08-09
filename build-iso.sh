@@ -89,7 +89,6 @@ function GetLatestTag {
 
 customPackages="vyos-1x-smoketest"
 customPackages=${CUSTOM_PACKAGES:-$customPackages}
-echo "Using CUSTOM_PACKAGES=$customPackages"
 
 echo "Building the ISO..."
 if [ "$BRANCH" == "equuleus" ]; then
@@ -97,6 +96,7 @@ if [ "$BRANCH" == "equuleus" ]; then
   RELEASE_NAME="$LATEST-release-$DATE"
 
   function DockerBuild {
+    echo "Using arguments: --build-by '$1' --version '$2' --custom-package '$3'"
     docker run --rm --privileged -v ./vyos-build/:/vyos -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" -w /vyos --sysctl net.ipv6.conf.lo.disable_ipv6=0 -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) -w /vyos vyos/vyos-build:equuleus \
       sudo ./configure \
       --architecture amd64 \
@@ -116,6 +116,7 @@ elif [ "$BRANCH" == "sagitta" ]; then
   RELEASE_NAME="$LATEST-release-$DATE"
 
   function DockerBuild {
+    echo "Using arguments: --build-by '$1' --version '$2' --custom-package '$3'"
     docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" -w /vyos --sysctl net.ipv6.conf.lo.disable_ipv6=0 -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) -w /vyos vyos/vyos-build:sagitta \
       sudo --preserve-env ./build-vyos-image iso \
       --architecture amd64 \
@@ -132,8 +133,9 @@ else
   exit 1
 fi
 
-dockerBuild="DockerBuild $BUILD_BY $RELEASE_NAME $customPackages"
+dockerBuild="DockerBuild \"$BUILD_BY\" \"$RELEASE_NAME\" \"$customPackages\""
 if ! IsFlagSet "-v" "$@"; then
+  dockerBuild=${dockerBuild//\"/\\\"} # escape double quotes with backslash
   dockerBuild="RunWithLazyStdout \"$dockerBuild\""
 fi
 
