@@ -21,11 +21,14 @@ set -e
 #   export TARGET_PATH=mirror@10.0.0.127:/var/www/...
 #   export JENKINS_USER="YOUR_USERNAME"
 #   export JENKINS_TOKEN="API_TOKEN"
+#   export SYNC_COMMAND='rsync -azv --progress --delete "$sourcePath" "$targetPath"'
 #
 
-sourcePath="/home/sentrium/web/dev.packages.vyos.net/public_html/repositories"
+sourcePath="/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/"
 targetPath="/tmp/repositories/"
 targetPath=${TARGET_PATH:-$targetPath}
+syncCommand='rsync -azv --progress --delete "$sourcePath" "$targetPath"'
+syncCommand=${SYNC_COMMAND:-$syncCommand}
 
 # Jenkins configuration.
 jenkinsHost="172.17.17.17:8080"
@@ -41,7 +44,7 @@ markerFiles=(
 )
 
 # Metadata.
-workDir="/tmp/reprepro-mirror"
+workDir="/var/cache/reprepro-mirror"
 lastSyncPath="$workDir/lastSync"
 lockPath="$workDir/lock"
 
@@ -114,7 +117,8 @@ if ! isSynchronizationPostponed; then
     exit 0
 fi
 
-# The synchronization command.
-rsync -azv --progress --delete "$sourcePath" "$targetPath"
+# Synchronize!
+eval "$SYNC_COMMAND"
 
 touch "$lastSyncPath"
+echo "Done."
