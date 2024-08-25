@@ -17,6 +17,10 @@
                 margin: 0;
             }
 
+            pre {
+                overflow: auto;
+            }
+
             code {
                 display: inline-block;
                 padding: 0 5px;
@@ -26,13 +30,27 @@
             pre code {
                 padding: 5px;
             }
+
+            code b {
+                color: #c90000;
+            }
+
+            @media (max-width: 767.98px) {
+                body {
+                    padding: 0;
+                }
+
+                h1 {
+                    font-size: 1.5em;
+                }
+            }
         </style>
     </head>
     <body>
         <h1>NOTvyos package repository</h1>
 
         <p>
-            Welcome to NOTvyos package repository provided by <b>[PROVIDED_BY]</b>.<br />
+            Welcome to NOTvyos package repository provided by <b>[PROVIDED_BY]</b>.<br>
             This APT mirror provides unofficially built .deb packages for stable branches of VyOS™.
         </p>
 
@@ -41,51 +59,10 @@
         </p>
 
         <p>
-            Test resulting ISO image <b>carefully</b>.<br />
-            There is <b>no official support</b>.<br />
-            Packages are provided on <b>"AS IS"</b> basis.<br />
-            <b>DO NOT</b> report bugs of NOTvyos to the VyOS™ project.<br />
-        </p>
-
-        <p>
-            The APT gpg singing key for this mirror can be found <a href="[REPOSITORY_URL]/apt.gpg.key">here</a>:
-        </p>
-
-        <pre><code>wget [REPOSITORY_URL]/apt.gpg.key -O /tmp/apt.gpg.key</code></pre>
-
-        <p>
-            You need to mount the APT key for later use when you are starting the vyos-build docker container:
-        </p>
-
-        <pre><code>docker run --rm -it \
-    -v "$(pwd)":/vyos \
-    -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" \
-    -w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0 \
-    -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
-    "vyos/vyos-build:$BRANCH" bash</code></pre>
-
-        <p>
-            You can use <code>--vyos-mirror</code> and <code>--custom-apt-key</code> options for the
-            <code>./configure</code> or <code>./build-vyos-image iso</code> commands to use this mirror:
-        </p>
-
-        <p>For <b>equuleus</b>:</p>
-
-        <pre><code>sudo ./configure --architecture amd64 --build-by "myself@localhost" \
-   --build-type release --version "1.3.x" \
-   --vyos-mirror [REPOSITORY_URL]/equuleus --custom-apt-key /opt/apt.gpg.key
-   && sudo make iso</code></pre>
-
-        <p>For <b>sagitta</b>:</p>
-
-        <pre><code>sudo ./build-vyos-image iso --architecture amd64 --build-by "myself@localhost" \
-   --build-type release --version "1.4.x" \
-   --vyos-mirror [REPOSITORY_URL]/sagitta --custom-apt-key /opt/apt.gpg.key</code></pre>
-
-        <p>
-            For complete and more in depth ISO build instructions you can visit the
-            <a href="https://github.com/dd010101/vyos-jenkins/tree/master?tab=readme-ov-file#how-to-build-iso">dd010101/vyos-jenkins</a>
-            GitHub repository.
+            Test resulting ISO image <b>carefully</b>.<br>
+            There is <b>no official support</b>.<br>
+            Packages are provided on <b>"AS IS"</b> basis.<br>
+            <b>DO NOT</b> report bugs of NOTvyos to the VyOS™ project.<br>
         </p>
 
         <p>
@@ -93,16 +70,106 @@
             <a href="https://github.com/vyos">VyOS™ GitHub project</a>. Some packages are built from
             <a href="https://github.com/dd010101/vyos-build">dd010101/vyos-build</a> fork and also
             <a href="https://github.com/dd010101/vyos-missing">dd010101/vyos-missing</a> repository.
-        </p>
-        <p>
-            You can refer to the <a href="https://github.com/dd010101/vyos-jenkins/blob/master/extras/packages.md">dd010101/vyos-jenkins/extras/packages.md</a>
+            <br>
+            You can refer to the <a href="https://github.com/dd010101/vyos-jenkins/blob/master/extras/packages.md">vyos-jenkins/extras/packages.md</a>
             for the corresponding GIT repository and build script location for each package.
-        </p>
-
-        <p>
+            <br>
             Build scripts and instructions how to build your own package repository can be found in the
             <a href="https://github.com/dd010101/vyos-jenkins/tree/master?tab=readme-ov-file">dd010101/vyos-jenkins</a>
             GitHub repository.
+        </p>
+
+        <p>
+            The APT gpg singing key for this repository can be found <a href="[REPOSITORY_URL]/apt.gpg.key">here</a>.
+            <br>
+            You need to mount the APT key for later use when you are starting the vyos-build docker container via
+            additional option <code>-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"</code>.
+            <br>
+            Then you can use <code>--vyos-mirror</code> and <code>--custom-apt-key</code> options for the
+            <code>./configure</code> or <code>./build-vyos-image iso</code> commands to use this repository.
+        </p>
+
+        <p>
+            <a href="https://docs.docker.com/engine/install/">Docker</a> is required for the build.
+        </p>
+
+        <p>Complete build script for <b>equuleus</b>:</p>
+
+        <pre><code>#!/bin/bash
+set -e
+
+<b>wget [REPOSITORY_URL]/apt.gpg.key -O /tmp/apt.gpg.key</b>
+
+rm -rf vyos-build/
+git clone <b>https://github.com/dd010101/vyos-build.git</b>
+git -C vyos-build/ checkout equuleus
+
+version="1.3.x"
+
+docker pull vyos/vyos-build:equuleus
+docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
+    --sysctl net.ipv6.conf.lo.disable_ipv6=0 <b>-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"</b> -w /vyos vyos/vyos-build:equuleus \
+    sudo --preserve-env ./configure \
+        --architecture amd64 \
+        --build-by "myself@localhost" \
+        --build-type release \
+        <b>--debian-elts-mirror http://deb.freexian.com/extended-lts</b> \
+        --version "$version" \
+        <b>--vyos-mirror "[REPOSITORY_URL]/equuleus"</b> \
+        <b>--custom-apt-key /opt/apt.gpg.key</b> \
+        --custom-package "vyos-1x-smoketest"
+
+docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
+    --sysctl net.ipv6.conf.lo.disable_ipv6=0 -v "/tmp/apt.gpg.key:/opt/apt.gpg.key" -w /vyos vyos/vyos-build:equuleus \
+    sudo make iso
+
+if [ -f vyos-build/build/live-image-amd64.hybrid.iso ]; then
+    iso="vyos-$version-iso-amd64.iso"
+    mv vyos-build/build/live-image-amd64.hybrid.iso "$iso"
+    echo "Build successful - $iso"
+else
+    >&2 echo "ERROR: ISO not found, something is wrong - see previous messages for what failed"
+    exit 1
+fi</code></pre>
+
+        <p>Complete build script for <b>sagitta</b>:</p>
+
+        <pre><code>#!/bin/bash
+set -e
+
+<b>wget [REPOSITORY_URL]/apt.gpg.key -O /tmp/apt.gpg.key</b>
+
+rm -rf vyos-build/
+git clone <b>https://github.com/dd010101/vyos-build.git</b>
+git -C vyos-build/ checkout sagitta
+
+version="1.4.x"
+
+docker pull vyos/vyos-build:sagitta
+docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
+    --sysctl net.ipv6.conf.lo.disable_ipv6=0 <b>-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"</b> -w /vyos vyos/vyos-build:sagitta \
+    sudo --preserve-env ./build-vyos-image iso \
+        --architecture amd64 \
+        --build-by "myself@localhost" \
+        --build-type release \
+        --debian-mirror http://deb.debian.org/debian/ \
+        --version "$version" \
+        <b>--vyos-mirror "[REPOSITORY_URL]/sagitta"</b> \
+        <b>--custom-apt-key /opt/apt.gpg.key</b> \
+        --custom-package "vyos-1x-smoketest"
+
+if [ -f vyos-build/build/live-image-amd64.hybrid.iso ]; then
+    iso="vyos-$version-iso-amd64.iso"
+    mv vyos-build/build/live-image-amd64.hybrid.iso "$iso"
+    echo "Build successful - $iso"
+else
+    >&2 echo "ERROR: ISO not found, something is wrong - see previous messages for what failed"
+    exit 1
+fi</code></pre>
+
+        <p>
+            <code><b>Highlighted</b></code> changes are those that differ from the official Docker build instructions.
+            If you want to modify your existing build script then pay special attention to those.
         </p>
     </body>
 </html>

@@ -29,6 +29,14 @@ The goal of this project is to reproduce package repositories of stable branches
 the package repositories for **1.3.x equuleus** and **1.4.x sagitta**. The package repositories allow you to build
 *LTS* ISO with the usual slightly modified way.
 
+Result
+--
+
+The result of this project is APT repository like this one https://vyos.tnyzeq.icu/ (hosted by dd010101).
+Everyone is encouraged to build their own repository but if you just want to try and see if the resulting image
+will for you then you can take shortcut and use this repository directly as opposite to building your own.
+See the repository page for examples how to use it, it's very similar to the original Docker build with few extra bits.
+
 Host requirements and precautions
 --
 
