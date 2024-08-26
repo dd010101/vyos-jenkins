@@ -73,7 +73,7 @@ The automated scripts execute all manual steps with minimal interaction. The pro
 These 8 scripts configure Jenkins, prepare the package repositories, build the packages and there is also one
 additional script to build ISO.
 
-**Obtain the scripts:**
+#### Obtain the scripts
 
 ```bash
 wget https://github.com/dd010101/vyos-jenkins/archive/refs/heads/master.tar.gz -O /tmp/vyos-jenkins.tar.gz
@@ -82,7 +82,7 @@ mv /tmp/vyos-jenkins-master /opt/vyos-jenkins
 cd /opt/vyos-jenkins
 ```
 
-**If you want to build only specific branch**
+#### If you want to build only specific branch
 
 Configure `BRANCH` environment variable to desired branch before you run any script.
 Default or empty value means all branches. This setting is remembered, you can override by defining empty value. 
@@ -91,7 +91,7 @@ Default or empty value means all branches. This setting is remembered, you can o
 export BRANCH="sagitta"
 ```
 
-**If you want to distribute ISO**
+#### If you want to distribute ISO
 
 Then you should remove VyOS branding, you can do this by configuring `NOT_VYOS` environment variable to `yes` 
 before you run any script. If you set `yes` then `NOTvyos` name would be used as replacement for VyOS. If you
@@ -103,7 +103,7 @@ is remembered, you can override by defining empty value.
 export NOT_VYOS="yes"
 ```
 
-**Then execute each script and follow instructions:**
+#### Then execute each script and follow instructions
 
 - `1-prereqs.sh`- installs dependencies.
 - `2-jenkins.sh` - configures Jenkins, **interaction required**:
