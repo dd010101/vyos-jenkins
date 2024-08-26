@@ -37,8 +37,10 @@ Everyone is encouraged to build their own repository but if you just want to try
 will for you then you can take shortcut and use this repository directly as opposite to building your own.
 See the repository page for examples how to use it, it's very similar to the original Docker build with few extra bits.
 
-Host requirements and precautions
+Making your own repository
 --
+
+### Host requirements and precautions
 
 All examples and scripts assume clean installation of **Debian 12 (Bookworm)**. Basic installation with
 `standard system utilities` is enough.
@@ -59,15 +61,13 @@ The hardware requirements are significant:
 The builds are memory hungry, but you don't need 16GB of physical RAM. You can have large swap to compensate,
 and you will still get good performance this way since the above 8GB threshold is reached only few times by few builds.
 
-Multiple options
---
+### Multiple options
 
 Thanks to work of [@GurliGebis](https://github.com/GurliGebis) we now can use automated scripts instead of the legacy
 manual guide. The manual guide is deprecated and available for historical purposes here
 [manual/readme.md](./manual/readme.md). The automated scripts are now preferred method.
 
-Automated scripts
---
+### Automated scripts
 
 The automated scripts execute all manual steps with minimal interaction. The process is divided into 8 steps/scripts.
 These 8 scripts configure Jenkins, prepare the package repositories, build the packages and there is also one
@@ -153,8 +153,7 @@ and start the Jenkins, then in worse case you would need to wait up to 15 minute
 before rebuild of package would start. Then you shall wait before the **Build Queue** and **Build Executor Status** 
 is empty, then make sure no build failed in the **Build History**, after this you can use build-iso.sh again.
 
-Something is wrong
---
+### Something is wrong
 
 You may face situation when Jenkins build may fail or doesn't produce .deb packages and thus ISO build fails
 with unmet dependencies. Sometimes the Jenkins build fails for temporary reason like network/server issue, thus
