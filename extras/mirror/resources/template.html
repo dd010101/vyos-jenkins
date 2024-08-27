@@ -51,7 +51,7 @@
 
         <p>
             Welcome to NOTvyos package repository provided by <b>[PROVIDED_BY]</b>.<br>
-            This APT mirror provides unofficially built .deb packages for stable branches of VyOS™.
+            This APT mirror provides <b>unofficially</b> built .deb packages for stable branches of VyOS™.
         </p>
 
         <p>
@@ -81,16 +81,28 @@
 
         <p>
             The APT gpg singing key for this repository can be found <a href="[REPOSITORY_URL]/apt.gpg.key">here</a>.
+
             <br>
+
             You need to mount the APT key for later use when you are starting the vyos-build docker container via
-            additional option <code>-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"</code>.
+            additional option <code>-v "/local/path/to/apt.gpg.key:/opt/apt.gpg.key"</code>.
+
             <br>
-            Then you can use <code>--vyos-mirror</code> and <code>--custom-apt-key</code> options for the
-            <code>./configure</code> or <code>./build-vyos-image iso</code> commands to use this repository.
+
+            Then you can use <code>--vyos-mirror ...</code> and <code>--custom-apt-key /opt/apt.gpg.key</code>
+            options for the <code>./configure</code> or <code>./build-vyos-image iso</code> commands to use
+            this repository.
+
+            <br>
+
+            Where for <b>1.3.x/equuleus</b> you need <code>--vyos-mirror "[REPOSITORY_URL]/equuleus"</code><br>
+            and for <b>1.4.x/sagitta</b> you need <code>--vyos-mirror "[REPOSITORY_URL]/sagitta"</code> instead.
         </p>
 
         <p>
-            <a href="https://docs.docker.com/engine/install/">Docker</a> is required for the build.
+            <a href="https://docs.docker.com/engine/install/"><b>Docker</b></a>
+            and <b>git</b>
+            is required for the build.
         </p>
 
         <p>Complete build script for <b>equuleus</b>:</p>
