@@ -11,7 +11,7 @@ from lib.apt import Apt
 from lib.cache import Cache
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, quote_all, execute, ProcessException, rmtree
+from lib.helpers import setup_logging, quote_all, execute, ProcessException, rmtree, refuse_root
 
 
 class Builder:
@@ -195,6 +195,8 @@ if __name__ == "__main__":
     setup_logging()
 
     try:
+        refuse_root()
+
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
         parser.add_argument("--single-package", help="Build only this package")

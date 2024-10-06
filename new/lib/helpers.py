@@ -1,4 +1,5 @@
 import logging
+import os
 import shlex
 import shutil
 import subprocess
@@ -65,3 +66,11 @@ def setup_logging():
     console.setLevel(logging.INFO)
     console.setFormatter(formatter)
     logger.addHandler(console)
+
+def refuse_root():
+    if os.getuid() == 0:
+        logging.error(
+            "ERROR: 'root' user detected, please don't run this script as root,"
+            " run as any other regular user that has docker access (usermod -aG docker YOUR_USER),"
+            " the root privileges would break some packages.")
+        exit(1)

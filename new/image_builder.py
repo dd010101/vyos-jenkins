@@ -13,7 +13,7 @@ from time import monotonic
 import netifaces
 
 from lib.git import Git
-from lib.helpers import setup_logging, execute, quote_all, rmtree
+from lib.helpers import setup_logging, execute, quote_all, rmtree, refuse_root
 
 
 class ImageBuilder:
@@ -197,6 +197,8 @@ if __name__ == "__main__":
     setup_logging()
 
     try:
+        refuse_root()
+
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
         parser.add_argument("--vyos-build-git", default="https://github.com/vyos/vyos-build.git",
