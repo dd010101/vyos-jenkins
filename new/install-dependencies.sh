@@ -11,7 +11,7 @@ sudo apt-get update -y
 sudo apt-get install -y git gpg reprepro
 
 # python dependencies (python3-yaml is pyyaml)
-sudo apt-get install -y python3 python3-yaml python3-requests python3-pendulum
+sudo apt-get install -y python3 python3-yaml python3-requests python3-pendulum python3-netifaces
 
 # docker
 if [ ! -f /etc/apt/sources.list.d/docker.list ]; then

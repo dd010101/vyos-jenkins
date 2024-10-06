@@ -2,10 +2,8 @@
 import argparse
 import logging
 import os.path
-import re
 from shlex import quote
-import shutil
-from time import time
+from time import time, monotonic
 
 import pendulum
 
@@ -13,7 +11,7 @@ from lib.apt import Apt
 from lib.cache import Cache
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, quote_all, execute, ProcessException
+from lib.helpers import setup_logging, quote_all, execute, ProcessException, rmtree
 
 
 class Builder:
@@ -37,13 +35,14 @@ class Builder:
         self.cache = Cache(os.path.join(self.project_dir, "build", "builder-cache-%s.json" % self.branch), dict, {})
 
     def build(self):
+        begin = monotonic()
         if self.single_package is not None:
             logging.info("Executing single package build of %s" % self.single_package)
 
         logging.info("Building packages for %s" % self.branch)
         packages = self.get_packages_metadata()
 
-        self.directory = os.path.join(os.getcwd(), "build", self.branch)
+        self.directory = os.path.join(self.project_dir, "build", self.branch)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
@@ -61,7 +60,8 @@ class Builder:
             logging.info("Processing package: %s" % package["package_name"])
             self.build_package(package)
 
-        logging.info("Done, see the result in: %s" % self.apt.get_repo_dir())
+        elapsed = round(monotonic() - begin, 3)
+        logging.info("Done in %s seconds, see the result in: %s" % (elapsed, self.apt.get_repo_dir()))
 
     def build_package(self, package):
         repo_name = package["repo_name"]
@@ -86,7 +86,7 @@ class Builder:
                 return
         except ProcessException as e:
             if "not a git repository" in str(e):
-                shutil.rmtree(parent_path)
+                rmtree(parent_path)
             else:
                 raise
 
@@ -95,7 +95,7 @@ class Builder:
             self.updated_repos.append(repo_name)
 
             if os.path.exists(parent_path) and not self.dirty_build:
-                shutil.rmtree(parent_path)
+                rmtree(parent_path)
 
             if not os.path.exists(repo_path):
                 logging.info("Cloning repository %s" % package["git_url"])

@@ -40,8 +40,8 @@ class Git:
             if re.search(r"^[*]+$", pattern):
                 return True  # catch-all pattern
 
-            pattern: str = re.escape(pattern) # escape special characters
-            pattern = pattern.replace("\\*", "*") # undo escape of stars
+            pattern: str = re.escape(pattern)  # escape special characters
+            pattern = pattern.replace("\\*", "*")  # undo escape of stars
 
             # convert stars into regex patterns
             pattern = pattern.replace("**", ".*")
