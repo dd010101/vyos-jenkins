@@ -1,9 +1,6 @@
 import json
 from json import JSONDecodeError
-import logging
 import os
-
-import sys
 
 
 class Cache:
@@ -15,10 +12,17 @@ class Cache:
         self.root_type = root_type
         self.fallback = fallback
 
-    def get(self, name, default=None, bypass_cache=False):
+    def get(self, name, default=None, data_type=None, bypass_cache=False):
         data = self.load(bypass_cache)
         if name in data:
-            return data[name]
+            value = data[name]
+            if data_type is not None:
+                try:
+                    return data_type(value)
+                except (TypeError, ValueError):
+                    pass
+            else:
+                return value
         return default
 
     def set(self, name, value, flush=True, bypass_cache=False):
@@ -71,13 +75,3 @@ class Cache:
     def clear_cache(self):
         self._loaded = False
         self._data = None
-
-
-def setup_logging():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    console = logging.StreamHandler(sys.stdout)
-    console.setLevel(logging.INFO)
-    console.setFormatter(formatter)
-    logger.addHandler(console)

@@ -1,0 +1,8 @@
+%no-protection
+Key-Type: 1
+Key-Length: 3072
+Subkey-Type: 1
+Subkey-Length: 3072
+Name-Real: NOTvyos Signing Key
+Name-Email: signing@not-vyos
+Expire-Date: 0

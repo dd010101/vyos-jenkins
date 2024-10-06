@@ -1,0 +1,7 @@
+Origin: %branch%
+Label: %branch%
+Codename: %branch%
+Architectures: source amd64
+Components: main
+Description: %branch%
+SignWith: %keyId%

@@ -2,57 +2,56 @@
 import argparse
 import logging
 import os.path
+import re
 from shlex import quote
 import shutil
-import stat
-import subprocess
-import sys
 from time import time
 
 import pendulum
 
-from github import GitHub
-from helpers import Cache, setup_logging
+from lib.apt import Apt
+from lib.cache import Cache
+from lib.git import Git
+from lib.github import GitHub
+from lib.helpers import setup_logging, quote_all, execute, ProcessException
 
 
 class Builder:
     directory = None
     docker_image = None
     updated_repos = None
-    debs = [] # TODO: remove me
+    apt = None
 
-    def __init__(self, branch, vyos_build_repo, single_package, dirty_build, ignore_missing_binaries, skip_build):
+    def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries, skip_build,
+                 skip_apt, force_build):
         self.branch = branch
-        self.vyos_build_repo = vyos_build_repo
         self.single_package = single_package
         self.dirty_build = dirty_build
         self.ignore_missing_binaries = ignore_missing_binaries
         self.skip_build = skip_build
+        self.skip_apt = skip_apt
+        self.force_build = force_build
 
-        self.project_dir = os.path.realpath(os.path.dirname(__file__))
+        self.project_dir: str = os.path.realpath(os.path.dirname(__file__))
         self.github = GitHub()
-        self.cache = Cache("data/builder-cache-%s.json" % self.branch, dict, {})
+        self.cache = Cache(os.path.join(self.project_dir, "build", "builder-cache-%s.json" % self.branch), dict, {})
 
     def build(self):
         if self.single_package is not None:
             logging.info("Executing single package build of %s" % self.single_package)
 
         logging.info("Building packages for %s" % self.branch)
-        packages = self.get_packages()
+        packages = self.get_packages_metadata()
 
         self.directory = os.path.join(os.getcwd(), "build", self.branch)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
+        self.apt = Apt(self.project_dir, self.branch, self.directory)
+
         logging.info("Pulling vyos-build docker image")
         self.docker_image = "vyos/vyos-build:%s" % self.branch
-        self.execute("docker pull %s" % quote(self.docker_image), passthrough=True)
-
-        # TODO: filter already built packages?
-        # Compare previous commit hash, if identical then skip.
-        # If hash differs then lookup the history until previous commit hash and compare change patterns if changed files.
-        # Thus we will only build packages that did change or were not built yet.
-        # If mismatch then delete repo and build.
+        execute("docker pull %s" % quote_all(self.docker_image), passthrough=True)
 
         self.updated_repos = []
         for package in packages.values():
@@ -62,41 +61,56 @@ class Builder:
             logging.info("Processing package: %s" % package["package_name"])
             self.build_package(package)
 
-        for deb in self.debs:
-            print(deb)
+        logging.info("Done, see the result in: %s" % self.apt.get_repo_dir())
 
     def build_package(self, package):
         repo_name = package["repo_name"]
+
+        my_state = self.cache.get(package["package_name"], default={}, data_type=dict)
+        if "hash" not in my_state:
+            my_state["hash"] = None
+
+        repo_path = os.path.join(self.directory, repo_name)
+        parent_path = repo_path
+
+        if package["build_type"] == "dpkg-buildpackage":
+            if not os.path.exists(repo_path):
+                os.makedirs(repo_path)
+            repo_path = os.path.join(repo_path, "sources")
+
+        git = Git(repo_path)
+        try:
+            changed = git.resolve_changes(package["change_patterns"], my_state["hash"])
+            if not changed and not self.force_build:
+                logging.info("Package is up to date, skipping build")
+                return
+        except ProcessException as e:
+            if "not a git repository" in str(e):
+                shutil.rmtree(parent_path)
+            else:
+                raise
 
         new = False
         if repo_name not in self.updated_repos:
             self.updated_repos.append(repo_name)
 
-            repo_path = os.path.join(self.directory, repo_name)
-            if os.path.exists(repo_path) and not self.dirty_build:
-                shutil.rmtree(repo_path)
-
-            if package["build_type"] == "dpkg-buildpackage":
-                if not os.path.exists(repo_path):
-                    os.makedirs(repo_path)
-                repo_path = os.path.join(repo_path, "sources")
+            if os.path.exists(parent_path) and not self.dirty_build:
+                shutil.rmtree(parent_path)
 
             if not os.path.exists(repo_path):
                 logging.info("Cloning repository %s" % package["git_url"])
-                self.execute("git clone -b %s --single-branch %s %s" % self.quote_all(
-                    self.branch, package["git_url"], repo_path
-                ))
+                git.clone(package["git_url"], package["branch"])
                 new = True
             else:
                 logging.info("Pulling repository %s" % package["git_url"])
-                self.execute("git -C %s pull" % self.quote_all(repo_path))
+                git.pull()
         else:
             logging.info("Using shared repository %s" % package["git_url"])
 
         if package["build_type"] == "build.py":
             my_directory = os.path.join(self.directory, "vyos-build", package["path"])
             if not self.skip_build or new:
-                self.docker_run("bash -i ./build.py", "/vyos/%s" % package["path"])
+                self.docker_run("bash -i -c 'python3 ./build.py'", "/vyos/%s" % package["path"])
 
         elif package["build_type"] == "dpkg-buildpackage":
             my_directory = os.path.join(self.directory, repo_name)
@@ -121,42 +135,42 @@ class Builder:
             logging.error("Unknown build_type: %s" % package)
             return
 
-        dsc_files, sources_files, binary_files = self.scan_for_dist_files(my_directory)
+        dsc_files, binary_files = self.apt.scan_for_dist_files(my_directory)
         if len(binary_files) == 0:
             message = "%s: something is wrong, no binary files found" % package["package_name"]
             if self.ignore_missing_binaries:
                 logging.error(message)
             else:
                 raise Exception(message)
+        else:
+            my_state["hash"] = git.get_last_commit_hash()
 
-        self.fill_repository(dsc_files, sources_files, binary_files)
-        self.debs.extend(binary_files)
+        if not self.skip_apt or new:
+            self.apt.fill_apt_repository(dsc_files, binary_files)
 
-    def scan_for_dist_files(self, directory):
-        dsc_files = []
-        sources_files = []
-        binary_files = []
-        for parent, directories, files in os.walk(directory):
-            for file_name in files:
-                path = os.path.join(parent, file_name)
-                name, ext = os.path.splitext(file_name)
-                ext = ext.lower()[1:]
-                if ext == "dsc":
-                    dsc_files.append(path)
-                elif ext.startswith("tar") and ext.endswith("z"):
-                    sources_files.append(path)
-                elif ext == "deb":
-                    if "build-deps_" in name:
-                        continue
-                    binary_files.append(path)
+        self.cache.set(package["package_name"], my_state)
 
-        return dsc_files, sources_files, binary_files
+    def docker_run(self, command, work_dir, extra_mounts=None):
+        pieces = [
+            "docker run --rm -it",
+            "-v %s:/vyos" % quote(os.path.join(self.directory, "vyos-build")),
+        ]
 
-    def fill_repository(self, dsc_files, sources_files, binary_files):
-        # TODO: reprepro
-        pass
+        if extra_mounts is not None:
+            for mount in extra_mounts:
+                pieces.append("-v %s:%s" % quote_all(*mount))
 
-    def get_packages(self):
+        pieces.extend([
+            "-w %s --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0" % quote(work_dir),
+            "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
+            self.docker_image,
+            command,
+        ])
+
+        command = " ".join(pieces)
+        return execute(command, passthrough=True)
+
+    def get_packages_metadata(self):
         packages_timestamp = self.cache.get("packages_timestamp")
         packages = self.cache.get("packages")
 
@@ -176,48 +190,6 @@ class Builder:
 
         return packages
 
-    def docker_run(self, command, work_dir, extra_mounts=None):
-        pieces = [
-            "docker run --rm -it",
-            "-v %s:/vyos" % quote(os.path.join(self.directory, "vyos-build")),
-        ]
-
-        if extra_mounts is not None:
-            for mount in extra_mounts:
-                pieces.append("-v %s:%s" % self.quote_all(*mount))
-
-        pieces.extend([
-            "-w %s --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0" % quote(work_dir),
-            "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
-            self.docker_image,
-            command,
-        ])
-
-        command = " ".join(pieces)
-        return self.execute(command, passthrough=True)
-
-    def execute(self, command, passthrough=False, **kwargs):
-        if passthrough:
-            kwargs["stdout"] = sys.stdout
-            kwargs["stderr"] = sys.stderr
-
-        if "stderr" not in kwargs:
-            kwargs["stderr"] = subprocess.STDOUT
-        if "shell" not in kwargs:
-            kwargs["shell"] = True
-
-        if passthrough:
-            return subprocess.check_call(command, **kwargs)
-        else:
-            stdout = subprocess.check_output(command, **kwargs)
-            return stdout.decode("utf-8")
-
-    def quote_all(self, *args):
-        quoted = []
-        for arg in args:
-            quoted.append(quote(arg))
-        return tuple(quoted)
-
 
 if __name__ == "__main__":
     setup_logging()
@@ -230,7 +202,8 @@ if __name__ == "__main__":
                             help="Build with reused sources - don't clone fresh sources")
         parser.add_argument("--ignore-missing-binaries", action="store_true")
         parser.add_argument("--skip-build", action="store_true")
-        parser.add_argument("--vyos-build-repo", default="https://github.com/vyos/vyos-build")
+        parser.add_argument("--skip-apt", action="store_true")
+        parser.add_argument("--force-build", action="store_true")
         args = parser.parse_args()
 
         builder = Builder(**vars(args))
