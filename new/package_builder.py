@@ -11,7 +11,7 @@ from lib.apt import Apt
 from lib.cache import Cache
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, quote_all, execute, ProcessException, rmtree, refuse_root
+from lib.helpers import setup_logging, quote_all, execute, ProcessException, refuse_root, rmtree
 
 
 class Builder:

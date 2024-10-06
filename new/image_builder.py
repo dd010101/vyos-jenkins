@@ -21,6 +21,8 @@ class ImageBuilder:
         "sagitta": "1.4.x",
         "circinus": "1.5.x",
     }
+    docker_image = None
+    vyos_build_repo = None
 
     def __init__(self, branch, vyos_build_git, vyos_mirror, extra_options, flavor, build_by, version, bind_addr,
                  bind_port, keep_build):
@@ -48,14 +50,14 @@ class ImageBuilder:
             logging.info("Using supplied APT repository at %s" % vyos_mirror)
 
         logging.info("Pulling vyos-build docker image")
-        docker_image = "vyos/vyos-build:%s" % self.branch
-        execute("docker pull %s" % quote_all(docker_image), passthrough=True)
+        self.docker_image = "vyos/vyos-build:%s" % self.branch
+        execute("docker pull %s" % quote_all(self.docker_image), passthrough=True)
 
-        vyos_build_repo = os.path.join(self.project_dir, "build", "%s-image-build" % self.branch)
-        git = Git(vyos_build_repo)
+        self.vyos_build_repo = os.path.join(self.project_dir, "build", "%s-image-build" % self.branch)
+        git = Git(self.vyos_build_repo)
         if not self.keep_build:
             if git.exists():
-                rmtree(vyos_build_repo)
+                rmtree(self.vyos_build_repo)
 
         if not git.exists():
             git.clone(self.vyos_build_git, self.branch)
@@ -93,32 +95,12 @@ class ImageBuilder:
             build_image_pieces.append(self.extra_options)
         build_image_command = " ".join(build_image_pieces)
 
-        # docker run
-        docker_pieces = [
-            "docker run --rm -it",
-            "-v %s:/vyos" % quote(vyos_build_repo),
-        ]
-        if self.vyos_mirror == "local":
-            apt_key_path = os.path.join(self.project_dir, "apt", "apt.gpg.key")
-            docker_pieces.extend([
-                "-v %s:/opt/apt.gpg.key" % quote(apt_key_path),
-            ])
-        docker_pieces.extend([
-            "-w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0",
-            "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
-            docker_image,
-            build_image_command,
-        ])
-        docker_command = " ".join(docker_pieces)
-
         logging.info("Using build image command: '%s'" % build_image_command)
-        logging.info("Using docker run command: '%s'" % docker_command)
         logging.info("Executing image build now...")
-
-        execute(docker_command, passthrough=True)
+        self.docker_run(build_image_command)
 
         image_path = None
-        build_dir = os.path.join(vyos_build_repo, "build")
+        build_dir = os.path.join(self.vyos_build_repo, "build")
         if os.path.exists(build_dir):
             for entry in os.scandir(build_dir):
                 if version in entry.name and entry.name.endswith(".iso"):
@@ -138,6 +120,26 @@ class ImageBuilder:
 
         elapsed = round(monotonic() - begin, 3)
         logging.info("Done in %s seconds, image is available here: %s" % (elapsed, new_image_path))
+
+    def docker_run(self, command):
+        docker_pieces = [
+            "docker run --rm -it",
+            "-v %s:/vyos" % quote(self.vyos_build_repo),
+        ]
+        if self.vyos_mirror == "local":
+            apt_key_path = os.path.join(self.project_dir, "apt", "apt.gpg.key")
+            docker_pieces.extend([
+                "-v %s:/opt/apt.gpg.key" % quote(apt_key_path),
+            ])
+        docker_pieces.extend([
+            "-w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0",
+            "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
+            self.docker_image,
+            command,
+        ])
+        docker_command = " ".join(docker_pieces)
+
+        execute(docker_command, passthrough=True)
 
     def start_local_webserver(self):
         address = self.get_local_ip() if not self.bind_addr else self.bind_addr
