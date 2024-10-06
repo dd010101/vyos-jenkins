@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import inspect
 import logging
 import os
 from pprint import pprint
@@ -8,8 +9,11 @@ import requests
 from requests import HTTPError
 import yaml
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
+
 from helpers import setup_logging
 from lib.cache import Cache
+from lib.helpers import refuse_root
 
 
 class GitHub:
@@ -162,6 +166,8 @@ if __name__ == "__main__":
     setup_logging()
 
     try:
+        refuse_root()
+
         command = sys.argv[1] if len(sys.argv) > 1 else None
 
         if command is None:
