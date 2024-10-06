@@ -1,22 +1,9 @@
 import logging
 import os
 import shlex
-import shutil
 import subprocess
 
 import sys
-
-
-def rmtree(directory):
-    try:
-        shutil.rmtree(directory)
-    except PermissionError:
-        logging.error(
-            "Unable to delete '%s' due to permissions."
-            " Please delete this directory yourself"
-            " with root privileges and then rerun again." % directory
-        )
-        exit(1)
 
 
 def execute(command, passthrough=False, timeout=None, **kwargs):

@@ -13,7 +13,7 @@ from time import monotonic
 import netifaces
 
 from lib.git import Git
-from lib.helpers import setup_logging, execute, quote_all, rmtree, refuse_root
+from lib.helpers import setup_logging, execute, quote_all, refuse_root
 
 
 class ImageBuilder:
@@ -57,7 +57,12 @@ class ImageBuilder:
         git = Git(self.vyos_build_repo)
         if not self.keep_build:
             if git.exists():
-                rmtree(self.vyos_build_repo)
+                try:
+                    shutil.rmtree(self.vyos_build_repo)
+                except PermissionError:
+                    # Unfortunately the docker container creates some files as root, and thus we don't have choice...
+                    self.docker_run("bash -c %s" % quote("sudo rm -rf /vyos/*"), log=False)
+                    shutil.rmtree(self.vyos_build_repo)
 
         if not git.exists():
             git.clone(self.vyos_build_git, self.branch)
@@ -111,7 +116,9 @@ class ImageBuilder:
             image_path = os.path.join(build_dir, "live-image-amd64.hybrid.iso")
 
         if not os.path.exists(image_path):
-            logging.error("Image not found, see previous log for hints, inspect build here: %s" % build_dir)
+            logging.error(
+                "Build failed (image not found), see log above for reason why, inspect build here: %s" % build_dir
+            )
             exit(1)
 
         new_image_path = os.path.join(self.cwd, os.path.basename(image_path))
@@ -121,20 +128,30 @@ class ImageBuilder:
         elapsed = round(monotonic() - begin, 3)
         logging.info("Done in %s seconds, image is available here: %s" % (elapsed, new_image_path))
 
-    def docker_run(self, command):
-        docker_pieces = [
+    def docker_run(self, command, log=True):
+        docker_pieces: list = [
             "docker run --rm -it",
             "-v %s:/vyos" % quote(self.vyos_build_repo),
         ]
+
         if self.vyos_mirror == "local":
             apt_key_path = os.path.join(self.project_dir, "apt", "apt.gpg.key")
             docker_pieces.extend([
                 "-v %s:/opt/apt.gpg.key" % quote(apt_key_path),
             ])
+
         docker_pieces.extend([
             "-w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0",
             "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
             self.docker_image,
+        ])
+
+        if log:
+            visual_docker_pieces = docker_pieces.copy()
+            visual_docker_pieces.append("IMAGE_BUILD_COMMAND")
+            logging.info("Using docker run command: '%s'" % " ".join(visual_docker_pieces))
+
+        docker_pieces.extend([
             command,
         ])
         docker_command = " ".join(docker_pieces)

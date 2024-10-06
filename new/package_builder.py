@@ -3,6 +3,7 @@ import argparse
 import logging
 import os.path
 from shlex import quote
+import shutil
 from time import time, monotonic
 
 import pendulum
@@ -11,7 +12,7 @@ from lib.apt import Apt
 from lib.cache import Cache
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, quote_all, execute, ProcessException, refuse_root, rmtree
+from lib.helpers import setup_logging, quote_all, execute, ProcessException, refuse_root
 
 
 class Builder:
@@ -86,7 +87,7 @@ class Builder:
                 return
         except ProcessException as e:
             if "not a git repository" in str(e):
-                rmtree(parent_path)
+                self.rmtree(parent_path)
             else:
                 raise
 
@@ -95,7 +96,7 @@ class Builder:
             self.updated_repos.append(repo_name)
 
             if os.path.exists(parent_path) and not self.dirty_build:
-                rmtree(parent_path)
+                self.rmtree(parent_path)
 
             if not os.path.exists(repo_path):
                 logging.info("Cloning repository %s" % package["git_url"])
@@ -169,6 +170,20 @@ class Builder:
 
         command = " ".join(pieces)
         return execute(command, passthrough=True)
+
+    def rmtree(self, directory):
+        # sanity check
+        if not directory.startswith(self.project_dir):
+            raise Exception("Delete of %s denied, target is outside project_dir (%s)" % (directory, self.project_dir))
+
+        try:
+            shutil.rmtree(directory)
+        except PermissionError:
+            # Unfortunately the docker container creates some files as root, and thus we don't have choice...
+            self.docker_run("bash -c %s" % quote("sudo rm -rf /delete-me/*"), "/vyos", extra_mounts=[
+                (directory, "/delete-me")
+            ])
+            shutil.rmtree(directory)
 
     def get_packages_metadata(self):
         packages_timestamp = self.cache.get("packages_timestamp")
