@@ -12,8 +12,9 @@ from time import monotonic
 
 import netifaces
 
+from lib.docker import Docker
 from lib.git import Git
-from lib.helpers import setup_logging, execute, quote_all, refuse_root
+from lib.helpers import setup_logging, refuse_root, project_dir, get_my_log_file
 
 
 class ImageBuilder:
@@ -21,13 +22,14 @@ class ImageBuilder:
         "sagitta": "1.4.x",
         "circinus": "1.5.x",
     }
-    docker_image = None
     vyos_build_repo = None
+    docker = None
 
-    def __init__(self, branch, vyos_build_git, vyos_mirror, extra_options, flavor, build_by, version, bind_addr,
-                 bind_port, keep_build):
+    def __init__(self, branch, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options,
+                 flavor, build_by, version, bind_addr, bind_port, keep_build):
         self.branch = branch
         self.vyos_build_git = vyos_build_git
+        self.vyos_build_docker = vyos_build_docker
         self.vyos_mirror = vyos_mirror
         self.extra_options = extra_options
         self.flavor = flavor
@@ -37,32 +39,28 @@ class ImageBuilder:
         self.bind_port = bind_port
         self.keep_build = keep_build
 
-        self.project_dir: str = os.path.realpath(os.path.dirname(__file__))
         self.cwd = os.getcwd()
 
     def build(self):
         begin = monotonic()
         if self.vyos_mirror == "local":
-            vyos_mirror = self.start_local_webserver()
+            vyos_mirror = self.start_local_apt_webserver()
             logging.info("Starting local APT repository at %s" % vyos_mirror)
         else:
             vyos_mirror = self.vyos_mirror
             logging.info("Using supplied APT repository at %s" % vyos_mirror)
 
-        logging.info("Pulling vyos-build docker image")
-        self.docker_image = "vyos/vyos-build:%s" % self.branch
-        execute("docker pull %s" % quote_all(self.docker_image), passthrough=True)
+        self.vyos_build_repo = os.path.join(project_dir, "build", "%s-image-build" % self.branch)
 
-        self.vyos_build_repo = os.path.join(self.project_dir, "build", "%s-image-build" % self.branch)
+        logging.info("Pulling vyos-build docker image")
+        self.docker = Docker(self.vyos_build_docker, self.branch, self.vyos_build_repo)
+        self.docker.pull()
+
         git = Git(self.vyos_build_repo)
         if not self.keep_build:
             if git.exists():
-                try:
-                    shutil.rmtree(self.vyos_build_repo)
-                except PermissionError:
-                    # Unfortunately the docker container creates some files as root, and thus we don't have choice...
-                    self.docker_run("bash -c %s" % quote("sudo rm -rf /vyos/*"), log=False)
-                    shutil.rmtree(self.vyos_build_repo)
+                # We want to delete original vyos-build repo and do fresh clone to clean cached build files.
+                self.docker.rmtree(self.vyos_build_repo)
 
         if not git.exists():
             git.clone(self.vyos_build_git, self.branch)
@@ -102,7 +100,18 @@ class ImageBuilder:
 
         logging.info("Using build image command: '%s'" % build_image_command)
         logging.info("Executing image build now...")
-        self.docker_run(build_image_command)
+
+        extra_mounts = []
+        if self.vyos_mirror == "local":
+            apt_key_path = os.path.join(project_dir, "apt", "apt.gpg.key")
+            extra_mounts.append((apt_key_path, "/opt/apt.gpg.key"))
+
+        self.docker.run(
+            command=build_image_command,
+            work_dir="/vyos",
+            extra_mounts=extra_mounts,
+            log_command="IMAGE_BUILD_COMMAND"
+        )
 
         image_path = None
         build_dir = os.path.join(self.vyos_build_repo, "build")
@@ -117,7 +126,9 @@ class ImageBuilder:
 
         if not os.path.exists(image_path):
             logging.error(
-                "Build failed (image not found), see log above for reason why, inspect build here: %s" % build_dir
+                "Build failed (image not found), see log above for reason why"
+                ", inspect build here: %s"
+                ", log file: %s" % (build_dir, get_my_log_file())
             )
             exit(1)
 
@@ -128,47 +139,16 @@ class ImageBuilder:
         elapsed = round(monotonic() - begin, 3)
         logging.info("Done in %s seconds, image is available here: %s" % (elapsed, new_image_path))
 
-    def docker_run(self, command, log=True):
-        docker_pieces: list = [
-            "docker run --rm -it",
-            "-v %s:/vyos" % quote(self.vyos_build_repo),
-        ]
-
-        if self.vyos_mirror == "local":
-            apt_key_path = os.path.join(self.project_dir, "apt", "apt.gpg.key")
-            docker_pieces.extend([
-                "-v %s:/opt/apt.gpg.key" % quote(apt_key_path),
-            ])
-
-        docker_pieces.extend([
-            "-w /vyos --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0",
-            "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
-            self.docker_image,
-        ])
-
-        if log:
-            visual_docker_pieces = docker_pieces.copy()
-            visual_docker_pieces.append("IMAGE_BUILD_COMMAND")
-            logging.info("Using docker run command: '%s'" % " ".join(visual_docker_pieces))
-
-        docker_pieces.extend([
-            command,
-        ])
-        docker_command = " ".join(docker_pieces)
-
-        execute(docker_command, passthrough=True)
-
-    def start_local_webserver(self):
+    def start_local_apt_webserver(self):
         address = self.get_local_ip() if not self.bind_addr else self.bind_addr
         port = self.get_free_port(address) if not self.bind_port else self.bind_port
-        thread = Thread(target=self.serve_webserver, args=(address, port), name="LocalWebServer", daemon=True)
+        thread = Thread(target=self.serve_apt, args=(address, port), name="LocalWebServer", daemon=True)
         thread.start()
         return "http://%s:%s/%s" % (address, "" if port == 80 else port, self.branch)
 
-    def serve_webserver(self, address, port):
-        os.chdir(os.path.join(self.project_dir, "apt"))
+    def serve_apt(self, address, port):
         # noinspection PyTypeChecker
-        server = ThreadingHTTPServer((address, port), WebServerHandler)
+        server = ThreadingHTTPServer((address, port), AptWebServerHandler)
         server.serve_forever()
 
     def get_free_port(self, address):
@@ -207,13 +187,16 @@ class ImageBuilder:
         return selected_address
 
 
-class WebServerHandler(SimpleHTTPRequestHandler):
+class AptWebServerHandler(SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=os.path.join(project_dir, "apt"), **kwargs)
+
     def log_message(self, format, *args):
         pass
 
 
 if __name__ == "__main__":
-    setup_logging()
+    setup_logging(name="image_builder")
 
     try:
         refuse_root()
@@ -223,6 +206,8 @@ if __name__ == "__main__":
         parser.add_argument("--vyos-build-git", default="https://github.com/vyos/vyos-build.git",
                             help="Git URL of vyos-build")
         parser.add_argument("--vyos-mirror", default="local", help="VyOS package repository (URL or 'local')")
+        parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
+                            help="Default option uses vyos/vyos-build from dockerhub")
         parser.add_argument("--extra-options", help="Extra options for the build-vyos-image")
         parser.add_argument("--flavor", default="generic")
         parser.add_argument("--build-by", default="myself@localhost")
@@ -239,4 +224,5 @@ if __name__ == "__main__":
         exit(1)
     except Exception as e:
         logging.exception(e)
+        logging.error("Something went wrong, log file: %s" % get_my_log_file())
         exit(1)

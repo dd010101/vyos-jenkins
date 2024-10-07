@@ -3,26 +3,27 @@ import argparse
 import logging
 import os.path
 from shlex import quote
-import shutil
 from time import time, monotonic
 
 import pendulum
 
 from lib.apt import Apt
 from lib.cache import Cache
+from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, quote_all, execute, ProcessException, refuse_root
+from lib.helpers import setup_logging, ProcessException, refuse_root, project_dir, get_my_log_file
 
 
 class Builder:
-    directory = None
+    build_dir = None
     docker_image = None
     updated_repos = None
     apt = None
+    docker = None
 
-    def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries, skip_build,
-                 skip_apt, force_build):
+    def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries,
+                 skip_build, skip_apt, force_build, vyos_build_docker):
         self.branch = branch
         self.single_package = single_package
         self.dirty_build = dirty_build
@@ -30,10 +31,10 @@ class Builder:
         self.skip_build = skip_build
         self.skip_apt = skip_apt
         self.force_build = force_build
+        self.vyos_build_docker = vyos_build_docker
 
-        self.project_dir: str = os.path.realpath(os.path.dirname(__file__))
         self.github = GitHub()
-        self.cache = Cache(os.path.join(self.project_dir, "build", "builder-cache-%s.json" % self.branch), dict, {})
+        self.cache = Cache(os.path.join(project_dir, "build", "builder-cache-%s.json" % self.branch), dict, {})
 
     def build(self):
         begin = monotonic()
@@ -43,15 +44,16 @@ class Builder:
         logging.info("Building packages for %s" % self.branch)
         packages = self.get_packages_metadata()
 
-        self.directory = os.path.join(self.project_dir, "build", self.branch)
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
+        self.build_dir = os.path.join(project_dir, "build", self.branch)
+        if not os.path.exists(self.build_dir):
+            os.makedirs(self.build_dir)
 
-        self.apt = Apt(self.project_dir, self.branch, self.directory)
+        self.apt = Apt(project_dir, self.branch, self.build_dir)
 
         logging.info("Pulling vyos-build docker image")
-        self.docker_image = "vyos/vyos-build:%s" % self.branch
-        execute("docker pull %s" % quote_all(self.docker_image), passthrough=True)
+        vyos_build_repo = os.path.join(os.path.join(self.build_dir, "vyos-build"))
+        self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo)
+        self.docker.pull()
 
         self.updated_repos = []
         for package in packages.values():
@@ -71,7 +73,7 @@ class Builder:
         if "hash" not in my_state:
             my_state["hash"] = None
 
-        repo_path = os.path.join(self.directory, repo_name)
+        repo_path = os.path.join(self.build_dir, repo_name)
         parent_path = repo_path
 
         if package["build_type"] == "dpkg-buildpackage":
@@ -87,7 +89,7 @@ class Builder:
                 return
         except ProcessException as e:
             if "not a git repository" in str(e):
-                self.rmtree(parent_path)
+                self.docker.rmtree(parent_path)
             else:
                 raise
 
@@ -96,7 +98,8 @@ class Builder:
             self.updated_repos.append(repo_name)
 
             if os.path.exists(parent_path) and not self.dirty_build:
-                self.rmtree(parent_path)
+                # We want to delete original repo and do fresh clone to clean cached build files.
+                self.docker.rmtree(parent_path)
 
             if not os.path.exists(repo_path):
                 logging.info("Cloning repository %s" % package["git_url"])
@@ -109,15 +112,17 @@ class Builder:
             logging.info("Using shared repository %s" % package["git_url"])
 
         if package["build_type"] == "build.py":
-            my_directory = os.path.join(self.directory, "vyos-build", package["path"])
+            my_directory = os.path.join(self.build_dir, "vyos-build", package["path"])
             if not self.skip_build or new:
-                self.docker_run("bash -i -c 'python3 ./build.py'", "/vyos/%s" % package["path"])
+                # It's important to run bash in interactive mode, non-interactive shell breaks dependency on .bashrc.
+                # It's also required to call python explicitly since some scripts don't have correct shebang.
+                self.docker.run("bash -i -c 'python3 ./build.py'", work_dir="/vyos/%s" % package["path"])
 
         elif package["build_type"] == "dpkg-buildpackage":
-            my_directory = os.path.join(self.directory, repo_name)
+            my_directory = os.path.join(self.build_dir, repo_name)
             virtual_dir = "/vyos-%s" % package["package_name"]
 
-            scripts_dir = os.path.join(self.project_dir, "scripts")
+            scripts_dir = os.path.join(project_dir, "scripts")
             virtual_scripts = "%s-scripts" % virtual_dir
 
             build_script = "generic-build-script.sh"
@@ -127,7 +132,9 @@ class Builder:
 
             sources_dir = os.path.join(virtual_dir, "sources")
             if not self.skip_build or new:
-                self.docker_run("bash -i %s/%s" % (virtual_scripts, build_script), sources_dir, extra_mounts=[
+                # Again, interactive shell is essential.
+                virtual_build_script = os.path.join(virtual_scripts, build_script)
+                self.docker.run("bash -i %s" % quote(virtual_build_script), work_dir=sources_dir, extra_mounts=[
                     (my_directory, virtual_dir),
                     (scripts_dir, virtual_scripts),
                 ])
@@ -139,6 +146,8 @@ class Builder:
         dsc_files, binary_files = self.apt.scan_for_dist_files(my_directory)
         if len(binary_files) == 0:
             message = "%s: something is wrong, no binary files found" % package["package_name"]
+            message += ", build dir: %s," % my_directory
+            message += ", log file: %s" % get_my_log_file()
             if self.ignore_missing_binaries:
                 logging.error(message)
             else:
@@ -150,40 +159,6 @@ class Builder:
             self.apt.fill_apt_repository(dsc_files, binary_files)
 
         self.cache.set(package["package_name"], my_state)
-
-    def docker_run(self, command, work_dir, extra_mounts=None):
-        pieces = [
-            "docker run --rm -it",
-            "-v %s:/vyos" % quote(os.path.join(self.directory, "vyos-build")),
-        ]
-
-        if extra_mounts is not None:
-            for mount in extra_mounts:
-                pieces.append("-v %s:%s" % quote_all(*mount))
-
-        pieces.extend([
-            "-w %s --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0" % quote(work_dir),
-            "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
-            self.docker_image,
-            command,
-        ])
-
-        command = " ".join(pieces)
-        return execute(command, passthrough=True)
-
-    def rmtree(self, directory):
-        # sanity check
-        if not directory.startswith(self.project_dir):
-            raise Exception("Delete of %s denied, target is outside project_dir (%s)" % (directory, self.project_dir))
-
-        try:
-            shutil.rmtree(directory)
-        except PermissionError:
-            # Unfortunately the docker container creates some files as root, and thus we don't have choice...
-            self.docker_run("bash -c %s" % quote("sudo rm -rf /delete-me/*"), "/vyos", extra_mounts=[
-                (directory, "/delete-me")
-            ])
-            shutil.rmtree(directory)
 
     def get_packages_metadata(self):
         packages_timestamp = self.cache.get("packages_timestamp")
@@ -207,7 +182,7 @@ class Builder:
 
 
 if __name__ == "__main__":
-    setup_logging()
+    setup_logging(name="package_builder")
 
     try:
         refuse_root()
@@ -221,6 +196,8 @@ if __name__ == "__main__":
         parser.add_argument("--skip-build", action="store_true")
         parser.add_argument("--skip-apt", action="store_true")
         parser.add_argument("--force-build", action="store_true")
+        parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
+                            help="Default option uses vyos/vyos-build from dockerhub")
         args = parser.parse_args()
 
         builder = Builder(**vars(args))
@@ -230,4 +207,5 @@ if __name__ == "__main__":
         exit(1)
     except Exception as e:
         logging.exception(e)
+        logging.error("Something went wrong, log file: %s" % get_my_log_file())
         exit(1)
