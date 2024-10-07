@@ -9,21 +9,22 @@ import pendulum
 
 from lib.apt import Apt
 from lib.cache import Cache
+from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, refuse_root, project_dir, get_my_log_file
 
 
-class Builder:
+class PackageBuilder:
     build_dir = None
     docker_image = None
     updated_repos = None
     apt = None
     docker = None
 
-    def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries,
-                 skip_build, skip_apt, force_build, vyos_build_docker):
+    def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries, skip_build, skip_apt,
+                 force_build, vyos_build_docker, debranding: Debranding):
         self.branch = branch
         self.single_package = single_package
         self.dirty_build = dirty_build
@@ -32,6 +33,7 @@ class Builder:
         self.skip_apt = skip_apt
         self.force_build = force_build
         self.vyos_build_docker = vyos_build_docker
+        self.debranding = debranding
 
         self.github = GitHub()
         self.cache = Cache(os.path.join(project_dir, "build", "builder-cache-%s.json" % self.branch), dict, {})
@@ -56,12 +58,26 @@ class Builder:
         self.docker.pull()
 
         self.updated_repos = []
+        found = 0
+        built = 0
         for package in packages.values():
+            found += 1
             if self.single_package is not None and self.single_package != package["package_name"]:
                 continue
 
             logging.info("Processing package: %s" % package["package_name"])
             self.build_package(package)
+            built += 1
+
+        if built == 0:
+            if self.single_package is not None:
+                logging.error("Specified --single-package=%s was not found" % self.single_package)
+            else:
+                if found == 0:
+                    logging.error("Something's wrong, no packages were found!")
+                else:
+                    logging.error("Something's wrong, no packages were built but these were found: %s" % packages)
+            exit(1)
 
         elapsed = round(monotonic() - begin, 3)
         logging.info("Done in %s seconds, see the result in: %s" % (elapsed, self.apt.get_repo_dir()))
@@ -110,6 +126,8 @@ class Builder:
                 git.pull()
         else:
             logging.info("Using shared repository %s" % package["git_url"])
+
+        self.debranding.remove_package_branding(repo_path, package["package_name"])
 
         if package["build_type"] == "build.py":
             my_directory = os.path.join(self.build_dir, "vyos-build", package["path"])
@@ -187,6 +205,8 @@ if __name__ == "__main__":
     try:
         refuse_root()
 
+        debranding = Debranding()
+
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
         parser.add_argument("--single-package", help="Build only this package")
@@ -198,9 +218,15 @@ if __name__ == "__main__":
         parser.add_argument("--force-build", action="store_true")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
-        args = parser.parse_args()
 
-        builder = Builder(**vars(args))
+        debranding.populate_cli_parser(parser)
+
+        args = parser.parse_args()
+        values = vars(args)
+
+        debranding.extract_cli_values(values)
+
+        builder = PackageBuilder(debranding=debranding, **values)
         builder.build()
 
     except KeyboardInterrupt:

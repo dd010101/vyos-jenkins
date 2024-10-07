@@ -11,7 +11,9 @@ from threading import Thread
 from time import monotonic
 
 import netifaces
+import pendulum
 
+from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, refuse_root, project_dir, get_my_log_file
@@ -25,8 +27,8 @@ class ImageBuilder:
     vyos_build_repo = None
     docker = None
 
-    def __init__(self, branch, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options,
-                 flavor, build_by, version, bind_addr, bind_port, keep_build):
+    def __init__(self, branch, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options, flavor, build_by,
+                 version, bind_addr, bind_port, keep_build, debranding: Debranding):
         self.branch = branch
         self.vyos_build_git = vyos_build_git
         self.vyos_build_docker = vyos_build_docker
@@ -38,6 +40,7 @@ class ImageBuilder:
         self.bind_addr = bind_addr
         self.bind_port = bind_port
         self.keep_build = keep_build
+        self.debranding = debranding
 
         self.cwd = os.getcwd()
 
@@ -65,6 +68,8 @@ class ImageBuilder:
         if not git.exists():
             git.clone(self.vyos_build_git, self.branch)
 
+        self.debranding.remove_image_branding(self.vyos_build_repo)
+
         # TODO: remove me, temporary hack until vyos-build is fixed
         with open(os.path.join(git.repo_path, "data/build-flavors/generic.toml"), "r+") as file:
             contents = file.read()
@@ -78,7 +83,7 @@ class ImageBuilder:
             if self.branch in self.version_mapping:
                 version = self.version_mapping[self.branch]
             else:
-                version = self.branch
+                version = "%s-%s" % (self.branch, pendulum.now().format("YYYY-MM-DD"))
 
         # build image
         build_image_pieces = [
@@ -201,6 +206,8 @@ if __name__ == "__main__":
     try:
         refuse_root()
 
+        debranding = Debranding()
+
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
         parser.add_argument("--vyos-build-git", default="https://github.com/vyos/vyos-build.git",
@@ -215,9 +222,15 @@ if __name__ == "__main__":
         parser.add_argument("--bind-addr", help="Bind local webserver to static address instead of automatic")
         parser.add_argument("--bind-port", type=int, help="Bind local webserver to static port instead of random")
         parser.add_argument("--keep-build", action="store_true", help="Keep previous vyos-build repository")
-        args = parser.parse_args()
 
-        builder = ImageBuilder(**vars(args))
+        debranding.populate_cli_parser(parser)
+
+        args = parser.parse_args()
+        values = vars(args)
+
+        debranding.extract_cli_values(values)
+
+        builder = ImageBuilder(debranding=debranding, **values)
         builder.build()
 
     except KeyboardInterrupt:

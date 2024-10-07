@@ -17,6 +17,7 @@ class Git:
         ))
 
     def pull(self):
+        execute("git -C %s reset --hard" % quote_all(self.repo_path))
         execute("git -C %s pull" % quote_all(self.repo_path))
 
     def get_last_commit_hash(self):
