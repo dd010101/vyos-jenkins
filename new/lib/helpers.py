@@ -1,5 +1,5 @@
 import logging
-from logging.handlers import RotatingFileHandler
+from logging import FileHandler
 import os
 import re
 import shlex
@@ -35,6 +35,7 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
         file_log_handler = find_file_log_handler()
         buffer = TerminalLineBuffer()
         stdout = process.stdout
+
         deadline = monotonic() + timeout if timeout is not None else None
         while process.poll() is None and (deadline is None or deadline < monotonic()):
             # noinspection PyTypeChecker
@@ -44,10 +45,17 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
             if file_log_handler is not None:
                 buffer.feed(value)
                 if buffer.is_complete():
+                    sys.stdout.buffer.flush()
                     line = buffer.get_line()
                     file_log_handler.handle(create_stdout_log_record(line, passthrough_prefix))
 
+        # noinspection PyTypeChecker
+        rest: bytes = stdout.read()
+        sys.stdout.buffer.write(rest)
+        sys.stdout.buffer.flush()
+
         if file_log_handler is not None:
+            buffer.feed(rest)
             line = buffer.get_line()
             if line:
                 file_log_handler.handle(create_stdout_log_record(line, passthrough_prefix))
@@ -82,8 +90,9 @@ class TerminalLineBuffer:
 
     def __init__(self):
         self.line_buffer = b""
-        # ANSI & carriage return
-        self.control_sequences_regex = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])|\x0D")
+        # ANSI control sequences
+        self.control_sequences_regex = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+        self.carriage_return_regex = re.compile(r"[\r\n]+\s*[\r\n]*")
 
     def feed(self, value: bytes):
         self.last_value = value
@@ -95,9 +104,9 @@ class TerminalLineBuffer:
     def get_line(self):
         line = self.line_buffer.decode("utf-8")
         self.line_buffer = b""
-        line = line.replace("\r\n", "\n")
+        line = self.carriage_return_regex.sub("\n", line)
         line = self.control_sequences_regex.sub("", line)
-        return line
+        return line.strip("\r\n") + "\n"
 
 
 def create_stdout_log_record(message, passthrough_prefix=None, level=logging.INFO):
@@ -135,13 +144,13 @@ def setup_logging(name="test"):
     logger.addHandler(stderr_handler)
 
     log_file = os.path.join(project_dir, "build", "%s.log" % name)
-    file_handler = RotatingFileHandler(
-        log_file,
-        maxBytes=1048576 * 10,
-        backupCount=5,
-        encoding="utf-8",
-    )
-    file_handler.log_file = log_file
+    if os.path.exists(log_file):
+        previous_log_file = "%s.2" % log_file
+        if os.path.exists(previous_log_file):
+            os.remove(previous_log_file)
+        os.rename(log_file, previous_log_file)
+    file_handler = FileHandler(log_file, encoding="utf-8")
+    file_handler.my_log_file = log_file
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
     logger.addHandler(file_handler)
@@ -150,7 +159,7 @@ def setup_logging(name="test"):
 def find_file_log_handler():
     file_log_handler = None
     for handler in logging.getLogger().handlers:
-        if isinstance(handler, RotatingFileHandler):
+        if isinstance(handler, FileHandler):
             file_log_handler = handler
             break
     return file_log_handler
@@ -158,8 +167,8 @@ def find_file_log_handler():
 
 def get_my_log_file():
     file_log_handler = find_file_log_handler()
-    if file_log_handler is not None and hasattr(file_log_handler, "log_file"):
-        return file_log_handler.log_file
+    if file_log_handler is not None and hasattr(file_log_handler, "my_log_file"):
+        return file_log_handler.my_log_file
     return "can't find it"
 
 

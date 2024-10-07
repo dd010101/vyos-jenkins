@@ -137,7 +137,9 @@ class Debranding:
         for pattern, replacement in patterns:
             if isinstance(pattern, re.Pattern):
                 contents = pattern.sub(replacement, contents)
-                changed = True
+            else:
+                contents = contents.replace(pattern, replacement)
+            changed = True
 
         if changed:
             with open(path, "w") as file:
@@ -163,7 +165,6 @@ class Debranding:
         if cached_value is not None:
             return cached_value
         return self.DEFAULT
-
 
     def remember_settings(self):
         if self.remove_branding:
