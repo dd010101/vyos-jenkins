@@ -3,7 +3,7 @@ import os
 from shlex import quote
 import shutil
 
-from lib.helpers import execute, quote_all, project_dir
+from lib.helpers import execute, quote_all, project_dir, ProcessException
 
 
 class Docker:
@@ -17,8 +17,23 @@ class Docker:
 
     def pull(self, passthrough=True):
         docker_image = self.get_full_image_name()
-        execute("docker ")
+        previous_docker_image = "previous-%s" % docker_image
+
+        # We mark current image with custom tag, so we don't lose track when image gets updated because then the
+        # regular tag will shift to the new image from the old image.
+        try:
+            execute("docker tag %s %s" % quote_all(docker_image, previous_docker_image))
+        except ProcessException:
+            pass  # Ignore if image doesn't exist.
+
         execute("docker pull %s" % quote_all(docker_image), passthrough=passthrough)
+
+        # Now we can just delete the previous tag, this will delete the image if it's different from the regular tag
+        # or only delete the previous tag if it's the same image (the image wasn't updated).
+        try:
+            execute("docker rmi %s" % quote_all(previous_docker_image))
+        except ProcessException:
+            pass  # Ignore if image doesn't exist.
 
     def rmtree(self, target):
         # This is sanity check, we really don't want to rm -rf something that isn't ours by mistake.

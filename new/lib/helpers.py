@@ -74,10 +74,12 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
 
     if exit_code != 0:
         message = "Command '%s' failed, exit code: %s" % (command, exit_code)
+        output = None
         if not passthrough:
             # noinspection PyUnresolvedReferences
-            message += ", output: %s" % process.stdout.read().decode("utf-8")
-        raise ProcessException(message)
+            output = process.stdout.read().decode("utf-8")
+            message += ", output: %s" % output
+        raise ProcessException(message, exit_code, output)
 
     if passthrough:
         return exit_code
@@ -87,7 +89,10 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
 
 
 class ProcessException(Exception):
-    pass
+    def __init__(self, message, exit_code, output):
+        super().__init__(message)
+        self.exit_code = exit_code
+        self.output = output
 
 
 class TerminalLineBuffer:
