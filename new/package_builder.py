@@ -13,11 +13,11 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, ProcessException, refuse_root, project_dir, get_my_log_file
+from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir
 
 
 class PackageBuilder:
-    build_dir = None
+    my_build_dir = None
     docker_image = None
     updated_repos = None
     apt = None
@@ -36,7 +36,7 @@ class PackageBuilder:
         self.debranding = debranding
 
         self.github = GitHub()
-        self.cache = Cache(os.path.join(project_dir, "build", "builder-cache-%s.json" % self.branch), dict, {})
+        self.cache = Cache(os.path.join(data_dir, "builder-cache-%s.json" % self.branch), dict, {})
 
     def build(self):
         begin = monotonic()
@@ -46,14 +46,14 @@ class PackageBuilder:
         logging.info("Building packages for %s" % self.branch)
         packages = self.get_packages_metadata()
 
-        self.build_dir = os.path.join(project_dir, "build", self.branch)
-        if not os.path.exists(self.build_dir):
-            os.makedirs(self.build_dir)
+        self.my_build_dir = os.path.join(build_dir, self.branch)
+        if not os.path.exists(self.my_build_dir):
+            os.makedirs(self.my_build_dir)
 
-        self.apt = Apt(project_dir, self.branch, self.build_dir)
+        self.apt = Apt(self.branch, self.my_build_dir)
 
         logging.info("Pulling vyos-build docker image")
-        vyos_build_repo = os.path.join(os.path.join(self.build_dir, "vyos-build"))
+        vyos_build_repo = os.path.join(os.path.join(self.my_build_dir, "vyos-build"))
         self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo)
         self.docker.pull()
 
@@ -89,7 +89,7 @@ class PackageBuilder:
         if "hash" not in my_state:
             my_state["hash"] = None
 
-        repo_path = os.path.join(self.build_dir, repo_name)
+        repo_path = os.path.join(self.my_build_dir, repo_name)
         parent_path = repo_path
 
         if package["build_type"] == "dpkg-buildpackage":
@@ -130,17 +130,16 @@ class PackageBuilder:
         self.debranding.remove_package_branding(repo_path, package["package_name"])
 
         if package["build_type"] == "build.py":
-            my_directory = os.path.join(self.build_dir, "vyos-build", package["path"])
+            my_directory = os.path.join(self.my_build_dir, "vyos-build", package["path"])
             if not self.skip_build or new:
                 # It's important to run bash in interactive mode, non-interactive shell breaks dependency on .bashrc.
                 # It's also required to call python explicitly since some scripts don't have correct shebang.
                 self.docker.run("bash -i -c 'python3 ./build.py'", work_dir="/vyos/%s" % package["path"])
 
         elif package["build_type"] == "dpkg-buildpackage":
-            my_directory = os.path.join(self.build_dir, repo_name)
+            my_directory = os.path.join(self.my_build_dir, repo_name)
             virtual_dir = "/vyos-%s" % package["package_name"]
 
-            scripts_dir = os.path.join(project_dir, "scripts")
             virtual_scripts = "%s-scripts" % virtual_dir
 
             build_script = "generic-build-script.sh"

@@ -1,19 +1,18 @@
 import logging
 import os
-from pathlib import Path
 import re
 from shlex import quote
 
-from lib.helpers import quote_all, execute
+from lib.helpers import quote_all, execute, data_dir, resources_dir, apt_dir
 
 
 class Apt:
     _repo_dir = None
 
-    def __init__(self, project_dir, branch, directory):
-        self.project_dir: str = project_dir
+    def __init__(self, branch, directory):
         self.branch = branch
         self.directory = directory
+        self.gpg_keyring_path = os.path.join(data_dir, ".gnupg")
 
     def scan_for_dist_files(self, directory):
         dsc_files = []
@@ -46,20 +45,20 @@ class Apt:
         return dsc_files, binary_files
 
     def initialize_repository(self):
-        gpg_keyring_path = os.path.join(Path.home(), ".gnupg/pubring.kbx")
-        if not os.path.exists(gpg_keyring_path):
+        pub_keyring_path = os.path.join(self.gpg_keyring_path, "pubring.kbx")
+        if not os.path.exists(pub_keyring_path):
             logging.info("Generating GPG singing key")
-            material_path = os.path.join(self.project_dir, "resources", "gpg-gen-key.txt")
-            execute("gpg --batch --gen-key < %s" % quote_all(material_path))
+            material_path = os.path.join(resources_dir, "gpg-gen-key.txt")
+            execute("gpg --homedir %s --batch --gen-key < %s" % quote_all(self.gpg_keyring_path, material_path))
 
-        conf_dir = os.path.join(self.project_dir, "apt", self.branch, "conf")
+        conf_dir = os.path.join(apt_dir, self.branch, "conf")
         if not os.path.exists(conf_dir):
             logging.info("Initializing APT repository")
             os.makedirs(conf_dir)
 
         dist_path = os.path.join(conf_dir, "distributions")
         if not os.path.exists(dist_path):
-            material_path = os.path.join(self.project_dir, "resources", "apt-distributions.txt")
+            material_path = os.path.join(resources_dir, "apt-distributions.txt")
             with open(material_path, "r") as file:
                 contents = file.read()
                 contents = contents.replace("%branch%", self.branch)
@@ -70,7 +69,7 @@ class Apt:
 
         options_path = os.path.join(conf_dir, "options")
         if not os.path.exists(options_path):
-            material_path = os.path.join(self.project_dir, "resources", "apt-options.txt")
+            material_path = os.path.join(resources_dir, "apt-options.txt")
             with open(material_path, "r") as file:
                 contents = file.read()
 
@@ -82,8 +81,8 @@ class Apt:
 
         pub_key_path = os.path.join(root_dir, "apt.gpg.key")
         if not os.path.exists(pub_key_path):
-            execute("gpg --armor --output %s --export-options export-minimal --export %s" % (
-                pub_key_path, self.get_key_id()
+            execute("gpg --homedir %s --armor --output %s --export-options export-minimal --export %s" % (
+                self.gpg_keyring_path, pub_key_path, self.get_key_id()
             ))
 
         return repo_dir
@@ -94,7 +93,7 @@ class Apt:
         return self._repo_dir
 
     def get_key_id(self):
-        output = execute("gpg --list-keys --keyid-format=long signing@not-vyos")
+        output = execute("gpg --homedir %s --list-keys --keyid-format=long signing@not-vyos" % self.gpg_keyring_path)
         we_in_pub = False
         key_id = None
         for line in output.split("\n"):
@@ -119,36 +118,64 @@ class Apt:
         prefix_len = len(self.directory)
 
         for dsc_file in dsc_files:
-            logging.info("Pushing %s to the APT repository" % dsc_file[prefix_len:])
-
             with open(dsc_file, "r") as file:
                 fields = self.parse_package_info(file.read(), dsc_file, ["Source"])
 
             package = fields["Source"]
-            execute("reprepro -v -b %s removesrc %s %s" % quote_all(repo_dir, self.branch, package))
-            execute("reprepro -v -b %s includedsc %s %s" % quote_all(repo_dir, self.branch, dsc_file))
+
+            logging.info("Removing sources of %s from the APT repository" % package)
+
+            execute("reprepro --gnupghome %s  -v -b %s removesrc %s %s" % quote_all(
+                self.gpg_keyring_path, repo_dir, self.branch, package
+            ))
 
         for binary_file in binary_files:
-            logging.info("Pushing %s to the APT repository" % binary_file[prefix_len:])
-
             output = execute("dpkg-deb -f %s" % quote_all(binary_file))
             fields = self.parse_package_info(output, binary_file, ["Package", "Architecture"])
 
             package = fields["Package"]
             architecture = fields["Architecture"]
 
-            additional_params = []
-            if architecture != "all":
-                additional_params.extend(["-A", quote(architecture)])
+            logging.info("Removing binaries of %s from the APT repository" % package)
 
-            extra = " ".join(additional_params)
-            if extra:
-                extra = " " + extra
+            extra = self.construct_reprepro_bin_extra(architecture)
+            execute("reprepro --gnupghome %s  -v -b %s%s remove %s %s" % (
+                self.gpg_keyring_path, repo_dir, extra, self.branch, package
+            ))
 
-            execute("reprepro -v -b %s%s remove %s %s" % (repo_dir, extra, self.branch, package))
-            execute("reprepro -v -b %s%s includedeb %s %s" % (repo_dir, extra, self.branch, binary_file))
+        execute("reprepro --gnupghome %s -v -b %s deleteunreferenced" % (
+            self.gpg_keyring_path, repo_dir
+        ))
 
-            execute("reprepro -v -b %s deleteunreferenced" % repo_dir)
+        for dsc_file in dsc_files:
+            logging.info("Pushing %s to the APT repository" % dsc_file[prefix_len:])
+
+            execute("reprepro --gnupghome %s -v -b %s includedsc %s %s" % quote_all(
+                self.gpg_keyring_path, repo_dir, self.branch, dsc_file
+            ))
+
+        for binary_file in binary_files:
+            logging.info("Pushing %s to the APT repository" % binary_file[prefix_len:])
+
+            output = execute("dpkg-deb -f %s" % quote_all(binary_file))
+            fields = self.parse_package_info(output, binary_file, ["Architecture"])
+
+            architecture = fields["Architecture"]
+
+            extra = self.construct_reprepro_bin_extra(architecture)
+            execute("reprepro --gnupghome %s -v -b %s%s includedeb %s %s" % (
+                self.gpg_keyring_path, repo_dir, extra, self.branch, binary_file
+            ))
+
+    def construct_reprepro_bin_extra(self, architecture):
+        additional_params = []
+        if architecture != "all":
+            additional_params.extend(["-A", quote(architecture)])
+
+        extra = " ".join(additional_params)
+        if extra:
+            extra = " " + extra
+        return extra
 
     def parse_package_info(self, contents, subject, required_keys: list):
         fields = {}

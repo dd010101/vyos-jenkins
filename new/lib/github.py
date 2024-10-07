@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfi
 
 from helpers import setup_logging
 from lib.cache import Cache
-from lib.helpers import refuse_root
+from lib.helpers import refuse_root, data_dir
 
 
 class GitHub:
@@ -184,8 +184,7 @@ if __name__ == "__main__":
 
             github = GitHub()
 
-            project_dir = os.path.realpath(os.path.dirname(__file__))
-            cache = Cache(os.path.join(project_dir, "build", "github-vyos-cache.json"), dict, {})
+            cache = Cache(os.path.join(data_dir, "github-vyos-cache.json"), dict, {})
             repositories = cache.callback("repos", callback=lambda: github.find_org_repositories("vyos"))
 
             pprint(github.analyze_repositories_workflow("vyos", repositories, "circinus"))

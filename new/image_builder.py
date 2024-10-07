@@ -16,7 +16,7 @@ import pendulum
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
-from lib.helpers import setup_logging, refuse_root, project_dir, get_my_log_file
+from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir
 
 
 class ImageBuilder:
@@ -53,7 +53,7 @@ class ImageBuilder:
             vyos_mirror = self.vyos_mirror
             logging.info("Using supplied APT repository at %s" % vyos_mirror)
 
-        self.vyos_build_repo = os.path.join(project_dir, "build", "%s-image-build" % self.branch)
+        self.vyos_build_repo = os.path.join(build_dir, "%s-image-build" % self.branch)
 
         logging.info("Pulling vyos-build docker image")
         self.docker = Docker(self.vyos_build_docker, self.branch, self.vyos_build_repo)
@@ -108,7 +108,7 @@ class ImageBuilder:
 
         extra_mounts = []
         if self.vyos_mirror == "local":
-            apt_key_path = os.path.join(project_dir, "apt", "apt.gpg.key")
+            apt_key_path = os.path.join(apt_dir, "apt.gpg.key")
             extra_mounts.append((apt_key_path, "/opt/apt.gpg.key"))
 
         self.docker.run(
@@ -119,21 +119,21 @@ class ImageBuilder:
         )
 
         image_path = None
-        build_dir = os.path.join(self.vyos_build_repo, "build")
-        if os.path.exists(build_dir):
-            for entry in os.scandir(build_dir):
+        my_build_dir = os.path.join(self.vyos_build_repo, "build")
+        if os.path.exists(my_build_dir):
+            for entry in os.scandir(my_build_dir):
                 if version in entry.name and entry.name.endswith(".iso"):
                     image_path = entry.path
                     break
 
         if image_path is None:
-            image_path = os.path.join(build_dir, "live-image-amd64.hybrid.iso")
+            image_path = os.path.join(my_build_dir, "live-image-amd64.hybrid.iso")
 
         if not os.path.exists(image_path):
             logging.error(
                 "Build failed (image not found), see log above for reason why"
                 ", inspect build here: %s"
-                ", log file: %s" % (build_dir, get_my_log_file())
+                ", log file: %s" % (my_build_dir, get_my_log_file())
             )
             exit(1)
 
@@ -194,7 +194,7 @@ class ImageBuilder:
 
 class AptWebServerHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=os.path.join(project_dir, "apt"), **kwargs)
+        super().__init__(*args, directory=os.path.join(apt_dir), **kwargs)
 
     def log_message(self, format, *args):
         pass

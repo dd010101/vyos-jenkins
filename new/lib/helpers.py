@@ -9,6 +9,11 @@ import sys
 from time import monotonic
 
 project_dir: str = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+apt_dir: str = os.path.join(project_dir, "apt")
+build_dir: str = os.path.join(project_dir, "build")
+data_dir: str = os.path.join(project_dir, "data")
+resources_dir: str = os.path.join(project_dir, "resources")
+scripts_dir: str = os.path.join(project_dir, "scripts")
 
 
 def quote_all(*args):
@@ -143,7 +148,7 @@ def setup_logging(name="test"):
     stderr_handler.setFormatter(formatter)
     logger.addHandler(stderr_handler)
 
-    log_file = os.path.join(project_dir, "build", "%s.log" % name)
+    log_file = os.path.join(build_dir, "%s.log" % name)
     if os.path.exists(log_file):
         previous_log_file = "%s.2" % log_file
         if os.path.exists(previous_log_file):

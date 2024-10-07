@@ -8,7 +8,7 @@ import shutil
 import tomlkit
 
 from lib.cache import Cache
-from lib.helpers import project_dir
+from lib.helpers import resources_dir, data_dir
 
 
 class Debranding:
@@ -19,7 +19,7 @@ class Debranding:
     alternative_name = None
 
     def __init__(self):
-        self.cache = Cache(os.path.join(project_dir, "build", "debranding-cache.json"), dict, {})
+        self.cache = Cache(os.path.join(data_dir, "debranding-cache.json"), dict, {})
 
     def populate_cli_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument("--keep-branding", action="store_true", help="Keep VyOS branding as opposite to debranding")
@@ -100,7 +100,7 @@ class Debranding:
 
         logging.info("Applying debranding...")
 
-        new_splash = os.path.join(project_dir, "resources/not-vyos/splash.png")
+        new_splash = os.path.join(resources_dir, "not-vyos/splash.png")
         target_splash = os.path.join(root_dir, "data/live-build-config/includes.binary/isolinux/splash.png")
         shutil.copy2(new_splash, target_splash)
 
