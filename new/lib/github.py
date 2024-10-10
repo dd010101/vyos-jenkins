@@ -25,18 +25,25 @@ class GitHub:
     """
 
     def __init__(self):
-        # These packages don't have defined workflow for some reason.
-        # They also don't have correct branch so we need to default to current.
-        self.additional_packages = {
+        # Some repositories have defined workflow, yet we don't want to build them
+        # because they are for example obsolete and replaced by another package.
+        self.blacklist = {
+            "circinus": [
+                "vyos/libpam-tacplus",
+            ],
         }
 
     def analyze_repositories_workflow(self, org_name, repositories, branch):
+        my_blacklist = self.blacklist[branch] if branch in self.blacklist else []
         packages = {}
-
+        unique_package_names = []
         for repo_name, git_url in repositories.items():
             expected_workflow = "trigger-rebuild-repo-package.yml"
             if repo_name == "vyos-build":
                 expected_workflow = "trigger_rebuild_packages.yml"
+
+            if "%s/%s" % (org_name, repo_name) in my_blacklist:
+                continue
 
             url = "https://raw.githubusercontent.com/%s/%s/refs/heads/%s/.github/workflows/%s" % (
                 org_name, repo_name, branch, expected_workflow
@@ -59,6 +66,12 @@ class GitHub:
                     if "PACKAGE_NAME" not in definition["package_name"]:
                         raise Exception("%s: unknown package_name: %s" % (repo_name, definition))
 
+                    if repo_name in unique_package_names:
+                        raise Exception("Packages with name '%s' was already defined: %s, others: %s" % (
+                            repo_name, definition, packages,
+                        ))
+                    unique_package_names.append(repo_name)
+
                     packages[repo_name] = {
                         "repo_name": repo_name,
                         "branch": branch,
@@ -75,6 +88,13 @@ class GitHub:
                             filters = yaml.load(item["with"]["filters"], Loader=yaml.Loader)
                             for package_name, patterns in filters.items():
                                 pseudo_repo_name = "%s-%s" % (repo_name, package_name)
+
+                                if package_name in unique_package_names:
+                                    raise Exception("Packages with name '%s' was already defined: %s, others: %s" % (
+                                        repo_name, filters, packages,
+                                    ))
+                                unique_package_names.append(package_name)
+
                                 packages[pseudo_repo_name] = {
                                     "repo_name": repo_name,
                                     "branch": branch,
@@ -89,39 +109,6 @@ class GitHub:
                 if e.response.status_code == 404:
                     continue  # Repository without defined workflow should be unused/legacy/deprecated
                 raise
-
-        for repo_name in self.additional_packages:
-            url = "https://api.github.com/repos/%s/%s/branches" % (
-                org_name, repo_name
-            )
-            response = requests.request("get", url)
-            response.raise_for_status()
-            payload = response.json()
-
-            available_branches = []
-            for item in payload:
-                available_branches.append(item["name"])
-
-            my_branch = branch
-            if my_branch not in available_branches:
-                if "current" in available_branches:
-                    my_branch = "current"
-                elif "master" in available_branches:
-                    my_branch = "master"
-                elif "main" in available_branches:
-                    my_branch = "main"
-                else:
-                    raise Exception("%s: unable to locate current branch: %s" % (repo_name, available_branches))
-
-            packages[repo_name] = {
-                "repo_name": repo_name,
-                "branch": my_branch,
-                "package_name": repo_name,
-                "build_type": "dpkg-buildpackage",
-                "path": "",
-                "change_patterns": ["*"],
-                "git_url": "https://github.com/%s/%s.git" % (org_name, repo_name),
-            }
 
         return packages
 
