@@ -11,7 +11,7 @@ import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
 
-from helpers import setup_logging
+from lib.helpers import setup_logging
 from lib.cache import Cache
 from lib.helpers import refuse_root, data_dir
 
