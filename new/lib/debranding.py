@@ -17,6 +17,7 @@ class Debranding:
     keep_branding = None
     remove_branding = None
     alternative_name = None
+    logged = False
 
     def __init__(self):
         self.cache = Cache(os.path.join(data_dir, "debranding-cache.json"), dict, {})
@@ -49,6 +50,11 @@ class Debranding:
             self.replace_patterns_in_file(motd_path, [
                 ("VyOS", alternative_name),
             ])
+
+            motd_path = os.path.join(root_dir, "data/templates/login/motd_vyos_nonproduction.j2")
+            if os.path.exists(motd_path):
+                with open(motd_path, "w") as file:
+                    file.truncate()
 
             login_banner_path = os.path.join(root_dir, "src/conf_mode/system_login_banner.py")
             self.replace_patterns_in_file(login_banner_path, [
@@ -177,6 +183,10 @@ class Debranding:
             self.cache.set("alternative_name", self.alternative_name)
 
     def log_settings(self):
+        if self.logged:
+            return
+        self.logged = True
+
         if not self.is_debranding_enabled():
             option = "option" if self.keep_branding else "cached option"
             logging.info("Using %s --keep-branding to keep VyOS branding intact" % option)
