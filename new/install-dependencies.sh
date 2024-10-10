@@ -14,9 +14,13 @@ sudo apt-get install -y git gpg reprepro
 sudo apt-get install -y python3 python3-yaml python3-requests python3-netifaces python3-tomlkit
 
 # docker
-if [ ! -f /etc/apt/sources.list.d/docker.list ]; then
-  sudo curl -s -S --fail-with-body https://download.docker.com/linux/debian/gpg -o /usr/share/keyrings/docker.asc
-  echo "deb [signed-by=/usr/share/keyrings/docker.asc]" https://download.docker.com/linux/debian bookworm stable | sudo tee /etc/apt/sources.list.d/docker.list
+if docker > /dev/null 2>&1; then
+  echo "Docker is present, skipping installation"
+else
+  if [ ! -f /etc/apt/sources.list.d/docker.list ]; then
+    sudo wget https://download.docker.com/linux/debian/gpg -O /usr/share/keyrings/docker.asc
+    echo "deb [signed-by=/usr/share/keyrings/docker.asc]" https://download.docker.com/linux/debian bookworm stable | sudo tee /etc/apt/sources.list.d/docker.list
+  fi
+  sudo apt-get update -y
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 fi
-sudo apt-get update -y
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
