@@ -1,7 +1,7 @@
 import os.path
 import re
 
-from lib.helpers import execute, quote_all
+from lib.helpers import execute, quote_all, ProcessException
 
 
 class Git:
@@ -24,7 +24,12 @@ class Git:
         return execute("git -C %s rev-parse HEAD" % quote_all(self.repo_path)).strip()
 
     def get_changed_files(self, ref1, ref2):
-        return execute("git diff --name-only %s %s" % quote_all(ref1, ref2)).strip()
+        try:
+            return execute("git diff --name-only %s %s" % quote_all(ref1, ref2)).strip()
+        except ProcessException as e:
+            if e.exit_code == 1 and "Could not access" in e.output:
+                return ""  # ignore non-existing commits (caused by repo changed or force-push)
+            raise
 
     def resolve_changes(self, change_patterns, previous_hash):
         if not self.exists():
