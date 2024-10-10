@@ -23,14 +23,15 @@ if [ ! -d libnss-tacplus ]; then
   /my-build-scripts/generic-build-script.sh
   cd .. && sudo dpkg -i *.deb
 
-  # build libnss-tacplus 1.4.3, install, throw away
-  mkdir temp && cd temp
+  # build libnss-tacplus 1.4.3, install, throw away (partially)
   git clone https://github.com/vyos/libpam-tacplus.git
   cd libpam-tacplus
   git reset --hard 0d38f9b
   /my-build-scripts/generic-build-script.sh
   cd .. && sudo dpkg -i *.deb
-  cd .. && sudo rm -rf temp
+  rm -f libtac-dev*.deb
+  rm -f libpam-tacplus*.deb
+  rm -f libpam-tacplus-dbgsym*.deb
 
   # build libnss-tacplus
   git clone https://github.com/vyos/libnss-tacplus.git
