@@ -24,7 +24,7 @@ class PackageBuilder:
     docker = None
 
     def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries, skip_build, skip_apt,
-                 force_build, vyos_build_docker, debranding: Debranding):
+                 force_build, vyos_build_docker, rescan_packages, debranding: Debranding):
         self.branch = branch
         self.single_package = single_package
         self.dirty_build = dirty_build
@@ -33,6 +33,7 @@ class PackageBuilder:
         self.skip_apt = skip_apt
         self.force_build = force_build
         self.vyos_build_docker = vyos_build_docker
+        self.rescan_packages = rescan_packages
         self.debranding = debranding
 
         self.github = GitHub()
@@ -181,7 +182,7 @@ class PackageBuilder:
         packages_timestamp = self.cache.get("packages_timestamp")
         packages = self.cache.get("packages")
 
-        if not packages_timestamp or not packages or packages_timestamp <= time() - 3600 * 24:
+        if not packages_timestamp or not packages or packages_timestamp <= time() - 3600 * 24 or self.rescan_packages:
             logging.info("Fetching vyos repository list")
             repositories = self.github.find_repositories("org", "vyos")
 
@@ -215,6 +216,7 @@ if __name__ == "__main__":
         parser.add_argument("--skip-build", action="store_true")
         parser.add_argument("--skip-apt", action="store_true")
         parser.add_argument("--force-build", action="store_true")
+        parser.add_argument("--rescan-packages", action="store_true")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
 
