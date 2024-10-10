@@ -12,7 +12,8 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
-from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir
+from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
+    quote_all
 from lib.scripting import Scripting
 
 
@@ -138,18 +139,24 @@ class PackageBuilder:
                 "PACKAGE_NAME": package["package_name"],
             })
 
+        virtual_scripts = "/my-build-scripts"
         if package["build_type"] == "build.py":
             my_directory = os.path.join(self.my_build_dir, "vyos-build", package["path"])
             if not self.skip_build or new:
                 # It's important to run bash in interactive mode, non-interactive shell breaks dependency on .bashrc.
-                # It's also required to call python explicitly since some scripts don't have correct shebang.
-                self.docker.run("bash -i -c 'python3 ./build.py'", work_dir="/vyos/%s" % package["path"])
+                build_script = os.path.join(virtual_scripts, "build_py.sh")
+                vyos_dir = "/vyos/%s" % package["path"]
+                self.docker.run(
+                    "bash -i -c '%s %s'" % quote_all(build_script, package["package_name"]),
+                    work_dir=vyos_dir,
+                    extra_mounts=[
+                        (scripts_dir, virtual_scripts)
+                    ],
+                )
 
         elif package["build_type"] == "dpkg-buildpackage":
             my_directory = os.path.join(self.my_build_dir, repo_name)
             virtual_dir = "/vyos-%s" % package["package_name"]
-
-            virtual_scripts = "%s-scripts" % virtual_dir
 
             build_script = "generic-build-script.sh"
             custom_build_script = os.path.join(scripts_dir, "%s.sh" % package["package_name"])
