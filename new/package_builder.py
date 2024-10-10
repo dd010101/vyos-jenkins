@@ -13,6 +13,7 @@ from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir
+from lib.scripting import Scripting
 
 
 class PackageBuilder:
@@ -23,7 +24,7 @@ class PackageBuilder:
     docker = None
 
     def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries, skip_build, skip_apt,
-                 force_build, vyos_build_docker, rescan_packages, debranding: Debranding):
+                 force_build, vyos_build_docker, rescan_packages, pre_build_hook, debranding: Debranding):
         self.branch = branch
         self.single_package = single_package
         self.dirty_build = dirty_build
@@ -33,10 +34,12 @@ class PackageBuilder:
         self.force_build = force_build
         self.vyos_build_docker = vyos_build_docker
         self.rescan_packages = rescan_packages
+        self.pre_build_hook = pre_build_hook
         self.debranding = debranding
 
         self.github = GitHub()
         self.cache = Cache(os.path.join(data_dir, "builder-cache-%s.json" % self.branch), dict, {})
+        self.scripting = Scripting()
 
     def build(self):
         begin = monotonic()
@@ -129,6 +132,12 @@ class PackageBuilder:
 
         self.debranding.remove_package_branding(repo_path, package["package_name"])
 
+        if self.pre_build_hook:
+            self.scripting.run(self.pre_build_hook, repo_path, vars={
+                "BRANCH": self.branch,
+                "PACKAGE_NAME": package["package_name"],
+            })
+
         if package["build_type"] == "build.py":
             my_directory = os.path.join(self.my_build_dir, "vyos-build", package["path"])
             if not self.skip_build or new:
@@ -218,6 +227,9 @@ if __name__ == "__main__":
         parser.add_argument("--rescan-packages", action="store_true")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
+        scripting_info = "the current working directory is the repo of given package"
+        scripting_info += ", available environment variables: VYOS_BUILD_BRANCH, VYOS_BUILD_PACKAGE_NAME"
+        parser.add_argument("--pre-build-hook", help="Script to execute before build, %s" % scripting_info)
 
         debranding.populate_cli_parser(parser)
 

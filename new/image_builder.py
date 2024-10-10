@@ -17,6 +17,7 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir
+from lib.scripting import Scripting
 
 
 class ImageBuilder:
@@ -28,7 +29,7 @@ class ImageBuilder:
     docker = None
 
     def __init__(self, branch, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options, flavor, build_by,
-                 version, bind_addr, bind_port, keep_build, debranding: Debranding):
+                 version, bind_addr, bind_port, keep_build, pre_build_hook, debranding: Debranding):
         self.branch = branch
         self.vyos_build_git = vyos_build_git
         self.vyos_build_docker = vyos_build_docker
@@ -40,9 +41,11 @@ class ImageBuilder:
         self.bind_addr = bind_addr
         self.bind_port = bind_port
         self.keep_build = keep_build
+        self.pre_build_hook = pre_build_hook
         self.debranding = debranding
 
         self.cwd = os.getcwd()
+        self.scripting = Scripting()
 
     def build(self):
         begin = monotonic()
@@ -85,6 +88,13 @@ class ImageBuilder:
             else:
                 now = datetime.now().astimezone().strftime("%Y-%m-%d")
                 version = "%s-%s" % (self.branch, now)
+
+        if self.pre_build_hook:
+            self.scripting.run(self.pre_build_hook, cwd=self.vyos_build_repo, vars={
+                "BRANCH": self.branch,
+                "VERSION": version,
+                "FLAVOR": self.flavor,
+            })
 
         # build image
         build_image_pieces = [
@@ -223,6 +233,9 @@ if __name__ == "__main__":
         parser.add_argument("--bind-addr", help="Bind local webserver to static address instead of automatic")
         parser.add_argument("--bind-port", type=int, help="Bind local webserver to static port instead of random")
         parser.add_argument("--keep-build", action="store_true", help="Keep previous vyos-build repository")
+        scripting_info = "the current working directory is the vyos-build repo used to build the image"
+        scripting_info += ",  available environment variables: VYOS_BUILD_BRANCH, VYOS_BUILD_VERSION, VYOS_BUILD_FLAVOR"
+        parser.add_argument("--pre-build-hook", help="Script to execute before build, %s" % scripting_info)
 
         debranding.populate_cli_parser(parser)
 
