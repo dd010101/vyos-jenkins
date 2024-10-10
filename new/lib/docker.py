@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from shlex import quote
@@ -28,10 +29,25 @@ class Docker:
 
         execute("docker pull %s" % quote_all(docker_image), passthrough=passthrough)
 
-        # Now we can just delete the previous tag, this will delete the image if it's different from the regular tag
-        # or only delete the previous tag if it's the same image (the image wasn't updated).
+        # Now we compare the ID of regular tag and previous tag and delete if they differ
+        output = execute("docker images --format json").strip()
+        current_id = None
+        previous_id = None
+        for line in output.split("\n"):  # Weird JSON format where each item is on newline with standalone JSON.
+            line = line.strip()
+            image = json.loads(line)
+            if image["Repository"] == self.image_name and image["Tag"] == self.branch:
+                current_id = image["ID"]
+            elif image["Repository"] == "previous-%s" % self.image_name and image["Tag"] == self.branch:
+                previous_id = image["ID"]
+
+        # Finally delete the previous image if it's not the same image.
+        # Or remove just the previous tag if the image wasn't updated.
         try:
-            execute("docker rmi %s" % quote_all(previous_docker_image))
+            if previous_id is not None:
+                execute("docker rmi %s" % quote_all(previous_docker_image))
+                if current_id is not None and current_id != previous_id:
+                    execute("docker rmi %s" % quote_all(previous_id))
         except ProcessException:
             pass  # Ignore if image doesn't exist.
 
