@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+from datetime import datetime
 import logging
 import os.path
 from shlex import quote
 from time import time, monotonic
-
-import pendulum
 
 from lib.apt import Apt
 from lib.cache import Cache
@@ -193,7 +192,7 @@ class PackageBuilder:
             self.cache.set("packages", packages)
 
         else:
-            date = pendulum.from_timestamp(float(packages_timestamp)).in_tz("local").format("YYYY-MM-DD HH:mm:ss")
+            date = datetime.fromtimestamp(float(packages_timestamp)).astimezone().strftime("%Y-%m-%d %H:%M:%S")
             logging.info("Using previously generated package metadata (%s)" % date)
 
         return packages

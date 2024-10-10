@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from contextlib import closing
+from datetime import datetime
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 import logging
 import os
@@ -11,7 +12,6 @@ from threading import Thread
 from time import monotonic
 
 import netifaces
-import pendulum
 
 from lib.debranding import Debranding
 from lib.docker import Docker
@@ -83,7 +83,8 @@ class ImageBuilder:
             if self.branch in self.version_mapping:
                 version = self.version_mapping[self.branch]
             else:
-                version = "%s-%s" % (self.branch, pendulum.now().format("YYYY-MM-DD"))
+                now = datetime.now().astimezone().strftime("%Y-%m-%d")
+                version = "%s-%s" % (self.branch, now)
 
         # build image
         build_image_pieces = [
