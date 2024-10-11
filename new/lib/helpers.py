@@ -189,3 +189,30 @@ def refuse_root():
             " run as any other regular user that has docker access (usermod -aG docker YOUR_USER),"
             " the root privileges would break some packages.")
         exit(1)
+
+
+class TerminalTitle:
+    def __init__(self, prefix):
+        self.prefix = prefix
+
+    def is_supported(self):
+        term = os.environ.get("TERM")
+        if term is None:
+            return False
+        if term.startswith("xterm"):
+            return True
+        if term.startswith("screen"):
+            return True
+        if term == "linux":
+            return True
+        return False
+
+    def set(self, title):
+        if not self.is_supported():
+            return
+
+        if self.prefix is not None:
+            title = str(self.prefix) + title
+
+        sys.stdout.write("\33]0;" + title + "\a")
+        sys.stdout.flush()

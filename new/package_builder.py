@@ -13,7 +13,7 @@ from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
-    quote_all
+    quote_all, TerminalTitle
 from lib.scripting import Scripting
 
 
@@ -41,6 +41,7 @@ class PackageBuilder:
         self.github = GitHub()
         self.cache = Cache(os.path.join(data_dir, "builder-cache-%s.json" % self.branch), dict, {})
         self.scripting = Scripting()
+        self.terminal_title = TerminalTitle("Package builder: ")
 
     def build(self):
         begin = monotonic()
@@ -64,12 +65,18 @@ class PackageBuilder:
         self.updated_repos = []
         found = 0
         built = 0
+        counter = 0
+        total = 1 if self.single_package is not None else len(packages)
         for package in packages.values():
             found += 1
             if self.single_package is not None and self.single_package != package["package_name"]:
                 continue
 
-            logging.info("Processing package: %s" % package["package_name"])
+            counter += 1
+            message = "Processing package: %s (%s of %s)" % (package["package_name"], counter, total)
+            self.terminal_title.set(message)
+            logging.info(message)
+
             self.build_package(package)
             built += 1
 
@@ -84,6 +91,7 @@ class PackageBuilder:
             exit(1)
 
         elapsed = round(monotonic() - begin, 3)
+        self.terminal_title.set("Done")
         logging.info("Done in %s seconds, see the result in: %s" % (elapsed, self.apt.get_repo_dir()))
 
     def build_package(self, package):
