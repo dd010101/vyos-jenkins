@@ -28,6 +28,9 @@ class GitHub:
         # Some repositories have defined workflow, yet we don't want to build them
         # because they are for example obsolete and replaced by another package.
         self.blacklist = {
+            "current": [
+                "vyos/libpam-tacplus",
+            ],
             "circinus": [
                 "vyos/libpam-tacplus",
             ],

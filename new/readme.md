@@ -1,4 +1,4 @@
-New build method (currently only for **circinus - 1.5.x**)
+New build method (currently only for **circinus/1.5.x** or **current** branch)
 ==
 
 New build method was developed since the VyOS team dropped support for the Jenkins build method.
@@ -10,7 +10,7 @@ practically nothing in common.
 
 This quick start guide is made for Debian or Ubuntu (tested on Debian Bookworm and Ubuntu 24.04) but it can
 be easily adopted to any other distro that also uses the APT package manager. There is no real dependency
-on the distro so if you install dependencies manually then you can run this on any other system. 
+on the distro so if you install dependencies manually then you can run this on any other Linux system. 
 
 Build environment
 --

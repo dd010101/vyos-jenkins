@@ -236,7 +236,7 @@ if __name__ == "__main__":
         parser.add_argument("--single-package", help="Build only this package")
         parser.add_argument("--force-build", action="store_true", help="Force build even if package is up to date")
         parser.add_argument("--rescan-packages", action="store_true",
-                            help="Force package metadata scan even if last scan was short time ago")
+                            help="Force package metadata scan even if last scan was run recently")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
         scripting_info = "the current working directory is the repo of given package"
