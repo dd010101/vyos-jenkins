@@ -3,7 +3,7 @@ from json import JSONDecodeError
 import os
 
 
-class Cache:
+class ObjectStorage:
     _data = None
     _loaded = False
 

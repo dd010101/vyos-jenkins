@@ -12,7 +12,7 @@ import yaml
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
 
 from lib.helpers import setup_logging
-from lib.cache import Cache
+from lib.objectstorage import ObjectStorage
 from lib.helpers import refuse_root, data_dir
 
 
@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
             github = GitHub()
 
-            cache = Cache(os.path.join(data_dir, "github-vyos-cache.json"), dict, {})
+            cache = ObjectStorage(os.path.join(data_dir, "github-vyos-cache.json"), dict, {})
             repositories = cache.callback("repos", callback=lambda: github.find_org_repositories("vyos"))
 
             pprint(github.analyze_repositories_workflow("vyos", repositories, "circinus"))

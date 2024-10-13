@@ -7,7 +7,7 @@ from shlex import quote
 from time import time, monotonic
 
 from lib.apt import Apt
-from lib.cache import Cache
+from lib.objectstorage import ObjectStorage
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
@@ -39,7 +39,8 @@ class PackageBuilder:
         self.debranding = debranding
 
         self.github = GitHub()
-        self.cache = Cache(os.path.join(data_dir, "builder-cache-%s.json" % self.branch), dict, {})
+        self.build_data = ObjectStorage(os.path.join(data_dir, "builder-data-%s.json" % self.branch), dict, {})
+        self.package_cache = ObjectStorage(os.path.join(data_dir, "package-metadata-cache-%s.json" % self.branch), dict, {})
         self.scripting = Scripting()
         self.terminal_title = TerminalTitle("Package builder: ")
 
@@ -97,7 +98,7 @@ class PackageBuilder:
     def build_package(self, package):
         repo_name = package["repo_name"]
 
-        my_state = self.cache.get(package["package_name"], default={}, data_type=dict)
+        my_state = self.build_data.get(package["package_name"], default={}, data_type=dict)
         if "hash" not in my_state:
             my_state["hash"] = None
 
@@ -199,11 +200,11 @@ class PackageBuilder:
         if not self.skip_apt or new:
             self.apt.fill_apt_repository(dsc_files, binary_files)
 
-        self.cache.set(package["package_name"], my_state)
+        self.build_data.set(package["package_name"], my_state)
 
     def get_packages_metadata(self):
-        packages_timestamp = self.cache.get("packages_timestamp")
-        packages = self.cache.get("packages")
+        packages_timestamp = self.package_cache.get("packages_timestamp")
+        packages = self.package_cache.get("packages")
 
         if not packages_timestamp or not packages or packages_timestamp <= time() - 3600 * 24 or self.rescan_packages:
             logging.info("Fetching vyos repository list")
@@ -212,8 +213,8 @@ class PackageBuilder:
             logging.info("Analyzing package metadata")
             packages = self.github.analyze_repositories_workflow("vyos", repositories, self.branch)
 
-            self.cache.set("packages_timestamp", time())
-            self.cache.set("packages", packages)
+            self.package_cache.set("packages_timestamp", time())
+            self.package_cache.set("packages", packages)
 
         else:
             date = datetime.fromtimestamp(float(packages_timestamp)).astimezone().strftime("%Y-%m-%d %H:%M:%S")

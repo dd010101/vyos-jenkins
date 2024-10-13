@@ -7,7 +7,7 @@ import shutil
 
 import tomlkit
 
-from lib.cache import Cache
+from lib.objectstorage import ObjectStorage
 from lib.helpers import resources_dir, data_dir
 
 
@@ -20,7 +20,7 @@ class Debranding:
     logged = False
 
     def __init__(self):
-        self.cache = Cache(os.path.join(data_dir, "debranding-cache.json"), dict, {})
+        self.cache = ObjectStorage(os.path.join(data_dir, "debranding-cache.json"), dict, {})
 
     def populate_cli_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument("--keep-branding", action="store_true", help="Keep VyOS branding as opposite to debranding")
