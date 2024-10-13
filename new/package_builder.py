@@ -233,20 +233,21 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
         parser.add_argument("--single-package", help="Build only this package")
-        parser.add_argument("--dirty-build", action="store_true",
-                            help="Build with reused sources - don't clone fresh sources")
-        parser.add_argument("--ignore-missing-binaries", action="store_true")
-        parser.add_argument("--skip-build", action="store_true")
-        parser.add_argument("--skip-apt", action="store_true")
-        parser.add_argument("--force-build", action="store_true")
-        parser.add_argument("--rescan-packages", action="store_true")
+        parser.add_argument("--force-build", action="store_true", help="Force build even if package is up to date")
+        parser.add_argument("--rescan-packages", action="store_true",
+                            help="Force package metadata scan even if last scan was short time ago")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
         scripting_info = "the current working directory is the repo of given package"
         scripting_info += ", available environment variables: VYOS_BUILD_BRANCH, VYOS_BUILD_PACKAGE_NAME"
         parser.add_argument("--pre-build-hook", help="Script to execute before build, %s" % scripting_info)
-
         debranding.populate_cli_parser(parser)
+        parser.add_argument("--dirty-build", action="store_true",
+                            help="DEV - Build with reused sources (don't clone fresh sources) for existing packages")
+        parser.add_argument("--ignore-missing-binaries", action="store_true",
+                            help="DEV - Don't terminate when missing binaries are detected")
+        parser.add_argument("--skip-build", action="store_true", help="DEV - Skip build stage for existing packages")
+        parser.add_argument("--skip-apt", action="store_true", help="DEV - Skip reprepro stage for existing packages")
 
         args = parser.parse_args()
         values = vars(args)

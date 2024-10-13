@@ -227,17 +227,16 @@ if __name__ == "__main__":
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
         parser.add_argument("--extra-options", help="Extra options for the build-vyos-image")
-        parser.add_argument("--flavor", default="generic")
-        parser.add_argument("--build-by", default="myself@localhost")
-        parser.add_argument("--version", default="auto")
-        parser.add_argument("--bind-addr", help="Bind local webserver to static address instead of automatic")
-        parser.add_argument("--bind-port", type=int, help="Bind local webserver to static port instead of random")
-        parser.add_argument("--keep-build", action="store_true", help="Keep previous vyos-build repository")
+        parser.add_argument("--flavor", default="generic", help="The build FLAVOR of build-vyos-image")
+        parser.add_argument("--build-by", default="myself@localhost", help="The --build-by of build-vyos-image")
+        parser.add_argument("--version", default="auto", help="The --version of build-vyos-image")
         scripting_info = "the current working directory is the vyos-build repo used to build the image"
         scripting_info += ",  available environment variables: VYOS_BUILD_BRANCH, VYOS_BUILD_VERSION, VYOS_BUILD_FLAVOR"
         parser.add_argument("--pre-build-hook", help="Script to execute before build, %s" % scripting_info)
-
         debranding.populate_cli_parser(parser)
+        parser.add_argument("--bind-addr", help="Bind local webserver to static address instead of automatic")
+        parser.add_argument("--bind-port", type=int, help="Bind local webserver to static port instead of random")
+        parser.add_argument("--keep-build", action="store_true", help="DEV - Keep previous vyos-build repository")
 
         args = parser.parse_args()
         values = vars(args)
