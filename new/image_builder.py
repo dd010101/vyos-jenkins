@@ -16,7 +16,7 @@ import netifaces
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
-from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir
+from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir, TerminalTitle
 from lib.scripting import Scripting
 
 
@@ -46,8 +46,10 @@ class ImageBuilder:
 
         self.cwd = os.getcwd()
         self.scripting = Scripting()
+        self.terminal_title = TerminalTitle("Image builder: ")
 
     def build(self):
+        self.terminal_title.set("Preparation...")
         begin = monotonic()
         if self.vyos_mirror == "local":
             vyos_mirror = self.start_local_apt_webserver()
@@ -122,6 +124,8 @@ class ImageBuilder:
             apt_key_path = os.path.join(apt_dir, "apt.gpg.key")
             extra_mounts.append((apt_key_path, "/opt/apt.gpg.key"))
 
+        self.terminal_title.set("Building '%s' image..." % self.branch)
+
         self.docker.run(
             command=build_image_command,
             work_dir="/vyos",
@@ -141,6 +145,7 @@ class ImageBuilder:
             image_path = os.path.join(my_build_dir, "live-image-amd64.hybrid.iso")
 
         if not os.path.exists(image_path):
+            self.terminal_title.set("ERROR")
             logging.error(
                 "Build failed (image not found), see log above for reason why"
                 ", inspect build here: %s"
@@ -153,7 +158,9 @@ class ImageBuilder:
             shutil.copy2(image_path, new_image_path)
 
         elapsed = round(monotonic() - begin, 3)
-        logging.info("Done in %s seconds, image is available here: %s" % (elapsed, new_image_path))
+        message = "Done in %s seconds" % elapsed
+        self.terminal_title.set(message)
+        logging.info("%s, image is available here: %s" % (message, new_image_path))
 
     def start_local_apt_webserver(self):
         address = self.get_local_ip() if not self.bind_addr else self.bind_addr
@@ -244,7 +251,11 @@ if __name__ == "__main__":
         debranding.extract_cli_values(values)
 
         builder = ImageBuilder(debranding=debranding, **values)
-        builder.build()
+        try:
+            builder.build()
+        except Exception:
+            builder.terminal_title.set("ERROR")
+            raise
 
     except KeyboardInterrupt:
         exit(1)

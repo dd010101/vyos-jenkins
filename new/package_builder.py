@@ -45,6 +45,7 @@ class PackageBuilder:
         self.terminal_title = TerminalTitle("Package builder: ")
 
     def build(self):
+        self.terminal_title.set("Preparation...")
         begin = monotonic()
         if self.single_package is not None:
             logging.info("Executing single package build of %s" % self.single_package)
@@ -82,6 +83,7 @@ class PackageBuilder:
             built += 1
 
         if built == 0:
+            self.terminal_title.set("ERROR")
             if self.single_package is not None:
                 logging.error("Specified --single-package=%s was not found" % self.single_package)
             else:
@@ -92,8 +94,9 @@ class PackageBuilder:
             exit(1)
 
         elapsed = round(monotonic() - begin, 3)
-        self.terminal_title.set("Done")
-        logging.info("Done in %s seconds, see the result in: %s" % (elapsed, self.apt.get_repo_dir()))
+        message = "Done in %s seconds" % elapsed
+        self.terminal_title.set(message)
+        logging.info(message)
 
     def build_package(self, package):
         repo_name = package["repo_name"]
@@ -256,7 +259,11 @@ if __name__ == "__main__":
         debranding.extract_cli_values(values)
 
         builder = PackageBuilder(debranding=debranding, **values)
-        builder.build()
+        try:
+            builder.build()
+        except Exception:
+            builder.terminal_title.set("ERROR")
+            raise
 
     except KeyboardInterrupt:
         exit(1)
