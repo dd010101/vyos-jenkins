@@ -37,6 +37,14 @@ Everyone is encouraged to build their own repository but if you just want to try
 will for you then you can take shortcut and use this repository directly as opposite to building your own.
 See the repository page for examples how to use it, it's very similar to the original Docker build with few extra bits.
 
+
+Changes coming soon
+---
+
+Based on the changes from the VyOS project a new build method without Jenkins is coming soon.
+Currently available only for **circinus/1.5.x** or **current** branch, but it's expected to be implemented 
+by the VyOS team also for **sagitta** eventually. First implementation is available in the **[./new](new)** directory.
+
 Making your own repository
 --
 
