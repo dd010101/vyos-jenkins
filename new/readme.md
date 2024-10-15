@@ -1,4 +1,4 @@
-New build method (currently only for **circinus/1.5.x** or **current** branch)
+New build method (only for **circinus/1.5.x** or **current** branch)
 ==
 
 New build method was developed since the VyOS team dropped support for the Jenkins build method.

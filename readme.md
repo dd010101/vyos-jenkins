@@ -1,3 +1,16 @@
+The end
+==
+
+**The open-source era of LTS/stable branches is coming to an end.
+The VyOS team [already moved](https://vyos.dev/T6781) the development of LTS branches to private organization, 
+and they will not publish the LTS/stables branches on their public GitHub anymore, the only people who can 
+receive the copy of LTS source code are those who receive the binaries thus only those who obtain subscription.**
+
+**The only public branches will be the `current` and whatever branch is in the stream phase (today the `circinus`).
+Thus moving forward only those branches can be built up to date.**
+
+------
+
 Prologue
 --
 
@@ -18,8 +31,9 @@ repository.
 
 You want to continue to use VyOS long term? Then you can switch to current/development branch if you think
 that's good idea for your use case. If you like to use stable branch then you would need to obtain
-[VyOS subscription](https://vyos.io/subscriptions/support). The only other option currently is to build your own
-`dev.packages.vyos.net` package repository and that's what this project is all about.
+[VyOS subscription](https://vyos.io/subscriptions/support). ~~The only other option currently is to build your own
+`dev.packages.vyos.net` package repository and that's what this project is all about.~~
+There is no other option anymore.
 
 Purpose
 --
@@ -38,12 +52,11 @@ will for you then you can take shortcut and use this repository directly as oppo
 See the repository page for examples how to use it, it's very similar to the original Docker build with few extra bits.
 
 
-Changes coming soon
+The circinus
 ---
 
-Based on the changes from the VyOS project a new build method without Jenkins is coming soon.
-Currently available only for **circinus/1.5.x** or **current** branch, but it's expected to be implemented 
-by the VyOS team also for **sagitta** eventually. First implementation is available in the **[./new](new)** directory.
+Based on the changes from the VyOS project a new build method without Jenkins exists but only
+for **circinus/1.5.x** or **current** branch. Implementation is available in the **[./new](new)** directory.
 
 Making your own repository
 --
