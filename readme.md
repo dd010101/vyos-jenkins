@@ -1,4 +1,4 @@
-The end
+The end of public LTS
 ==
 
 **The open-source era of LTS/stable branches is coming to an end.
@@ -9,7 +9,29 @@ receive the copy of LTS source code are those who receive the binaries thus only
 **The only public branches will be the `current` and whatever branch is in the stream phase (today the `circinus`).
 Thus moving forward only those branches can be built up to date.**
 
-------
+Purpose
+--
+
+This project can be used to build up-to-date packages/images of **stream** (currently **1.5.x circinus**). 
+As of now the official APT of circinus isn't public either so if you want to build custom images you need to
+build packages first and currently there isn't official way to build those packages either.
+
+You can still build equuleus/sagitta packages/images, yet they will be frozen in time and won't get any updates from
+the VyOS side. Thus, new builds will get incomplete bug/security updates - only the packages that are from
+Debian repositories will be updated.
+
+The stream/circinus
+---
+
+If you are interested in the **stream** (currently **1.5.x circinus**) then can build your own 
+packages/images via the scripts in the **[./new](new)** directory.
+
+
+The legacy
+==
+
+**The build scripts for equuleus/sagitta should still work but the source code isn't updated anymore.
+The version of these branches is frozen in time.**
 
 Prologue
 --
@@ -33,30 +55,7 @@ You want to continue to use VyOS long term? Then you can switch to current/devel
 that's good idea for your use case. If you like to use stable branch then you would need to obtain
 [VyOS subscription](https://vyos.io/subscriptions/support). ~~The only other option currently is to build your own
 `dev.packages.vyos.net` package repository and that's what this project is all about.~~
-There is no other option anymore.
-
-Purpose
---
-
-The goal of this project is to reproduce package repositories of stable branches formerly available at
-`dev.packages.vyos.net` and currently it's possible to use the automated scripts or the manual guide to reproduce
-the package repositories for **1.3.x equuleus** and **1.4.x sagitta**. The package repositories allow you to build
-*LTS* ISO with the usual slightly modified way.
-
-Result
---
-
-The result of this project is APT repository like this one https://vyos.tnyzeq.icu/ (hosted by dd010101).
-Everyone is encouraged to build their own repository but if you just want to try and see if the resulting image
-will for you then you can take shortcut and use this repository directly as opposite to building your own.
-See the repository page for examples how to use it, it's very similar to the original Docker build with few extra bits.
-
-
-The circinus
----
-
-Based on the changes from the VyOS project a new build method without Jenkins exists but only
-for **circinus/1.5.x** or **current** branch. Implementation is available in the **[./new](new)** directory.
+**There is no other option anymore.**
 
 Making your own repository
 --
@@ -195,8 +194,7 @@ There are two logs you should check for pointers.
 
 If you face errors that don't make sense then it's likely your docker container is outdated or your Jenkins
 configuration is missing some pieces. Thus, as first thing you can try to rebuild the
-[docker container](#build-patched-vyos-build-docker-images) and if that doesn't help then verify all the Jenkins
-configuration is in its place.
+docker container and if that doesn't help then verify all the Jenkins configuration is in its place.
 
 Smoketest
 --
