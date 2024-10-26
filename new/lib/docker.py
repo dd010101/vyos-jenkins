@@ -75,7 +75,7 @@ class Docker:
 
     def run(self, command, work_dir="/vyos", extra_mounts=None, passthrough=True, log_command=None):
         pieces: list = [
-            "docker run --rm -it",
+            "docker run --rm -t",
         ]
 
         if os.path.exists(self.vyos_mount_dir):
