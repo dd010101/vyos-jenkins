@@ -35,6 +35,14 @@
                 color: #c90000;
             }
 
+            .warning {
+                margin: 30px 0;
+                padding: 30px 0 0 0;
+                border-top: 2px solid #eee;
+                color: #c90000;
+                font-size: 24px;
+            }
+
             @media (max-width: 767.98px) {
                 body {
                     padding: 0;
@@ -67,12 +75,7 @@
 
         <p>
             Source code of provided packages can be found in the
-            <a href="https://github.com/vyos">VyOS™ GitHub project</a>. Some packages are built from
-            <a href="https://github.com/dd010101/vyos-build">dd010101/vyos-build</a> fork and also
-            <a href="https://github.com/dd010101/vyos-missing">dd010101/vyos-missing</a> repository.
-            <br>
-            You can refer to the <a href="https://github.com/dd010101/vyos-jenkins/blob/master/extras/packages.md">vyos-jenkins/extras/packages.md</a>
-            for the corresponding GIT repository and build script location for each package.
+            <a href="https://github.com/vyos">VyOS™ GitHub project</a>.
             <br>
             Build scripts and instructions how to build your own package repository can be found in the
             <a href="https://github.com/dd010101/vyos-jenkins/tree/master?tab=readme-ov-file">dd010101/vyos-jenkins</a>
@@ -103,6 +106,63 @@
             <a href="https://docs.docker.com/engine/install/"><b>Docker</b></a>
             and <b>git</b>
             is required for the build.
+        </p>
+
+        <p>Complete build script for <b>circinus</b>:</p>
+
+        <pre><code>#!/usr/bin/env bash
+set -e
+
+<b>wget [REPOSITORY_URL]/apt.gpg.key -O /tmp/apt.gpg.key</b>
+
+rm -rf vyos-build/
+git clone -b circinus --single-branch https://github.com/vyos/vyos-build.git
+
+# temporary workaround for broken generic flavor
+sed -i 's/vyos-xe-guest-utilities/xen-guest-agent/' vyos-build/data/build-flavors/generic.toml
+
+version="1.5.x"
+
+docker pull vyos/vyos-build:circinus
+docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
+    --sysctl net.ipv6.conf.lo.disable_ipv6=0 <b>-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"</b> -w /vyos vyos/vyos-build:circinus \
+    sudo --preserve-env ./build-vyos-image generic \
+        --architecture amd64 \
+        --build-by "myself@localhost" \
+        --build-type release \
+        --debian-mirror http://deb.debian.org/debian/ \
+        --version "$version" \
+        <b>--vyos-mirror "[REPOSITORY_URL]/circinus"</b> \
+        <b>--custom-apt-key /opt/apt.gpg.key</b> \
+        --custom-package "vyos-1x-smoketest"
+
+if [ -f vyos-build/build/live-image-amd64.hybrid.iso ]; then
+    iso="vyos-$version-amd64.iso"
+    cp vyos-build/build/live-image-amd64.hybrid.iso "$iso"
+    echo "Build successful - $iso"
+else
+    >&2 echo "ERROR: ISO not found, something is wrong - see previous messages for what failed"
+    exit 1
+fi</code></pre>
+
+        <div class="warning">WARNING: The <b>equuleus</b> and <b>sagitta</b> aren't updated anymore!</div>
+        <p>
+            <b>
+                The VyOS™ team decided they won't publish the source for these
+                branches to their public repositories anymore.
+                <br>
+                Thus, the version of these branches is frozen in time, and they won't get any updates.
+            </b>
+        </p>
+
+        <p>
+            Source code of provided packages can be found in the
+            <a href="https://github.com/vyos">VyOS™ GitHub project</a>. Some packages are built from
+            <a href="https://github.com/dd010101/vyos-build">dd010101/vyos-build</a> fork and also
+            <a href="https://github.com/dd010101/vyos-missing">dd010101/vyos-missing</a> repository.
+            <br>
+            You can refer to the <a href="https://github.com/dd010101/vyos-jenkins/blob/master/extras/packages.md">vyos-jenkins/extras/packages.md</a>
+            for the corresponding GIT repository and build script location for each package.
         </p>
 
         <p>Complete build script for <b>equuleus</b>:</p>
@@ -165,43 +225,6 @@ docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -e GOSU_
         --debian-mirror http://deb.debian.org/debian/ \
         --version "$version" \
         <b>--vyos-mirror "[REPOSITORY_URL]/sagitta"</b> \
-        <b>--custom-apt-key /opt/apt.gpg.key</b> \
-        --custom-package "vyos-1x-smoketest"
-
-if [ -f vyos-build/build/live-image-amd64.hybrid.iso ]; then
-    iso="vyos-$version-amd64.iso"
-    cp vyos-build/build/live-image-amd64.hybrid.iso "$iso"
-    echo "Build successful - $iso"
-else
-    >&2 echo "ERROR: ISO not found, something is wrong - see previous messages for what failed"
-    exit 1
-fi</code></pre>
-
-        <p>Complete build script for <b>circinus</b>:</p>
-
-        <pre><code>#!/usr/bin/env bash
-set -e
-
-<b>wget [REPOSITORY_URL]/apt.gpg.key -O /tmp/apt.gpg.key</b>
-
-rm -rf vyos-build/
-git clone -b circinus --single-branch https://github.com/vyos/vyos-build.git
-
-# temporary workaround for broken generic flavor
-sed -i 's/vyos-xe-guest-utilities/xen-guest-agent/' vyos-build/data/build-flavors/generic.toml
-
-version="1.5.x"
-
-docker pull vyos/vyos-build:circinus
-docker run --rm --privileged --name="vyos-build" -v ./vyos-build/:/vyos -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
-    --sysctl net.ipv6.conf.lo.disable_ipv6=0 <b>-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"</b> -w /vyos vyos/vyos-build:circinus \
-    sudo --preserve-env ./build-vyos-image generic \
-        --architecture amd64 \
-        --build-by "myself@localhost" \
-        --build-type release \
-        --debian-mirror http://deb.debian.org/debian/ \
-        --version "$version" \
-        <b>--vyos-mirror "[REPOSITORY_URL]/circinus"</b> \
         <b>--custom-apt-key /opt/apt.gpg.key</b> \
         --custom-package "vyos-1x-smoketest"
 
