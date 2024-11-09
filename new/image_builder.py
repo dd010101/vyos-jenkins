@@ -83,6 +83,14 @@ class ImageBuilder:
             file.write(contents)
             file.truncate()
 
+        # TODO: remove me, another temporary hack until vyos-build is fixed
+        with open(os.path.join(git.repo_path, "data/architectures/amd64.toml"), "r+") as file:
+            contents = file.read()
+            contents = contents.replace("https://repo.saltproject.io/py3", "https://packages.vyos.net/saltproject")
+            file.seek(0)
+            file.write(contents)
+            file.truncate()
+
         version = self.version
         if version == "auto":
             if self.branch in self.version_mapping:
