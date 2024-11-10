@@ -1,13 +1,17 @@
 The end of public LTS
 ==
 
-**The open-source era of LTS/stable branches is coming to an end.
+**The open era of LTS/stable branches is coming to an end.
 The VyOS team [already moved](https://vyos.dev/T6781) the development of LTS branches to private organization, 
 and they will not publish the LTS/stables branches on their public GitHub anymore, the only people who can 
 receive the copy of LTS source code are those who receive the binaries thus only those who obtain subscription.**
 
 **The only public branches will be the `current` and whatever branch is in the stream phase (today the `circinus`).
 Thus moving forward only those branches can be built up to date.**
+
+Although currently even the stream wasn't released yet. Thus, all branches are stale, including the circinus.
+Originally the release was planned in October. There wasn't update since then. The only side comment about the 
+stream was that it's "low priority". The state of stream is unknown.
 
 Purpose
 --
