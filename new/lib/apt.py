@@ -47,7 +47,7 @@ class Apt:
     def initialize_repository(self):
         pub_keyring_path = os.path.join(self.gpg_keyring_path, "pubring.kbx")
         if not os.path.exists(pub_keyring_path):
-            logging.info("Generating GPG singing key")
+            logging.info("Generating GPG signing key")
             material_path = os.path.join(resources_dir, "gpg-gen-key.txt")
             execute("gpg --homedir %s --batch --gen-key < %s" % quote_all(self.gpg_keyring_path, material_path))
 
