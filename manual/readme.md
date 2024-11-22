@@ -302,7 +302,7 @@ Install some packages:
 apt install reprepro gpg
 ```
 
-Generate GPG singing key (without passphrase):
+Generate GPG signing key (without passphrase):
 
 ```bash
 sudo -u jenkins gpg --pinentry-mode loopback --full-gen-key
@@ -525,7 +525,7 @@ Mirror preparation
 --
 
 Use the default procedure to build ISO (via docker) but you need to specify your `--vyos-mirror` and your gpg
-singing key `--custom-apt-key`.
+signing key `--custom-apt-key`.
 
 To make `--vyos-mirror` is easy, you just install your favorite webserver and point the webroot
 to `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/`. For example nginx vhost looks
@@ -557,7 +557,7 @@ server {
 
 This will give you HTTP APT repository, like this `http://172.17.17.17/equuleus`.
 
-To create `--custom-apt-key` you need to export your gpg singing public key, for example:
+To create `--custom-apt-key` you need to export your gpg signing public key, for example:
 
 ```bash
 sudo -u jenkins gpg --armor --output /home/sentrium/web/dev.packages.vyos.net/public_html/repositories/apt.gpg.key \
@@ -567,7 +567,7 @@ sudo -u jenkins gpg --armor --output /home/sentrium/web/dev.packages.vyos.net/pu
 This will give you `/home/sentrium/web/dev.packages.vyos.net/public_html/repositories/apt.gpg.key` or
 `http://172.17.17.17/apt.gpg.key`.
 
-If you have the `--vyos-mirror` URL of your own repository and your own singing key `--custom-apt-key` then you
+If you have the `--vyos-mirror` URL of your own repository and your own signing key `--custom-apt-key` then you
 can use these two pieces to build ISO from your own package mirror.
 
 How to build ISO
@@ -637,7 +637,7 @@ docker build -t "vyos/vyos-build:$BRANCH" docker
 You should rebuild the container from time to time - not very frequently but sometimes the build will break
 if you have too old container.
 
-**Obtain apt singing key for your custom mirror**
+**Obtain apt signing key for your custom mirror**
 
 ```bash
 wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
@@ -645,7 +645,7 @@ wget http://172.17.17.17/apt.gpg.key -O /tmp/apt.gpg.key
 
 **Launch the vyos-build docker container**
 
-This is the usual run command from official documentation, we need to add extra mount for our apt singing key
+This is the usual run command from official documentation, we need to add extra mount for our apt signing key
 for later use via `-v "/tmp/apt.gpg.key:/opt/apt.gpg.key"`.
 
 The docker run command will mount current working directory for use inside the container that's why you need to
