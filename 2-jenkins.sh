@@ -89,7 +89,7 @@ if ([ ! -f $USERNAME_FILE ] || [ ! -f $TOKEN_FILE ]); then
   echo
   echo "If you already have generated a token, and know it, skip this step and just enter it below instead of creating a new one."
   echo -e "Once you reach the Welcome page, please go to one of these URLs:"
-  PrintUrls "/user/$USERNAME/configure"
+  PrintUrls "/user/$USERNAME/security"
   echo -e "Here you click the \"${GREEN}Add new Token${NOCOLOR}\" button, followed by the \"${GREEN}Generate${NOCOLOR}\" button (leave the text field empty)."
   echo
   read -p "Please enter the generated token here, and press enter: " TOKEN
