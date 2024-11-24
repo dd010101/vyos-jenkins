@@ -261,7 +261,7 @@ else
     -i "//scm" -t attr -n "class" -v "jenkins.plugins.git.GitSCMSource" \
     -i "//scm" -t attr -n "plugin" -v "git@5.2.2" \
     -s "//scm" -t elem -n "id" -v "9d202e32-1889-4391-91e5-1b3445f035fd" \
-    -s "//scm" -t elem -n "remote" -v "https://github.com/dd010101/vyos-build.git" \
+    -s "//scm" -t elem -n "remote" -v "https://github.com/notvyos/vyos-build.git" \
     -s "//scm" -t elem -n "credentialsId" \
     -s "//scm" -t elem -n "traits" \
     -s "//traits" -t elem -n "jenkins.plugins.git.traits.BranchDiscoveryTrait" \

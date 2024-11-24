@@ -14,7 +14,7 @@ if [ -d uncron ]; then
   git pull > /dev/null 2>&1
 else
   echo "Cloning Uncron git repository..."
-  git clone https://github.com/vyos/uncron.git > /dev/null 2>&1
+  git clone https://github.com/notvyos/uncron.git > /dev/null 2>&1
   cd uncron
 fi
 

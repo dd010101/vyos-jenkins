@@ -1,9 +1,7 @@
-Option 2: Manual guide
+Manual guide
 ==
 
-All following sections describe manual guide - if you use the automated scripts, then you
-don't need this information unless you face some issue, then this information is helpful to understand
-how things work and how to debug them.
+**No longer updated.** It's recommended to use automated scripts instead.
 
 General expectations
 --

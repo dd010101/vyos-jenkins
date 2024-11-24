@@ -32,7 +32,7 @@ if [ -d vyos-build ]; then
 fi
 
 echo "Cloning the VyOS build repository..."
-git clone -q https://github.com/dd010101/vyos-build > /dev/null
+git clone -q https://github.com/notvyos/vyos-build > /dev/null
 pushd vyos-build > /dev/null
 
 echo "Checking out the $BRANCH branch..."
@@ -77,7 +77,7 @@ popd > /dev/null
 
 function GetLatestTag {
   # Clone the vyos-1x repo
-  git clone -q --bare https://github.com/vyos/vyos-1x.git -b $1 temp-git-tag > /dev/null
+  git clone -q --bare https://github.com/notvyos/vyos-1x.git -b $1 temp-git-tag > /dev/null
   pushd temp-git-tag > /dev/null
 
   # The the latest tag for this branch

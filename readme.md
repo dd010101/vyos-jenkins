@@ -34,8 +34,7 @@ packages/images via the scripts in the **[./new](new)** directory.
 The legacy
 ==
 
-**The build scripts for equuleus/sagitta should still work but the source code isn't updated anymore.
-The version of these branches is frozen in time.**
+**The build scripts for equuleus/sagitta should still work but the source code isn't updated anymore.**
 
 Prologue
 --
@@ -85,16 +84,10 @@ The hardware requirements are significant:
 The builds are memory hungry, but you don't need 16GB of physical RAM. You can have large swap to compensate,
 and you will still get good performance this way since the above 8GB threshold is reached only few times by few builds.
 
-### Multiple options
+### The scripts
 
-Thanks to work of [@GurliGebis](https://github.com/GurliGebis) we now can use automated scripts instead of the legacy
-manual guide. The manual guide is deprecated and available for historical purposes here
-[manual/readme.md](./manual/readme.md). The automated scripts are now preferred method.
-
-### Automated scripts
-
-The automated scripts execute all manual steps with minimal interaction. The process is divided into 8 steps/scripts.
-These 8 scripts configure Jenkins, prepare the package repositories, build the packages and there is also one
+The scripts execute all required steps with minimal interaction. The process is divided into 8 steps/scripts that
+configure Jenkins, prepare the package repositories, build the packages and there is also one
 additional script to build ISO.
 
 #### Obtain the scripts
@@ -227,7 +220,7 @@ with the ISO in the `build` directory with the default name.
 Clone the `vyos-build` repo:
 
 ```bash
-git clone https://github.com/dd010101/vyos-build.git
+git clone https://github.com/notvyos/vyos-build.git
 cd vyos-build
 ```
 
