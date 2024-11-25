@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# just to be sure
+sudo apt-get update
+
 # generic .deb packages
 if [ -d debian ]; then
   if [ -f debian/control ]; then

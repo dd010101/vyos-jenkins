@@ -2,6 +2,9 @@
 set -e
 package_name="$1"
 
+# just to be sure
+sudo apt-get update
+
 my_script="/my-build-scripts/$package_name.sh"
 if [ -f "$my_script" ]; then
   $my_script
