@@ -780,3 +780,14 @@ function EnsureStageIsComplete {
     exit 1
   fi
 }
+
+function FixJenkinsGlobalLibraryRepository {
+    if grep -q "https://github.com/dd010101/vyos-build.git" "$JENKINS_GLOBALLIBRARIES_FILE"; then
+      echo "WARNING: Found outdated Jenkins Global Library, updating now..."
+      StopJenkins
+      sed -i 's@dd010101/vyos-build.git@notvyos/vyos-build.git@' "$JENKINS_GLOBALLIBRARIES_FILE"
+      StartJenkins
+      return 1
+    fi
+    return 0
+}

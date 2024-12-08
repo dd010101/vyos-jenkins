@@ -31,6 +31,9 @@ EnsureJenkinsCli
 # Test the connection to make sure Jenkins is ready.
 TestJenkinsConnection $USERNAME $TOKEN
 
+# Make sure Jenkins Global Library is ready
+FixJenkinsGlobalLibraryRepository
+
 echo
 
 # Provision the jobs.

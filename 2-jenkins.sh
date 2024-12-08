@@ -242,8 +242,10 @@ fi
 
 # Is the Global Libraries configured?
 if grep -q "vyos-build" $JENKINS_GLOBALLIBRARIES_FILE; then
-  # Yep.
-  PrintOkIndicator "Global libraries are already configured."
+  if FixJenkinsGlobalLibraryRepository; then
+    # Yep.
+    PrintOkIndicator "Global libraries are already configured."
+  fi
 else
   # Nope, so we stop Jenkins
   StopJenkins
