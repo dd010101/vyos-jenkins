@@ -196,6 +196,13 @@
     "jenkinsfilePath": "packages/pam_tacplus/Jenkinsfile"
   },
   {
+    "name": "pdns-recursor",
+    "description": "equuleus-only",
+    "gitUrl": "https://github.com/dd010101/vyos-missing.git",
+    "branchRegex": "equuleus",
+    "jenkinsfilePath": "packages/pdns-recursor/Jenkinsfile"
+  },
+  {
     "name": "pmacct",
     "description": "sagitta-only",
     "gitUrl": "https://github.com/notvyos/vyos-build.git",
