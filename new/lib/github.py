@@ -30,9 +30,11 @@ class GitHub:
         self.blacklist = {
             "current": [
                 "vyos/libpam-tacplus",
+                "vyos/gh-action-test-vyos-1x",
             ],
             "circinus": [
                 "vyos/libpam-tacplus",
+                "vyos/gh-action-test-vyos-1x",
             ],
         }
 
