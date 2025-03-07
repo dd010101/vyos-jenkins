@@ -42,7 +42,8 @@ class PackageBuilder:
         self.pre_build_hook = pre_build_hook
         self.debranding = debranding
 
-        self.github = GitHub()
+        self.vyos_stream_mode = self.clone_org != "vyos"
+        self.github = GitHub(self.vyos_stream_mode)
         self.build_data = ObjectStorage(
             os.path.join(data_dir, "builder-data-%s.json" % self.branch), dict, {}
         )
@@ -69,8 +70,7 @@ class PackageBuilder:
 
         logging.info("Pulling vyos-build docker image")
         vyos_build_repo = os.path.join(os.path.join(self.my_build_dir, "vyos-build"))
-        vyos_stream_mode = self.clone_org != "vyos"
-        self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo, vyos_stream_mode)
+        self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo, self.vyos_stream_mode)
         self.docker.pull()
 
         self.updated_repos = []

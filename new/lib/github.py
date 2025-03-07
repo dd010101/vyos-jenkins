@@ -24,7 +24,7 @@ class GitHub:
             3) construct package metadata from workflow definition
     """
 
-    def __init__(self):
+    def __init__(self, vyos_stream_mode=False):
         # Some repositories have defined workflow, yet we don't want to build them
         # because they are for example obsolete and replaced by another package.
         self.blacklist = {
@@ -63,6 +63,10 @@ class GitHub:
                     "change_patterns": ["*"],
                     "git_url": "https://github.com/vyos/libnss-mapuser.git",
                 },
+            },
+        }
+        if vyos_stream_mode:
+            self.extra_packages["circinus"].update({
                 "vyos-build-libpam-radius-auth": {
                     "repo_name": "vyos-build",
                     "branch": "circinus",
@@ -72,8 +76,7 @@ class GitHub:
                     "change_patterns": ["scripts/package-build/libpam-radius-auth/**"],
                     "git_url": "https://github.com/vyos/vyos-build.git",
                 },
-            },
-        }
+            })
 
     def analyze_repositories_workflow(self, org_name, repositories, branch):
         my_blacklist = self.blacklist[branch] if branch in self.blacklist else []
