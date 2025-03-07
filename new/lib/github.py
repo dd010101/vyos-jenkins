@@ -159,7 +159,7 @@ class GitHub:
             for extra_package, info in self.extra_packages[branch].items():
                 packages[extra_package] = info
 
-        packages = dict(sorted(packages.items()))
+        packages = dict(sorted(packages.items(), key=lambda item: item[1]["package_name"]))
         return packages
 
     def find_org_repositories(self, name):
