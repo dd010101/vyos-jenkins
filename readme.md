@@ -9,10 +9,6 @@ receive the copy of LTS source code are those who receive the binaries thus only
 **The only public branches will be the `current` and whatever branch is in the stream phase (today the `circinus`).
 Thus moving forward only those branches can be built up to date.**
 
-Although currently even the stream wasn't released yet. Thus, all branches are stale, including the circinus.
-Originally the release was planned in October. There wasn't update since then. The only side comment about the 
-stream was that it's "low priority". The state of stream is unknown.
-
 Purpose
 --
 

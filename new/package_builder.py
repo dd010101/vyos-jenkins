@@ -3,17 +3,18 @@ import argparse
 from datetime import datetime
 import logging
 import os.path
+import re
 from shlex import quote
 from time import time, monotonic
 
 from lib.apt import Apt
-from lib.objectstorage import ObjectStorage
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
     quote_all, TerminalTitle
+from lib.objectstorage import ObjectStorage
 from lib.scripting import Scripting
 
 
@@ -24,9 +25,12 @@ class PackageBuilder:
     apt = None
     docker = None
 
-    def __init__(self, branch, single_package, dirty_build, ignore_missing_binaries, skip_build, skip_apt,
-                 force_build, vyos_build_docker, rescan_packages, pre_build_hook, debranding: Debranding):
+    def __init__(self, branch, analyze_org, clone_org, single_package, dirty_build, ignore_missing_binaries,
+                 skip_build, skip_apt, force_build, vyos_build_docker, rescan_packages, pre_build_hook,
+                 debranding: Debranding):
         self.branch = branch
+        self.analyze_org = analyze_org
+        self.clone_org = clone_org
         self.single_package = single_package
         self.dirty_build = dirty_build
         self.ignore_missing_binaries = ignore_missing_binaries
@@ -39,8 +43,12 @@ class PackageBuilder:
         self.debranding = debranding
 
         self.github = GitHub()
-        self.build_data = ObjectStorage(os.path.join(data_dir, "builder-data-%s.json" % self.branch), dict, {})
-        self.package_cache = ObjectStorage(os.path.join(data_dir, "package-metadata-cache-%s.json" % self.branch), dict, {})
+        self.build_data = ObjectStorage(
+            os.path.join(data_dir, "builder-data-%s.json" % self.branch), dict, {}
+        )
+        self.package_cache = ObjectStorage(
+            os.path.join(data_dir, "package-metadata-cache-%s.json" % self.branch), dict, {}
+        )
         self.scripting = Scripting()
         self.terminal_title = TerminalTitle("Package builder: ")
 
@@ -61,7 +69,8 @@ class PackageBuilder:
 
         logging.info("Pulling vyos-build docker image")
         vyos_build_repo = os.path.join(os.path.join(self.my_build_dir, "vyos-build"))
-        self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo)
+        vyos_stream_mode = self.clone_org != "vyos"
+        self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo, vyos_stream_mode)
         self.docker.pull()
 
         self.updated_repos = []
@@ -113,7 +122,13 @@ class PackageBuilder:
                 os.makedirs(repo_path)
             repo_path = os.path.join(repo_path, "sources")
 
+        git_url = re.sub(r"github\.com/[^/]+", "github.com/%s" % self.clone_org, package["git_url"])
         git = Git(repo_path)
+
+        if git.exists() and self.clone_org not in git.get_remote_url("origin"):
+            git.set_remote_url("origin", git_url)
+            git.fetch()
+
         try:
             changed = git.resolve_changes(package["change_patterns"], my_state["hash"])
             if not changed and not self.force_build:
@@ -134,14 +149,16 @@ class PackageBuilder:
                 self.docker.rmtree(parent_path)
 
             if not os.path.exists(repo_path):
-                logging.info("Cloning repository %s" % package["git_url"])
-                git.clone(package["git_url"], package["branch"])
+                logging.info("Cloning repository %s" % git_url)
+                git.clone(git_url, package["branch"])
                 new = True
             else:
-                logging.info("Pulling repository %s" % package["git_url"])
+                git_url = git.get_remote_url("origin")
+                logging.info("Pulling repository %s" % git_url)
                 git.pull()
         else:
-            logging.info("Using shared repository %s" % package["git_url"])
+            git_url = git.get_remote_url("origin")
+            logging.info("Using shared repository %s" % git_url)
 
         self.debranding.remove_package_branding(repo_path, package["package_name"])
 
@@ -211,10 +228,10 @@ class PackageBuilder:
 
         if not packages_timestamp or not packages or packages_timestamp <= time() - 3600 * 24 or self.rescan_packages:
             logging.info("Fetching vyos repository list")
-            repositories = self.github.find_repositories("org", "vyos")
+            repositories = self.github.find_repositories("org", self.analyze_org)
 
             logging.info("Analyzing package metadata")
-            packages = self.github.analyze_repositories_workflow("vyos", repositories, self.branch)
+            packages = self.github.analyze_repositories_workflow(self.analyze_org, repositories, self.branch)
 
             self.package_cache.set("packages_timestamp", time())
             self.package_cache.set("packages", packages)
@@ -236,6 +253,8 @@ if __name__ == "__main__":
 
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
+        parser.add_argument("--analyze-org", help="What GitHub organization to use for analysis", default="vyos")
+        parser.add_argument("--clone-org", help="What GitHub organization to use for sources", default="vyos")
         parser.add_argument("--single-package", help="Build only this package")
         parser.add_argument("--force-build", action="store_true", help="Force build even if package is up to date")
         parser.add_argument("--rescan-packages", action="store_true",

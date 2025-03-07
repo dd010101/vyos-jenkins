@@ -1,20 +1,39 @@
+from datetime import datetime
 import json
 import logging
 import os
+import re
 from shlex import quote
 import shutil
+
+import requests
 
 from lib.helpers import execute, quote_all, project_dir, ProcessException
 
 
 class Docker:
-    def __init__(self, image_name, branch, vyos_mount_dir):
+    def __init__(self, image_name, branch, vyos_mount_dir, vyos_stream_mode):
         self.image_name = image_name
         self.branch = branch
         self.vyos_mount_dir = vyos_mount_dir
+        self.vyos_stream_mode = vyos_stream_mode
 
     def get_full_image_name(self):
         return "%s:%s" % (self.image_name, self.branch)
+
+    def find_most_recent_tag(self, org_name, repo_name, pattern: re.Pattern):
+        url = "https://hub.docker.com/v2/namespaces/%s/repositories/%s/tags?page_size=100" % (org_name, repo_name)
+        response = requests.request("get", url)
+        response.raise_for_status()
+        payload = response.json()
+        found = []
+        for item in payload["results"]:
+            if pattern.search(item["name"]):
+                found.append((item["name"], datetime.fromisoformat(item["last_updated"]).timestamp()))
+        if len(found) == 0:
+            raise Exception("requested docker image version not found: %s" % pattern)
+        found.sort(key=lambda item: item[1], reverse=True)
+        return found[0][0]
 
     def pull(self, passthrough=True):
         docker_image = self.get_full_image_name()
@@ -27,7 +46,18 @@ class Docker:
         except ProcessException:
             pass  # Ignore if image doesn't exist.
 
-        execute("docker pull %s" % quote_all(docker_image), passthrough=passthrough)
+        image_version = self.branch
+        if self.branch == "circinus" and self.vyos_stream_mode:
+            org_name, repo_name = self.image_name.split("/")
+            image_version = self.find_most_recent_tag(org_name, repo_name, re.compile(r"1\.5-stream.*"))
+
+        if self.branch != image_version:
+            temp_image = "%s:%s" % (self.image_name, image_version)
+            execute("docker pull %s" % quote_all(temp_image), passthrough=passthrough)
+            execute("docker tag %s %s" % quote_all(temp_image, docker_image))
+            execute("docker rmi %s" % quote_all(temp_image))
+        else:
+            execute("docker pull %s" % quote_all(docker_image), passthrough=passthrough)
 
         # Now we compare the ID of regular tag and previous tag and delete if they differ
         output = execute("docker images --format json").strip()

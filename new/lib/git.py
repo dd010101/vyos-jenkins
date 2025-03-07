@@ -11,14 +11,58 @@ class Git:
     def exists(self):
         return os.path.exists(self.repo_path)
 
-    def clone(self, git_url, branch):
-        execute("git clone -b %s --single-branch %s %s" % quote_all(
-            branch, git_url, self.repo_path
-        ))
+    def clone(self, git_url, branch=None):
+        if branch is not None:
+            execute("git clone -b %s --single-branch %s %s" % quote_all(
+                branch, git_url, self.repo_path
+            ))
+        else:
+            execute("git clone %s %s" % quote_all(
+                git_url, self.repo_path
+            ))
 
-    def pull(self):
+    def checkout(self, pathspec, branch=None):
+        if branch is not None:
+            execute("git -C %s checkout -b %s %s" % quote_all(self.repo_path, branch, pathspec))
+        else:
+            execute("git -C %s checkout %s" % quote_all(self.repo_path, pathspec))
+
+    def add_remote(self, git_url, remote_name):
+        execute("git -C %s remote add %s %s" % quote_all(self.repo_path, remote_name, git_url))
+
+    def rm_remote(self, remote_name):
+        execute("git -C %s remote rm %s" % quote_all(self.repo_path, remote_name))
+
+    def get_remote_url(self, remote_name):
+        return execute("git -C %s config --get remote.%s.url" % quote_all(self.repo_path, remote_name)).strip()
+
+    def set_remote_url(self, remote_name, git_url):
+        execute("git -C %s remote set-url %s %s" % quote_all(self.repo_path, remote_name, git_url))
+
+    def fetch(self):
+        execute("git -C %s fetch --all" % quote_all(self.repo_path))
+
+    def pull(self, remote=None, branch=None, ff_only=False):
         execute("git -C %s reset --hard" % quote_all(self.repo_path))
-        execute("git -C %s pull" % quote_all(self.repo_path))
+
+        extra = ""
+        if remote:
+            extra += " %s" % quote_all(remote)
+            if branch:
+                extra += " %s" % quote_all(branch)
+        if ff_only:
+            extra += " --ff-only"
+
+        execute("git -C %s pull%s" % tuple(quote_all(self.repo_path) + (extra,)))
+
+    def push(self, remote):
+        execute("git -C %s push %s" % quote_all(self.repo_path, remote))
+
+    def add(self):
+        execute("git -C %s add --all" % quote_all(self.repo_path))
+
+    def commit(self, message):
+        execute("git -C %s commit -m %s" % quote_all(self.repo_path, message))
 
     def get_last_commit_hash(self):
         return execute("git -C %s rev-parse HEAD" % quote_all(self.repo_path)).strip()

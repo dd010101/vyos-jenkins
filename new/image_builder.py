@@ -61,7 +61,8 @@ class ImageBuilder:
         self.vyos_build_repo = os.path.join(build_dir, "%s-image-build" % self.branch)
 
         logging.info("Pulling vyos-build docker image")
-        self.docker = Docker(self.vyos_build_docker, self.branch, self.vyos_build_repo)
+        vyos_stream_mode = "github.com/vyos" not in self.vyos_build_git
+        self.docker = Docker(self.vyos_build_docker, self.branch, self.vyos_build_repo, vyos_stream_mode)
         self.docker.pull()
 
         git = Git(self.vyos_build_repo)
@@ -108,7 +109,7 @@ class ImageBuilder:
 
         # build image
         build_image_pieces = [
-            "sudo --preserve-env ./build-vyos-image",
+            "sudo --preserve-env ./scripts/image-build/build-vyos-image",
             quote(self.flavor),
             "--architecture", quote("amd64"),
             "--build-by", quote(self.build_by),
