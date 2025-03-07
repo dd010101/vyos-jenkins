@@ -56,7 +56,7 @@ class Git:
         execute("git -C %s pull%s" % tuple(quote_all(self.repo_path) + (extra,)))
 
     def push(self, remote):
-        execute("git -C %s push %s" % quote_all(self.repo_path, remote))
+        return execute("git -C %s push %s" % quote_all(self.repo_path, remote))
 
     def add(self):
         execute("git -C %s add --all" % quote_all(self.repo_path))

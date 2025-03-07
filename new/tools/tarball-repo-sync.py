@@ -25,6 +25,8 @@ class TarballRepoSync:
         self.package_aliases = {
             "cloud-init": "vyos-cloud-init",
             "libvyosconfig0": "libvyosconfig",
+            "libnss-tacplus": ("libnss-tacplus", "master"),
+            "libtacplus-map": ("libtacplus-map", "master"),
         }
 
     def run(self):
@@ -40,7 +42,7 @@ class TarballRepoSync:
             missing = []
             for info in source_packages:
                 response = requests.request("head", "https://github.com/%s/%s/tree/%s" % (
-                    self.source_org, info["name"], self.branch
+                    self.source_org, info["name"], info["branch"]
                 ))
                 if response.status_code == 200:
                     matched.append(info)
@@ -57,6 +59,8 @@ class TarballRepoSync:
             logging.info("reusing previous analyzed metadata")
             with open(matched_path, "r") as file:
                 matched = json.load(file)
+
+        matched = sorted(matched, key=lambda item: item["name"])
 
         logging.info("found %s package(s)" % len(matched))
 
@@ -86,18 +90,28 @@ class TarballRepoSync:
                                     break
 
                     else:
-                        match = re.search(r"^([a-z-]+)\.tar", file_name, flags=re.I)
+                        match = re.search(r"^([a-z-_]+)\.tar", file_name, flags=re.I)
                         if match:
                             name = match.group(1)
+                            for suffix in ["_master", "_%s" % self.branch]:
+                                if name.endswith(suffix):
+                                    name = name[:-len(suffix)]
+                                    break
 
                     if name is not None:
                         if name in self.package_aliases:
                             name = self.package_aliases[name]
 
+                        if isinstance(name, tuple):
+                            name, branch = name
+                        else:
+                            branch = self.branch
+
                         found.append({
                             "path": path,
                             "name": name,
                             "version": version,
+                            "branch": branch,
                         })
 
         return found
@@ -123,7 +137,7 @@ class TarballRepoSync:
                 if re.search("pathspec .* did not match any file", str(e)):
                     git.add_remote("https://github.com/%s/%s" % (self.source_org, info["name"]), "upstream")
                     git.fetch()
-                    git.checkout("upstream/%s" % self.branch, self.branch)
+                    git.checkout("upstream/%s" % info["branch"], self.branch)
                 else:
                     raise
 
@@ -162,12 +176,19 @@ class TarballRepoSync:
                     if info["version"] is None:
                         tarball_time = os.path.getmtime(info["path"])
                         source_name += " [%s]" % datetime.fromtimestamp(tarball_time).strftime("%Y-%m-%d %H:%M:%S")
-                    git.commit("Updated from %s" % source_name)
+
+                    message = "Updated from %s" % source_name
+                    git.commit(message)
+                    logging.info("%s new commit: %s" % (info["name"], message))
                 except ProcessException as e:
                     if "nothing to commit, working tree clean" not in str(e):
                         raise
 
-            git.push("origin")
+            output = git.push("origin")
+            if "up-to-date" in output:
+                logging.info("%s is up to date" % info["name"])
+            else:
+                logging.info("%s was updated" % info["name"])
 
     def find_root_directory(self, path):
         for parent, directories, files in os.walk(path):
