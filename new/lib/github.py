@@ -47,7 +47,7 @@ class GitHub:
             "circinus": {
                 "libpam-tacplus": {
                     "repo_name": "libpam-tacplus",
-                    "branch": "master",
+                    "branch": "circinus",
                     "package_name": "libpam-tacplus",
                     "build_type": "dpkg-buildpackage",
                     "path": "",
