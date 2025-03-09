@@ -16,7 +16,8 @@ import netifaces
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
-from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir, TerminalTitle
+from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir, TerminalTitle, \
+    ensure_directories
 from lib.scripting import Scripting
 
 
@@ -47,6 +48,8 @@ class ImageBuilder:
         self.cwd = os.getcwd()
         self.scripting = Scripting()
         self.terminal_title = TerminalTitle("Image builder: ")
+
+        ensure_directories()
 
     def build(self):
         self.terminal_title.set("Preparation...")

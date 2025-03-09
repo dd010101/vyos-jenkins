@@ -13,7 +13,7 @@ from lib.docker import Docker
 from lib.git import Git
 from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
-    quote_all, TerminalTitle
+    quote_all, TerminalTitle, ensure_directories
 from lib.objectstorage import ObjectStorage
 from lib.scripting import Scripting
 
@@ -52,6 +52,8 @@ class PackageBuilder:
         )
         self.scripting = Scripting()
         self.terminal_title = TerminalTitle("Package builder: ")
+
+        ensure_directories()
 
     def build(self):
         self.terminal_title.set("Preparation...")

@@ -16,6 +16,13 @@ resources_dir: str = os.path.join(project_dir, "resources")
 scripts_dir: str = os.path.join(project_dir, "scripts")
 
 
+def ensure_directories():
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
+
 def quote_all(*args):
     quoted = []
     for arg in args:

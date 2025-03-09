@@ -79,6 +79,30 @@ Then you can build image (ISO) from those packages (this will take some time):
 
 Now you should have ISO image available in your current directory.
 
+NOTvyos
+--
+
+Given the public VyOS repositories don't receive updates anymore I did decide to create
+[NOTvyos](https://github.com/NOTvyos) collection of [VyOS](https://github.com/vyos) repositories and those
+[get updated](./tools/tarball-repo-sync.py) from [VyOS Stream](https://vyos.net/get/stream/) tarballs.
+Currently, the default options use the VyOS repositories, 
+thus we need to use extra options to use the updated NOTvyos repositories instead.
+
+**If we want to switch between VyOS and NOTvyos then we need to start fresh, delete the vyos-jenkins repository
+and fetch fresh clone (or at least purge the `new/build` and `new/data` directories).**
+
+Extra options for package build:
+
+```bash
+~/vyos-jenkins/new/package_builder.py circinus --clone-org NOTvyos
+```
+
+Extra options for image build:
+
+```bash
+~/vyos-jenkins/new/image_builder.py circinus --vyos-build-git https://github.com/NOTvyos/vyos-build.git
+```
+
 Extra options
 --
 
