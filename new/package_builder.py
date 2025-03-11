@@ -256,7 +256,7 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
         parser.add_argument("--analyze-org", help="What GitHub organization to use for analysis", default="vyos")
-        parser.add_argument("--clone-org", help="What GitHub organization to use for sources", default="vyos")
+        parser.add_argument("--clone-org", help="What GitHub organization to use for sources", default="NOTvyos")
         parser.add_argument("--single-package", help="Build only this package")
         parser.add_argument("--force-build", action="store_true", help="Force build even if package is up to date")
         parser.add_argument("--rescan-packages", action="store_true",

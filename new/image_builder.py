@@ -240,7 +240,7 @@ if __name__ == "__main__":
 
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
-        parser.add_argument("--vyos-build-git", default="https://github.com/vyos/vyos-build.git",
+        parser.add_argument("--vyos-build-git", default="https://github.com/NOTvyos/vyos-build.git",
                             help="Git URL of vyos-build")
         parser.add_argument("--vyos-mirror", default="local", help="VyOS package repository (URL or 'local')")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
