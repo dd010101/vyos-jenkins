@@ -29,54 +29,10 @@ class GitHub:
         # because they are for example obsolete and replaced by another package.
         self.blacklist = {
             "current": [
-                "libpam-tacplus",
                 "gh-action-test-vyos-1x",
             ],
-            "circinus": [
-                "libpam-tacplus",
-                "gh-action-test-vyos-1x",
-                "pam_tacplus",
-            ],
         }
-        # Some packages were added later - after public repositories stopped getting updates.
-        # That's why we need to define those packages manually.
-        # Perhaps we should step away from auto-detecting packages and use static definitions,
-        # the auto-detection was meant for time when the public repositories were getting updates,
-        # thus it doesn't really make sense anymore.
-        self.extra_packages = {
-            "circinus": {
-                "libpam-tacplus": {
-                    "repo_name": "libpam-tacplus",
-                    "branch": "circinus",
-                    "package_name": "libpam-tacplus",
-                    "build_type": "dpkg-buildpackage",
-                    "path": "",
-                    "change_patterns": ["*"],
-                    "git_url": "https://github.com/vyos/libpam-tacplus.git",
-                },
-                "libnss-mapuser": {
-                    "repo_name": "libnss-mapuser",
-                    "branch": "circinus",
-                    "package_name": "libnss-mapuser",
-                    "build_type": "dpkg-buildpackage",
-                    "path": "",
-                    "change_patterns": ["*"],
-                    "git_url": "https://github.com/vyos/libnss-mapuser.git",
-                },
-            },
-        }
-        if vyos_stream_mode:
-            self.extra_packages["circinus"].update({
-                "vyos-build-libpam-radius-auth": {
-                    "repo_name": "vyos-build",
-                    "branch": "circinus",
-                    "package_name": "libpam-radius-auth",
-                    "build_type": "build.py",
-                    "path": "scripts/package-build/libpam-radius-auth",
-                    "change_patterns": ["scripts/package-build/libpam-radius-auth/**"],
-                    "git_url": "https://github.com/vyos/vyos-build.git",
-                },
-            })
+        self.extra_packages = {}
 
     def analyze_repositories_workflow(self, org_name, repositories, branch):
         my_blacklist = self.blacklist[branch] if branch in self.blacklist else []
@@ -227,7 +183,7 @@ if __name__ == "__main__":
             cache = ObjectStorage(os.path.join(data_dir, "github-vyos-cache.json"), dict, {})
             repositories = cache.callback("repos", callback=lambda: github.find_org_repositories("vyos"))
 
-            pprint(github.analyze_repositories_workflow("vyos", repositories, "circinus"))
+            pprint(github.analyze_repositories_workflow("vyos", repositories, "current"))
 
         else:
             print("ERROR: unknown command: %s" % command, file=sys.stderr)

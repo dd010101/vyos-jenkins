@@ -11,10 +11,10 @@ from lib.apt import Apt
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
-from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
     quote_all, TerminalTitle, ensure_directories
 from lib.objectstorage import ObjectStorage
+from lib.packagedefinitions import PackageDefinitions
 from lib.scripting import Scripting
 
 
@@ -43,7 +43,7 @@ class PackageBuilder:
         self.debranding = debranding
 
         self.vyos_stream_mode = self.clone_org != "vyos"
-        self.github = GitHub(self.vyos_stream_mode)
+        self.package_definitions = PackageDefinitions(self.vyos_stream_mode)
         self.build_data = ObjectStorage(
             os.path.join(data_dir, "builder-data-%s.json" % self.branch), dict, {}
         )
@@ -225,22 +225,20 @@ class PackageBuilder:
         self.build_data.set(package["package_name"], my_state)
 
     def get_packages_metadata(self):
-        packages_timestamp = self.package_cache.get("packages_timestamp")
-        packages = self.package_cache.get("packages")
-
-        if not packages_timestamp or not packages or packages_timestamp <= time() - 3600 * 24 or self.rescan_packages:
-            logging.info("Fetching vyos repository list")
-            repositories = self.github.find_repositories("org", self.analyze_org)
-
-            logging.info("Analyzing package metadata")
-            packages = self.github.analyze_repositories_workflow(self.analyze_org, repositories, self.branch)
-
-            self.package_cache.set("packages_timestamp", time())
-            self.package_cache.set("packages", packages)
-
+        if self.package_definitions.is_static(self.branch):
+            packages = self.package_definitions.get_definitions(self.analyze_org, self.branch)
         else:
-            date = datetime.fromtimestamp(float(packages_timestamp)).astimezone().strftime("%Y-%m-%d %H:%M:%S")
-            logging.info("Using previously generated package metadata (%s)" % date)
+            packages_timestamp = self.package_cache.get("packages_timestamp")
+            packages = self.package_cache.get("packages")
+
+            if not packages_timestamp or not packages or packages_timestamp <= time() - 3600 * 24 or self.rescan_packages:
+                packages = self.package_definitions.get_definitions(self.analyze_org, self.branch)
+                self.package_cache.set("packages_timestamp", time())
+                self.package_cache.set("packages", packages)
+
+            else:
+                date = datetime.fromtimestamp(float(packages_timestamp)).astimezone().strftime("%Y-%m-%d %H:%M:%S")
+                logging.info("Using previously generated package metadata (%s)" % date)
 
         return packages
 
