@@ -8,7 +8,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/aws-gwlbtun/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "ddclient": {
         "repo_name": "vyos-build",
@@ -19,7 +19,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/ddclient/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "dropbear": {
         "repo_name": "vyos-build",
@@ -30,7 +30,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/dropbear/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "ethtool": {
         "repo_name": "vyos-build",
@@ -41,7 +41,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/ethtool/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "frr": {
         "repo_name": "vyos-build",
@@ -52,7 +52,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/frr/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "hostap": {
         "repo_name": "vyos-build",
@@ -63,7 +63,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/hostap/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "hsflowd": {
         "repo_name": "vyos-build",
@@ -74,7 +74,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/hsflowd/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "hvinfo": {
         "repo_name": "hvinfo",
@@ -85,7 +85,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/hvinfo.git",
+        "git_url": "https://github.com/NOTvyos/hvinfo.git",
     },
     "ipaddrcheck": {
         "repo_name": "ipaddrcheck",
@@ -96,7 +96,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/ipaddrcheck.git",
+        "git_url": "https://github.com/NOTvyos/ipaddrcheck.git",
     },
     "isc-dhcp": {
         "repo_name": "vyos-build",
@@ -107,7 +107,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/isc-dhcp/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "kea": {
         "repo_name": "vyos-build",
@@ -118,7 +118,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/kea/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "keepalived": {
         "repo_name": "vyos-build",
@@ -129,7 +129,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/keepalived/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "libnss-mapuser": {
         "repo_name": "libnss-mapuser",
@@ -140,7 +140,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/libnss-mapuser.git",
+        "git_url": "https://github.com/NOTvyos/libnss-mapuser.git",
     },
     "libpam-radius-auth": {
         "repo_name": "vyos-build",
@@ -151,7 +151,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/libpam-radius-auth/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "libvyosconfig": {
         "repo_name": "libvyosconfig",
@@ -162,7 +162,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/libvyosconfig.git",
+        "git_url": "https://github.com/NOTvyos/libvyosconfig.git",
     },
     "linux-kernel": {
         "repo_name": "vyos-build",
@@ -174,7 +174,7 @@ definitions = {
             "data/defaults.toml",
             "scripts/package-build/linux-kernel/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "live-boot": {
         "repo_name": "live-boot",
@@ -185,7 +185,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/live-boot.git",
+        "git_url": "https://github.com/NOTvyos/live-boot.git",
     },
     "ndppd": {
         "repo_name": "vyos-build",
@@ -196,7 +196,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/ndppd/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "net-snmp": {
         "repo_name": "vyos-build",
@@ -207,7 +207,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/net-snmp/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "netfilter": {
         "repo_name": "vyos-build",
@@ -218,7 +218,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/netfilter/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "opennhrp": {
         "repo_name": "vyos-build",
@@ -229,7 +229,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/opennhrp/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "openvpn-otp": {
         "repo_name": "vyos-build",
@@ -240,7 +240,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/openvpn-otp/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "owamp": {
         "repo_name": "vyos-build",
@@ -251,7 +251,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/owamp/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "pmacct": {
         "repo_name": "vyos-build",
@@ -262,7 +262,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/pmacct/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "podman": {
         "repo_name": "vyos-build",
@@ -273,7 +273,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/podman/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "pyhumps": {
         "repo_name": "vyos-build",
@@ -284,7 +284,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/pyhumps/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "radvd": {
         "repo_name": "vyos-build",
@@ -295,7 +295,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/radvd/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "strongswan": {
         "repo_name": "vyos-build",
@@ -306,7 +306,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/strongswan/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "tacacs": {
         "repo_name": "vyos-build",
@@ -317,7 +317,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/tacacs/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "telegraf": {
         "repo_name": "vyos-build",
@@ -328,7 +328,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/telegraf/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "udp-broadcast-relay": {
         "repo_name": "udp-broadcast-relay",
@@ -339,7 +339,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/udp-broadcast-relay.git",
+        "git_url": "https://github.com/NOTvyos/udp-broadcast-relay.git",
     },
     "vyatta-bash": {
         "repo_name": "vyatta-bash",
@@ -350,7 +350,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyatta-bash.git",
+        "git_url": "https://github.com/NOTvyos/vyatta-bash.git",
     },
     "vyatta-biosdevname": {
         "repo_name": "vyatta-biosdevname",
@@ -361,7 +361,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyatta-biosdevname.git",
+        "git_url": "https://github.com/NOTvyos/vyatta-biosdevname.git",
     },
     "vyatta-cfg": {
         "repo_name": "vyatta-cfg",
@@ -372,7 +372,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyatta-cfg.git",
+        "git_url": "https://github.com/NOTvyos/vyatta-cfg.git",
     },
     "vyatta-wanloadbalance": {
         "repo_name": "vyatta-wanloadbalance",
@@ -383,7 +383,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyatta-wanloadbalance.git",
+        "git_url": "https://github.com/NOTvyos/vyatta-wanloadbalance.git",
     },
     "vyos-1x": {
         "repo_name": "vyos-1x",
@@ -394,7 +394,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyos-1x.git",
+        "git_url": "https://github.com/NOTvyos/vyos-1x.git",
     },
     "vyos-cloud-init": {
         "repo_name": "vyos-cloud-init",
@@ -405,7 +405,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyos-cloud-init.git",
+        "git_url": "https://github.com/NOTvyos/vyos-cloud-init.git",
     },
     "vyos-http-api-tools": {
         "repo_name": "vyos-http-api-tools",
@@ -416,7 +416,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyos-http-api-tools.git",
+        "git_url": "https://github.com/NOTvyos/vyos-http-api-tools.git",
     },
     "vyos-user-utils": {
         "repo_name": "vyos-user-utils",
@@ -427,7 +427,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyos-user-utils.git",
+        "git_url": "https://github.com/NOTvyos/vyos-user-utils.git",
     },
     "vyos-utils": {
         "repo_name": "vyos-utils",
@@ -438,7 +438,7 @@ definitions = {
         "change_patterns": [
             "*"
         ],
-        "git_url": "https://github.com/vyos/vyos-utils.git",
+        "git_url": "https://github.com/NOTvyos/vyos-utils.git",
     },
     "waagent": {
         "repo_name": "vyos-build",
@@ -449,7 +449,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/waagent/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "wide-dhcpv6": {
         "repo_name": "vyos-build",
@@ -460,7 +460,7 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/wide-dhcpv6/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "xen-guest-agent": {
         "repo_name": "vyos-build",
@@ -471,6 +471,6 @@ definitions = {
         "change_patterns": [
             "scripts/package-build/xen-guest-agent/**"
         ],
-        "git_url": "https://github.com/vyos/vyos-build.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     }
 }
