@@ -198,6 +198,18 @@ def refuse_root():
         exit(1)
 
 
+def replace_github_repo_org(git_url, new_org):
+    return re.sub(r"github\.com/[^/]+", "github.com/%s" % new_org, git_url)
+
+
+def create_missing_package_exception(package):
+    install_dependencies_script_path = os.path.join(project_dir, "install-dependencies.sh")
+    raise Exception(
+        "Missing dependency (%s), please install the missing package\n"
+        "or rerun the dependencies script: %s" % (package, install_dependencies_script_path)
+    )
+
+
 class TerminalTitle:
     def __init__(self, prefix):
         self.prefix = prefix

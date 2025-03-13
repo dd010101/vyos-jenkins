@@ -3,16 +3,17 @@ import argparse
 from datetime import datetime
 import logging
 import os.path
-import re
 from shlex import quote
 from time import time, monotonic
+
+import tomlkit
 
 from lib.apt import Apt
 from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
-    quote_all, TerminalTitle, ensure_directories
+    quote_all, TerminalTitle, ensure_directories, replace_github_repo_org
 from lib.objectstorage import ObjectStorage
 from lib.packagedefinitions import PackageDefinitions
 from lib.scripting import Scripting
@@ -124,7 +125,7 @@ class PackageBuilder:
                 os.makedirs(repo_path)
             repo_path = os.path.join(repo_path, "sources")
 
-        git_url = re.sub(r"github\.com/[^/]+", "github.com/%s" % self.clone_org, package["git_url"])
+        git_url = replace_github_repo_org(package["git_url"], self.clone_org)
         git = Git(repo_path)
 
         if git.exists() and self.clone_org not in git.get_remote_url("origin"):
@@ -174,6 +175,9 @@ class PackageBuilder:
         if package["build_type"] == "build.py":
             my_directory = os.path.join(self.my_build_dir, "vyos-build", package["path"])
             if not self.skip_build or new:
+                package_toml_path = os.path.join(my_directory, "package.toml")
+                if os.path.exists(package_toml_path):
+                    self.modify_package_toml(package_toml_path)
                 # It's important to run bash in interactive mode, non-interactive shell breaks dependency on .bashrc.
                 build_script = os.path.join(virtual_scripts, "build_py.sh")
                 vyos_dir = "/vyos/%s" % package["path"]
@@ -224,6 +228,26 @@ class PackageBuilder:
 
         self.build_data.set(package["package_name"], my_state)
 
+    def modify_package_toml(self, path):
+        with open(path, "r") as file:
+            payload = tomlkit.load(file)
+
+        changed = False
+        if "packages" in payload:
+            for package in payload["packages"]:
+                if "scm_url" in package:
+                    scm_url = replace_github_repo_org(package["scm_url"], self.clone_org)
+                    if scm_url != package["scm_url"]:
+                        changed = True
+                        logging.info("Updating package.toml GIT url from %s to %s" % (package["scm_url"], scm_url))
+                        package["scm_url"] = scm_url
+                        if "commit_id" in package and package["commit_id"] in ["master", "main"]:
+                            package["commit_id"] = self.branch
+
+        if changed:
+            with open(path, "w") as file:
+                tomlkit.dump(payload, file)
+
     def get_packages_metadata(self):
         if self.package_definitions.is_static(self.branch):
             packages = self.package_definitions.get_definitions(self.analyze_org, self.branch)
@@ -253,8 +277,9 @@ if __name__ == "__main__":
 
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
-        parser.add_argument("--analyze-org", help="What GitHub organization to use for analysis", default="vyos")
-        parser.add_argument("--clone-org", help="What GitHub organization to use for sources", default="NOTvyos")
+        parser.add_argument("--analyze-org", default="vyos",
+                            help="What GitHub organization to use for analysis (used only for current)")
+        parser.add_argument("--clone-org", default="NOTvyos", help="What GitHub organization to use for sources")
         parser.add_argument("--single-package", help="Build only this package")
         parser.add_argument("--force-build", action="store_true", help="Force build even if package is up to date")
         parser.add_argument("--rescan-packages", action="store_true",

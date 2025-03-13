@@ -17,7 +17,7 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir, TerminalTitle, \
-    ensure_directories
+    ensure_directories, replace_github_repo_org
 from lib.scripting import Scripting
 
 
@@ -29,9 +29,10 @@ class ImageBuilder:
     vyos_build_repo = None
     docker = None
 
-    def __init__(self, branch, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options, flavor, build_by,
-                 version, bind_addr, bind_port, keep_build, pre_build_hook, debranding: Debranding):
+    def __init__(self, branch, clone_org, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options, flavor,
+                 build_by, version, bind_addr, bind_port, keep_build, pre_build_hook, debranding: Debranding):
         self.branch = branch
+        self.clone_org = clone_org
         self.vyos_build_git = vyos_build_git
         self.vyos_build_docker = vyos_build_docker
         self.vyos_mirror = vyos_mirror
@@ -62,6 +63,12 @@ class ImageBuilder:
             logging.info("Using supplied APT repository at %s" % vyos_mirror)
 
         self.vyos_build_repo = os.path.join(build_dir, "%s-image-build" % self.branch)
+
+        if self.vyos_build_git is None:
+            self.vyos_build_git = "https://github.com/vyos/vyos-build.git"
+            self.vyos_build_git = replace_github_repo_org(self.vyos_build_git, self.clone_org)
+
+        logging.info("Using %s" % self.vyos_build_git)
 
         logging.info("Pulling vyos-build docker image")
         vyos_stream_mode = "github.com/vyos" not in self.vyos_build_git
@@ -128,6 +135,12 @@ class ImageBuilder:
             build_image_pieces.append(self.extra_options)
         build_image_command = " ".join(build_image_pieces)
 
+        vyos_1x_repo = "https://github.com/vyos/vyos-1x"
+        vyos_1x_repo = replace_github_repo_org(vyos_1x_repo, self.clone_org)
+        env = {
+            "VYOS1X_REPO_URL": vyos_1x_repo,
+        }
+
         logging.info("Using build image command: '%s'" % build_image_command)
         logging.info("Executing image build now...")
 
@@ -142,7 +155,8 @@ class ImageBuilder:
             command=build_image_command,
             work_dir="/vyos",
             extra_mounts=extra_mounts,
-            log_command="IMAGE_BUILD_COMMAND"
+            log_command="IMAGE_BUILD_COMMAND",
+            env=env,
         )
 
         image_path = None
@@ -240,8 +254,8 @@ if __name__ == "__main__":
 
         parser = argparse.ArgumentParser()
         parser.add_argument("branch", help="VyOS branch (current, circinus)")
-        parser.add_argument("--vyos-build-git", default="https://github.com/NOTvyos/vyos-build.git",
-                            help="Git URL of vyos-build")
+        parser.add_argument("--clone-org", default="NOTvyos", help="What GitHub organization to use for sources")
+        parser.add_argument("--vyos-build-git", default=None, help="Optional Git URL of vyos-build")
         parser.add_argument("--vyos-mirror", default="local", help="VyOS package repository (URL or 'local')")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")

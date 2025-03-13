@@ -95,7 +95,7 @@ Extra options for package build:
 Extra options for image build:
 
 ```bash
-~/vyos-jenkins/new/image_builder.py circinus --vyos-build-git https://github.com/vyos/vyos-build.git
+~/vyos-jenkins/new/image_builder.py circinus --clone-org vyos
 ```
 
 Extra options

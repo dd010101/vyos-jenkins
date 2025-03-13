@@ -103,7 +103,7 @@ class Docker:
             ])
             shutil.rmtree(target)
 
-    def run(self, command, work_dir="/vyos", extra_mounts=None, passthrough=True, log_command=None):
+    def run(self, command, work_dir="/vyos", extra_mounts=None, passthrough=True, log_command=None, env=None):
         pieces: list = [
             "docker run --rm -t",
         ]
@@ -118,8 +118,13 @@ class Docker:
         pieces.extend([
             "-w %s --privileged --sysctl net.ipv6.conf.lo.disable_ipv6=0" % quote(work_dir),
             "-e GOSU_UID=%s -e GOSU_GID=%s" % (os.getuid(), os.getgid()),
-            quote(self.get_full_image_name()),
         ])
+
+        if env is not None:
+            for name, value in env.items():
+                pieces.append("-e %s" % quote_all("%s=%s" % (name, value)))
+
+        pieces.append(quote(self.get_full_image_name()))
 
         if log_command:
             placeholder = command if log_command is True else log_command
