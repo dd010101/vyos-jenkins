@@ -198,8 +198,12 @@ def refuse_root():
         exit(1)
 
 
-def replace_github_repo_org(git_url, new_org):
-    return re.sub(r"github\.com/[^/]+", "github.com/%s" % new_org, git_url)
+def replace_github_repo_org(git_url, new_org, carefully_only_this_org=None):
+    if carefully_only_this_org is not None:
+        pattern = r"github\.com/%s" % re.escape(carefully_only_this_org)
+    else:
+        pattern = r"github\.com/[^/]+"
+    return re.sub(pattern, "github.com/%s" % new_org, git_url)
 
 
 def create_missing_package_exception(package):
