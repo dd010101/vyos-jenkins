@@ -73,6 +73,9 @@ systemctl daemon-reload > /dev/null 2>&1
 # Ensure uncron service is enabled.
 systemctl enable --now uncron.service > /dev/null 2>&1
 
+# restart uncron service to fix user/group issue
+systemctl restart uncron.service > /dev/null 2>&1
+
 echo
 echo "Part 4 of the installer is now done."
 echo "Please run part five (5-docker-jobs.sh) to set up the vyos build container jobs."
