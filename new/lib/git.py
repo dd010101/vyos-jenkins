@@ -8,6 +8,7 @@ from lib.helpers import execute, quote_all, ProcessException
 class Git:
     def __init__(self, repo_path, debug=False):
         self.repo_path = repo_path
+        self.git_dir = os.path.join(self.repo_path, ".git")
         self.debug = debug
 
     def exists(self):
@@ -25,27 +26,27 @@ class Git:
 
     def checkout(self, pathspec, branch=None):
         if branch is not None:
-            self.execute("git -C %s checkout -b %s %s" % quote_all(self.repo_path, branch, pathspec))
+            self.execute("git --git-dir %s checkout -b %s %s" % quote_all(self.git_dir, branch, pathspec))
         else:
-            self.execute("git -C %s checkout %s" % quote_all(self.repo_path, pathspec))
+            self.execute("git --git-dir %s checkout %s" % quote_all(self.git_dir, pathspec))
 
     def add_remote(self, git_url, remote_name):
-        self.execute("git -C %s remote add %s %s" % quote_all(self.repo_path, remote_name, git_url))
+        self.execute("git --git-dir %s remote add %s %s" % quote_all(self.git_dir, remote_name, git_url))
 
     def rm_remote(self, remote_name):
-        self.execute("git -C %s remote rm %s" % quote_all(self.repo_path, remote_name))
+        self.execute("git --git-dir %s remote rm %s" % quote_all(self.git_dir, remote_name))
 
     def get_remote_url(self, remote_name):
-        return self.execute("git -C %s config --get remote.%s.url" % quote_all(self.repo_path, remote_name)).strip()
+        return self.execute("git --git-dir %s config --get remote.%s.url" % quote_all(self.git_dir, remote_name)).strip()
 
     def set_remote_url(self, remote_name, git_url):
-        self.execute("git -C %s remote set-url %s %s" % quote_all(self.repo_path, remote_name, git_url))
+        self.execute("git --git-dir %s remote set-url %s %s" % quote_all(self.git_dir, remote_name, git_url))
 
     def fetch(self):
-        self.execute("git -C %s fetch --all" % quote_all(self.repo_path))
+        self.execute("git --git-dir %s fetch --all" % quote_all(self.git_dir))
 
     def pull(self, remote=None, branch=None, ff_only=False):
-        self.execute("git -C %s reset --hard" % quote_all(self.repo_path))
+        self.execute("git --git-dir %s reset --hard" % quote_all(self.git_dir))
 
         extra = ""
         if remote:
@@ -55,23 +56,23 @@ class Git:
         if ff_only:
             extra += " --ff-only"
 
-        self.execute("git -C %s pull%s" % tuple(quote_all(self.repo_path) + (extra,)))
+        self.execute("git --git-dir %s pull%s" % tuple(quote_all(self.git_dir) + (extra,)))
 
     def push(self, remote):
-        return self.execute("git -C %s push %s" % quote_all(self.repo_path, remote))
+        return self.execute("git --git-dir %s push %s" % quote_all(self.git_dir, remote))
 
     def add(self):
-        self.execute("git -C %s add --all" % quote_all(self.repo_path))
+        self.execute("git --git-dir %s add --all" % quote_all(self.git_dir))
 
     def commit(self, message):
-        self.execute("git -C %s commit -m %s" % quote_all(self.repo_path, message))
+        self.execute("git --git-dir %s commit -m %s" % quote_all(self.git_dir, message))
 
     def get_last_commit_hash(self):
-        return self.execute("git -C %s rev-parse HEAD" % quote_all(self.repo_path)).strip()
+        return self.execute("git --git-dir %s rev-parse HEAD" % quote_all(self.git_dir)).strip()
 
     def get_changed_files(self, ref1, ref2):
         try:
-            return self.execute("git -C %s diff --name-only %s %s" % quote_all(self.repo_path, ref1, ref2)).strip()
+            return self.execute("git --git-dir %s diff --name-only %s %s" % quote_all(self.git_dir, ref1, ref2)).strip()
         except ProcessException as e:
             if e.exit_code == 1 and "Could not access" in e.output:
                 return ""  # ignore non-existing commits (caused by repo changed or force-push)
