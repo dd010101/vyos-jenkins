@@ -71,7 +71,7 @@ class Git:
 
     def get_changed_files(self, ref1, ref2):
         try:
-            return self.execute("git diff --name-only %s %s" % quote_all(ref1, ref2)).strip()
+            return self.execute("git -C %s diff --name-only %s %s" % quote_all(self.repo_path, ref1, ref2)).strip()
         except ProcessException as e:
             if e.exit_code == 1 and "Could not access" in e.output:
                 return ""  # ignore non-existing commits (caused by repo changed or force-push)
@@ -103,7 +103,8 @@ class Git:
             regexes.append(re.compile(r"^%s$" % pattern, flags=re.I))
 
         matched = False
-        for file in self.get_changed_files(current_hash, previous_hash):
+        changed_files = self.get_changed_files(current_hash, previous_hash).splitlines()
+        for file in changed_files:
             for regex in regexes:
                 if regex.search(file):
                     matched = True
