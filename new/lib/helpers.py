@@ -208,9 +208,17 @@ def refuse_root():
         exit(1)
 
 
-def replace_github_repo_org(git_url, new_org, carefully_only_this_org=None):
-    if carefully_only_this_org is not None:
-        pattern = r"github\.com/%s" % re.escape(carefully_only_this_org)
+def replace_github_repo_org(git_url, new_org, whitelist_orgs=None):
+    if whitelist_orgs is not None:
+        if not isinstance(whitelist_orgs, list):
+            whitelist_orgs = [whitelist_orgs]
+
+        org_pattern = []
+        for org in whitelist_orgs:
+            org_pattern.append(re.escape(org))
+
+        pattern = r"github\.com/(?:%s)" % "|".join(org_pattern)
+        print(pattern)
     else:
         pattern = r"github\.com/[^/]+"
     return re.sub(pattern, "github.com/%s" % new_org, git_url)

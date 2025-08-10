@@ -236,7 +236,7 @@ class PackageBuilder:
         if "packages" in payload:
             for package in payload["packages"]:
                 if "scm_url" in package:
-                    scm_url = replace_github_repo_org(package["scm_url"], self.clone_org, carefully_only_this_org="vyos")
+                    scm_url = replace_github_repo_org(package["scm_url"], self.clone_org, whitelist_orgs=["vyos", "VyOS-Networks"])
                     if scm_url != package["scm_url"]:
                         changed = True
                         logging.info("Updating package.toml GIT url from %s to %s" % (package["scm_url"], scm_url))
