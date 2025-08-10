@@ -218,7 +218,6 @@ def replace_github_repo_org(git_url, new_org, whitelist_orgs=None):
             org_pattern.append(re.escape(org))
 
         pattern = r"github\.com/(?:%s)" % "|".join(org_pattern)
-        print(pattern)
     else:
         pattern = r"github\.com/[^/]+"
     return re.sub(pattern, "github.com/%s" % new_org, git_url)
