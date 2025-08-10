@@ -132,16 +132,20 @@ class PackageBuilder:
             git.set_remote_url("origin", git_url)
             git.fetch()
 
-        try:
-            changed = git.resolve_changes(package["change_patterns"], my_state["hash"])
-            if not changed and not self.force_build:
-                logging.info("Package is up to date, skipping build")
-                return
-        except ProcessException as e:
-            if "not a git repository" in str(e):
+        if git.exists():
+            if not os.path.exists(git.git_dir):
                 self.docker.rmtree(parent_path)
             else:
-                raise
+                try:
+                    changed = git.resolve_changes(package["change_patterns"], my_state["hash"])
+                    if not changed and not self.force_build:
+                        logging.info("Package is up to date, skipping build")
+                        return
+                except ProcessException as e:
+                    if "not a git repository" in str(e):
+                        self.docker.rmtree(parent_path)
+                    else:
+                        raise
 
         new = False
         if repo_name not in self.updated_repos:

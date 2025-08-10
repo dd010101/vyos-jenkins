@@ -1,8 +1,9 @@
 import logging
 import os.path
 import re
+import shlex
 
-from lib.helpers import execute, quote_all, ProcessException
+from lib.helpers import execute, quote_all, ProcessException, build_dir
 
 
 class Git:
@@ -117,6 +118,11 @@ class Git:
         return changed
 
     def execute(self, command, timeout: int = None, passthrough=False, passthrough_prefix=None, **kwargs):
+        if os.path.exists(self.repo_path):
+            os.chdir(self.repo_path)
+        else:
+            os.chdir(build_dir)
+
         if self.debug:
             logging.info("GIT command: '%s'" % command)
             if not passthrough:
