@@ -56,6 +56,11 @@ class Debranding:
                 with open(motd_path, "w") as file:
                     file.truncate()
 
+            motd_path = os.path.join(root_dir, "data/templates/login/techpreview_warning.j2")
+            if os.path.exists(motd_path):
+                with open(motd_path, "w") as file:
+                    file.truncate()
+
             login_banner_path = os.path.join(root_dir, "src/conf_mode/system_login_banner.py")
             self.replace_patterns_in_file(login_banner_path, [
                 ("Welcome to VyOS", "Welcome to %s" % alternative_name),
