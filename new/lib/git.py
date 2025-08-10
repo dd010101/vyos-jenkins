@@ -120,4 +120,9 @@ class Git:
             if not passthrough:
                 passthrough = True
                 passthrough_prefix = "GIT: "
-        return execute(command, timeout, passthrough, passthrough_prefix, passthrough_output=self.debug,**kwargs)
+
+        if "env" not in kwargs:
+            kwargs["env"] = os.environ.copy()
+        kwargs["env"]["GIT_TERMINAL_PROMPT"] = "0"
+
+        return execute(command, timeout, passthrough, passthrough_prefix, passthrough_output=self.debug, **kwargs)

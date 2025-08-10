@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+source /my-build-scripts/env.sh
 package_name="$1"
 
 # just to be sure

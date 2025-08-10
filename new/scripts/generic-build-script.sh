@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+source /my-build-scripts/env.sh
 
 # just to be sure
 sudo apt-get update
