@@ -10,6 +10,17 @@ definitions = {
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
+    "blackbox_exporter": {
+        "repo_name": "vyos-build",
+        "branch": "circinus",
+        "package_name": "blackbox_exporter",
+        "build_type": "build.py",
+        "path": "scripts/package-build/blackbox_exporter",
+        "change_patterns": [
+            "scripts/package-build/blackbox_exporter/**"
+        ],
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
+    },
     "ddclient": {
         "repo_name": "vyos-build",
         "branch": "circinus",
@@ -51,6 +62,17 @@ definitions = {
         "path": "scripts/package-build/frr",
         "change_patterns": [
             "scripts/package-build/frr/**"
+        ],
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
+    },
+    "frr_exporter": {
+        "repo_name": "vyos-build",
+        "branch": "circinus",
+        "package_name": "frr_exporter",
+        "build_type": "build.py",
+        "path": "scripts/package-build/frr_exporter",
+        "change_patterns": [
+            "scripts/package-build/frr_exporter/**"
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
@@ -217,6 +239,17 @@ definitions = {
         "path": "scripts/package-build/netfilter",
         "change_patterns": [
             "scripts/package-build/netfilter/**"
+        ],
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
+    },
+    "node_exporter": {
+        "repo_name": "vyos-build",
+        "branch": "circinus",
+        "package_name": "node_exporter",
+        "build_type": "build.py",
+        "path": "scripts/package-build/node_exporter",
+        "change_patterns": [
+            "scripts/package-build/node_exporter/**"
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
