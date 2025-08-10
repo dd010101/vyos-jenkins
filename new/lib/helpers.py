@@ -30,7 +30,8 @@ def quote_all(*args):
     return tuple(quoted)
 
 
-def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=None, **kwargs):
+def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=None, passthrough_output=False,
+            **kwargs):
     if passthrough:
         kwargs["stdout"] = subprocess.PIPE
         kwargs["stderr"] = subprocess.STDOUT
@@ -43,9 +44,11 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
         kwargs["shell"] = True
 
     process = subprocess.Popen(command, **kwargs)
+    buffer = None
     if passthrough:
         file_log_handler = find_file_log_handler()
-        buffer = TerminalLineBuffer()
+        buffer = bytearray()
+        terminal_buffer = TerminalLineBuffer()
         stdout = process.stdout
 
         deadline = monotonic() + timeout if timeout is not None else None
@@ -53,22 +56,24 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
             # noinspection PyTypeChecker
             value: bytes = stdout.read(1)
             sys.stdout.buffer.write(value)
+            buffer.extend(value)
 
             if file_log_handler is not None:
-                buffer.feed(value)
-                if buffer.is_complete():
+                terminal_buffer.feed(value)
+                if terminal_buffer.is_complete():
                     sys.stdout.buffer.flush()
-                    line = buffer.get_line()
+                    line = terminal_buffer.get_line()
                     file_log_handler.handle(create_stdout_log_record(line, passthrough_prefix))
 
         # noinspection PyTypeChecker
         rest: bytes = stdout.read()
         sys.stdout.buffer.write(rest)
         sys.stdout.buffer.flush()
+        buffer.extend(rest)
 
         if file_log_handler is not None:
-            buffer.feed(rest)
-            line = buffer.get_line()
+            terminal_buffer.feed(rest)
+            line = terminal_buffer.get_line()
             if line:
                 file_log_handler.handle(create_stdout_log_record(line, passthrough_prefix))
 
@@ -82,13 +87,18 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
     if exit_code != 0:
         message = "Command '%s' failed, exit code: %s" % (command, exit_code)
         output = None
-        if not passthrough:
-            # noinspection PyUnresolvedReferences
-            output = process.stdout.read().decode("utf-8")
+        if not passthrough or passthrough_output:
+            if passthrough_output:
+                output = buffer.decode("utf-8")
+            else:
+                # noinspection PyUnresolvedReferences
+                output = process.stdout.read().decode("utf-8")
             message += ", output: %s" % output
         raise ProcessException(message, exit_code, output)
 
     if passthrough:
+        if passthrough_output:
+            return buffer.decode("utf-8")
         return exit_code
     else:
         # noinspection PyUnresolvedReferences

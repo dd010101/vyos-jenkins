@@ -14,12 +14,14 @@ from lib.helpers import setup_logging, ProcessException, execute, quote_all
 
 
 class TarballRepoSync:
-    def __init__(self, branch, source_org, target_org, skip_analyze, single_package):
+    def __init__(self, branch, source_org, target_org, skip_analyze, single_package, skip_until, debug=False):
         self.branch = branch
         self.source_org = source_org
         self.target_org = target_org
         self.skip_analyze = skip_analyze
         self.single_package = single_package
+        self.skip_until = skip_until
+        self.debug = debug
         self.source_dir = os.path.realpath("./sources")
         self.working_dir = os.path.realpath("./work")
         self.package_aliases = {
@@ -117,16 +119,21 @@ class TarballRepoSync:
         return found
 
     def sync_repositories(self, matched):
+        skipping = self.skip_until is not None
         for info in matched:
             if self.single_package is not None and info["name"] != self.single_package:
                 continue
+
+            if skipping and info["name"] != self.skip_until:
+                continue
+            skipping = False
 
             logging.info("processing %s - https://github.com/%s/%s/tree/%s - %s" % (
                 info["name"], self.target_org, info["name"], self.branch, info["path"]
             ))
 
             repo_path = os.path.join(self.working_dir, info["name"])
-            git = Git(repo_path)
+            git = Git(repo_path, debug=self.debug)
             if git.exists():
                 shutil.rmtree(repo_path)
 
@@ -194,6 +201,7 @@ class TarballRepoSync:
         for parent, directories, files in os.walk(path):
             if len(directories) > 1 or len(files) > 0:
                 return parent
+        raise Exception("unable to find root directory")
 
     def destroy_path(self, path):
         if os.path.isdir(path):
@@ -218,6 +226,8 @@ if __name__ == "__main__":
         parser.add_argument("--target-org", default="NOTvyos")
         parser.add_argument("--skip-analyze", action="store_true")
         parser.add_argument("--single-package")
+        parser.add_argument("--skip-until", help="skip packages until this one")
+        parser.add_argument("--debug", action="store_true")
 
         args = parser.parse_args()
         values = vars(args)
