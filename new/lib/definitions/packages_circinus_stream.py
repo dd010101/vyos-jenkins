@@ -10,6 +10,17 @@ definitions = {
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
+    "bash-completion": {
+        "repo_name": "vyos-build",
+        "branch": "circinus",
+        "package_name": "bash-completion",
+        "build_type": "build.py",
+        "path": "scripts/package-build/bash-completion",
+        "change_patterns": [
+            "scripts/package-build/bash-completion/**"
+        ],
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
+    },
     "blackbox_exporter": {
         "repo_name": "vyos-build",
         "branch": "circinus",
