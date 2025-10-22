@@ -1,9 +1,14 @@
+> [!CAUTION]
+> This project is an **independent build script for NOTvyos**.
+> It is **not affiliated with, endorsed by, or sponsored by VyOS Networks Corporation** by any means.
+> VyOS® is a registered trademark of VyOS Networks Corporation.
+
 The end of public LTS
 ==
 
 **The open era of LTS/stable branches is coming to an end.
-The VyOS team [already moved](https://vyos.dev/T6781) the development of LTS branches to private organization, 
-and they will not publish the LTS/stables branches on their public GitHub anymore, the only people who can 
+The team behind VyOS® [already moved](https://vyos.dev/T6781) the development of LTS branches to private organization,
+and they will not publish the LTS/stables branches on their public GitHub anymore, the only people who can
 receive the copy of LTS source code are those who receive the binaries thus only those who obtain subscription.**
 
 **The only public branches will be the `current` and whatever branch is in the stream phase (today the `circinus`).
@@ -12,18 +17,18 @@ Thus moving forward only those branches can be built up to date.**
 Purpose
 --
 
-This project can be used to build up-to-date packages/images of **stream** (currently **1.5.x circinus**). 
+This project can be used to build up-to-date packages/images of **stream** (currently **1.5.x circinus**).
 As of now the official APT of circinus isn't public either so if you want to build custom images you need to
 build packages first and currently there isn't official way to build those packages either.
 
 You can still build equuleus/sagitta packages/images, yet they will be frozen in time and won't get any updates from
-the VyOS side. Thus, new builds will get incomplete bug/security updates - only the packages that are from
+the official side. Thus, new builds will get incomplete bug/security updates - only the packages that are from
 Debian repositories will be updated.
 
 The stream/circinus
 ---
 
-If you are interested in the **stream** (currently **1.5.x circinus**) then can build your own 
+If you are interested in the **stream** (currently **1.5.x circinus**) then can build your own
 packages/images via the scripts in the **[./new](new)** directory.
 
 
@@ -35,7 +40,7 @@ The legacy
 Prologue
 --
 
-If you're trying to build VyOS equuleus/sagitta ISO image with the usual way you may see following errors:
+If you're trying to build VyOS® ISO image with the usual way you may see following errors:
 
 ```
 E: Failed to fetch http://dev.packages.vyos.net/repositories/equuleus/dists/equuleus/InRelease  403  Forbidden [IP: 104.18.30.79 443]
@@ -45,14 +50,14 @@ E: The repository 'http://dev.packages.vyos.net/repositories/sagitta sagitta InR
 ```
 
 You may also see `Sorry, you have been blocked` if you try to visit these links, but you aren't blocked - everyone
-is blocked. This is due to [change in VyOS policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds)
+is blocked. This is due to [change in VyOS® policy](https://blog.vyos.io/community-contributors-userbase-and-lts-builds)
 where they don't offer their `dev.packages.vyos.net/repositories` for public anymore. This change applies only to
 stable branches (like 1.3 equuleus/1.4 sagitta), you can still build current/development branch with official
 repository.
 
-You want to continue to use VyOS long term? Then you can switch to current/development branch if you think
+You want to continue to use VyOS® long term? Then you can switch to current/development branch if you think
 that's good idea for your use case. If you like to use stable branch then you would need to obtain
-[VyOS subscription](https://vyos.io/subscriptions/support). ~~The only other option currently is to build your own
+[VyOS® subscription](https://vyos.io/subscriptions/support). ~~The only other option currently is to build your own
 `dev.packages.vyos.net` package repository and that's what this project is all about.~~
 **There is no other option anymore.**
 
@@ -98,7 +103,7 @@ cd /opt/vyos-jenkins
 #### If you want to build only specific branch
 
 Configure `BRANCH` environment variable to desired branch before you run any script.
-Default or empty value means all branches. This setting is remembered, you can override by defining empty value. 
+Default or empty value means all branches. This setting is remembered, you can override by defining empty value.
 
 ```bash
 export BRANCH="sagitta"
@@ -106,10 +111,10 @@ export BRANCH="sagitta"
 
 #### If you want to distribute ISO
 
-Then you should remove VyOS branding, you can do this by configuring `NOT_VYOS` environment variable to `yes` 
-before you run any script. If you set `yes` then `NOTvyos` name would be used as replacement for VyOS. If you
-set any other non-empty value like `someos` then this name would be used instead of `NOTvyos`. 
-Beware - by default, the ISO will include VyOS branding thus you shall not distribute the ISO. This setting
+Then you should remove VyOS® branding, you can do this by configuring `NOT_VYOS` environment variable to `yes`
+before you run any script. If you set `yes` then `NOTvyos` name would be used as replacement for VyOS®. If you
+set any other non-empty value like `someos` then this name would be used instead of `NOTvyos`.
+Beware - by default, the ISO will include branding thus you shall not distribute the ISO. This setting
 is remembered, you can override by defining empty value.
 
 ```bash
@@ -140,7 +145,7 @@ If all went well, then all steps should complete successfully and then you can:
     - There is also option to change what custom packages you want to include. By default, the only additional package
       is `vyos-1x-smoketest`. If you want more or different custom packages
       then you can override the default value via the `CUSTOM_PACKAGES` env variable, for example:
-      `export CUSTOM_PACKAGES="vyos-1x-smoketest emacs"`. 
+      `export CUSTOM_PACKAGES="vyos-1x-smoketest emacs"`.
       If you want to use this then please set this variable always before you build ISO.
 
 Now you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
@@ -148,22 +153,22 @@ Now you should have the ISO(s) in current directory (`/opt/vyos-jenkins`).
 **If something isn't right, then see [Something is wrong](#something-is-wrong).**
 
 You can rerun the scripts as you wish and the scripts should do only required/changed steps.
-It's also good idea to do this from time to time. If your scripts are somewhat old, and you face some error, 
+It's also good idea to do this from time to time. If your scripts are somewhat old, and you face some error,
 then please first try to download and run latest scripts.
 
 Beware - like with any custom ISO you shall test every ISO you build with your configuration and traffic flowing.
-If are interested in the Smoketest see the [Smoketest](#smoketest) action. The Smoketest isn't substitute for 
+If are interested in the Smoketest see the [Smoketest](#smoketest) action. The Smoketest isn't substitute for
 real world testing.
 
-Jenkins will automatically detect changes and build new packages, thus if you keep build server running then 
+Jenkins will automatically detect changes and build new packages, thus if you keep build server running then
 it should keep the repositories up to date by itself. This way you can just use build-iso.sh again and again.
-You should check on the Jenkins **Build History** from time to time and/or before you build ISO to make sure all 
+You should check on the Jenkins **Build History** from time to time and/or before you build ISO to make sure all
 is going well. This is the same way how the official repository works.
 
 There is also option to shut down the OS and use it only when you need it. The Jenkins checks if any package needs
-rebuild in 1 hour interval, the check if 1 hour elapsed happens each 15th minute of hour. So if you boot the OS 
+rebuild in 1 hour interval, the check if 1 hour elapsed happens each 15th minute of hour. So if you boot the OS
 and start the Jenkins, then in worse case you would need to wait up to 15 minutes (to the closest 15th minute of hour),
-before rebuild of package would start. Then you shall wait before the **Build Queue** and **Build Executor Status** 
+before rebuild of package would start. Then you shall wait before the **Build Queue** and **Build Executor Status**
 is empty, then make sure no build failed in the **Build History**, after this you can use build-iso.sh again.
 
 ### Something is wrong
@@ -172,8 +177,8 @@ You may face situation when Jenkins build may fail or doesn't produce .deb packa
 with unmet dependencies. Sometimes the Jenkins build fails for temporary reason like network/server issue, thus
 find the package/job/branch in question (like linux-kernel/sagitta) and retry the build with **Build now**.
 
-Sometimes the build steps/instructions change over time (mainly due to changes on VyOS side), and thus for example
-you need to change or add additional package. If you are using automated scripts then make sure you have the latest
+Sometimes the build steps/instructions change over time, and thus for example you need to change or add
+additional package. If you are using automated scripts then make sure you have the latest
 version, if not then download scripts again and rerun all them.
 
 There are two logs you should check for pointers.
@@ -192,7 +197,7 @@ docker container and if that doesn't help then verify all the Jenkins configurat
 Smoketest
 --
 
-VyOS has testing procedure called smoketest. This test checks mainly configuration, it's not complete test, 
+There is testing procedure called smoketest. This test checks mainly configuration, it's not complete test,
 it will only tell you if something is very wrong, passed test doesn't mean image will be necessarily fully
 functional - with that said it's still useful somewhat, just don't put too much trust in it. It also has tendencies
 to generate a lot of false positives, beware.
@@ -204,7 +209,7 @@ to complete, additional tests aren't that slow.
 
 There is requirement to include `vyos-1x-smoketest` package in your ISO image build. Automated scripts by default
 include the `vyos-1x-smoketest` unless you change it via `CUSTOM_PACKAGES`. If you build ISO via other means
-then you need to include the package via the `--custom-package vyos-1x-smoketest` option when you run 
+then you need to include the package via the `--custom-package vyos-1x-smoketest` option when you run
 `./configure` (equuleus) or `./build-vyos-image iso` (sagitta).
 
 ### Testing environment
@@ -264,7 +269,7 @@ There are multiple tests executed via the `make`:
 
 **CLI configuration test:**
 
-This test aims to verify that commands in the `configure` mode have correct result after `commit`. 
+This test aims to verify that commands in the `configure` mode have correct result after `commit`.
 For example - if some command configures routes, then the test checks if those routes are correctly propagated
 to the underlying system - in this example to the kernel/OS.
 
@@ -272,9 +277,9 @@ to the underlying system - in this example to the kernel/OS.
 make testd
 ```
 
-There is also `make test` that runs identical tests to the `make testd` and the difference is if 
-the `vyos-configd.service` service is enabled or not. VyOS enables this service by default, that's 
-why `make testd` is more accurate since it represents how VyOS runs in the wild.
+There is also `make test` that runs identical tests to the `make testd` and the difference is if
+the `vyos-configd.service` service is enabled or not. The OS enables this service by default, that's
+why `make testd` is more accurate since it represents how the OS runs in the wild.
 
 **Configuration file load test:**
 
@@ -295,7 +300,7 @@ make testraid
 If you encounter failures please rerun the test multiple times - there are known race conditions that can occur and
 this causes false-positives.
 
-You can as well run smoketest directly from **installed** VyOS, but you need many network interfaces otherwise
+You can as well run smoketest directly from **installed** image, but you need many network interfaces otherwise
 some tests will fail. The test is expecting 8 or more network ports. You do it by simply including
 `vyos-1x-smoketest` package in your ISO image build. Then you can boot and run `vyos-smoketest`.
 I'm not sure if all 8 are required but with few the test will fail for sure.

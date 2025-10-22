@@ -6,9 +6,9 @@ source ./auto/helper-logic
 clear
 
 # Print banner
-echo "####################################"
-echo "# Unofficial VyOS ISO builder v1.0 #"
-echo "####################################"
+echo "#######################################"
+echo "# Unofficial NOTvyos ISO builder v1.0 #"
+echo "#######################################"
 echo
 
 # Ensure we are running as root
@@ -31,7 +31,7 @@ if [ -d vyos-build ]; then
   rm -rf vyos-build
 fi
 
-echo "Cloning the VyOS build repository..."
+echo "Cloning the vyos-build repository..."
 git clone -q https://github.com/notvyos/vyos-build > /dev/null
 pushd vyos-build > /dev/null
 

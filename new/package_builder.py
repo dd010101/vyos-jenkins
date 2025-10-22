@@ -280,7 +280,7 @@ if __name__ == "__main__":
         debranding = Debranding()
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("branch", help="VyOS branch (current, circinus)")
+        parser.add_argument("branch", help="Branch (current, circinus)")
         parser.add_argument("--analyze-org", default="vyos",
                             help="What GitHub organization to use for analysis (used only for current)")
         parser.add_argument("--clone-org", default="NOTvyos", help="What GitHub organization to use for sources")

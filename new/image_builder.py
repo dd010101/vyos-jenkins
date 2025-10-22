@@ -253,10 +253,10 @@ if __name__ == "__main__":
         debranding = Debranding()
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("branch", help="VyOS branch (current, circinus)")
+        parser.add_argument("branch", help="Branch (current, circinus)")
         parser.add_argument("--clone-org", default="NOTvyos", help="What GitHub organization to use for sources")
         parser.add_argument("--vyos-build-git", default=None, help="Optional Git URL of vyos-build")
-        parser.add_argument("--vyos-mirror", default="local", help="VyOS package repository (URL or 'local')")
+        parser.add_argument("--vyos-mirror", default="local", help="NOTvyos package repository (URL or 'local')")
         parser.add_argument("--vyos-build-docker", default="vyos/vyos-build",
                             help="Default option uses vyos/vyos-build from dockerhub")
         parser.add_argument("--extra-options", help="Extra options for the build-vyos-image")

@@ -6,7 +6,7 @@ List of required packages and their Jenkinsfile:
 Some packages (`wide-dhcpv6`) are broken right now, that's why
 fork `https://github.com/dd010101/vyos-build.git` is required. Until they are fixed.
 
-Some packages aren't in the VyOS repositories at all (`python3-inotify`), that's why
+Some packages aren't in the official repositories at all (`python3-inotify`), that's why
 `https://github.com/dd010101/vyos-missing.git` is required.
 
 | Package                 | GIT repository                                      | Branch   | Location of Jenkinsfile              |

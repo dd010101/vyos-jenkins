@@ -86,9 +86,9 @@ fi
 
 function PrintHeader {
   # Print banner
-  echo "#################################################"
-  echo "# Unofficial VyOS package mirror installer v1.0 #"
-  echo "#################################################"
+  echo "####################################################"
+  echo "# Unofficial NOTvyos package mirror installer v1.0 #"
+  echo "####################################################"
   echo
   echo "-- Currently executing '$(basename $0)' --"
   echo

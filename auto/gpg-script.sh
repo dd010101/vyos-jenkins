@@ -17,7 +17,7 @@ else
   Key-Length:3072
   Subkey-Type:1
   Subkey-Length:3072
-  Name-Real: VyOS Unofficial Signing Key
+  Name-Real: NOTvyos Signing Key
   Name-Email: signing@not-vyos.org
   Expire-Date:0
 EOF

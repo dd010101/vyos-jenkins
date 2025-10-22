@@ -23,8 +23,8 @@ class Debranding:
         self.cache = ObjectStorage(os.path.join(data_dir, "debranding-cache.json"), dict, {})
 
     def populate_cli_parser(self, parser: argparse.ArgumentParser):
-        parser.add_argument("--keep-branding", action="store_true", help="Keep VyOS branding as opposite to debranding")
-        parser.add_argument("--remove-branding", action="store_true", help="Remove VyOS branding (default)")
+        parser.add_argument("--keep-branding", action="store_true", help="Keep branding as opposite to debranding")
+        parser.add_argument("--remove-branding", action="store_true", help="Remove branding (default)")
         parser.add_argument("--debranding-name", help="The default name is 'NOTvyos'")
 
     def extract_cli_values(self, values):

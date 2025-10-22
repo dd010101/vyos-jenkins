@@ -1,3 +1,8 @@
+> [!CAUTION]
+> This project is an **independent build script for NOTvyos**.
+> It is **not affiliated with, endorsed by, or sponsored by VyOS Networks Corporation** by any means.
+> VyOS® is a registered trademark of VyOS Networks Corporation.
+
 New build method (only for **circinus/1.5.x** or **current** branch)
 ==
 
