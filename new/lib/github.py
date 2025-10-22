@@ -129,6 +129,8 @@ class GitHub:
 
         repositories = {}
         for item in items:
+            if item["name"] in [".github"]:
+                continue
             repositories[item["name"]] = item["clone_url"]
 
         return repositories

@@ -1,7 +1,6 @@
 import logging
 import os.path
 import re
-import shlex
 
 from lib.helpers import execute, quote_all, ProcessException, build_dir
 
@@ -38,7 +37,8 @@ class Git:
         self.execute("git --git-dir %s remote rm %s" % quote_all(self.git_dir, remote_name))
 
     def get_remote_url(self, remote_name):
-        return self.execute("git --git-dir %s config --get remote.%s.url" % quote_all(self.git_dir, remote_name)).strip()
+        return self.execute(
+            "git --git-dir %s config --get remote.%s.url" % quote_all(self.git_dir, remote_name)).strip()
 
     def set_remote_url(self, remote_name, git_url):
         self.execute("git --git-dir %s remote set-url %s %s" % quote_all(self.git_dir, remote_name, git_url))
@@ -116,6 +116,26 @@ class Git:
             changed = False
 
         return changed
+
+    def get_branches(self, prefix=None):
+        branches = []
+        lines = self.execute("git --git-dir %s branch -a" % quote_all(self.git_dir)).strip()
+        for line in lines.splitlines():
+            line = line.strip()
+            if line.startswith("*"):
+                line = line[1:]
+            line = line.strip()
+
+            if prefix is not None:
+                if not line.startswith(prefix):
+                    continue
+                line = line[len(prefix):]
+
+            if line.startswith("HEAD ->"):
+                continue
+
+            branches.append(line)
+        return branches
 
     def execute(self, command, timeout: int = None, passthrough=False, passthrough_prefix=None, **kwargs):
         if os.path.exists(self.repo_path):

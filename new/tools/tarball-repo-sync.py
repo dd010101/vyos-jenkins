@@ -24,9 +24,10 @@ class TarballRepoSync:
         self.skip_until = skip_until
         self.debug = debug
         self.trademark_only = trademark_only
-        self.source_dir = os.path.realpath("./sources")
-        self.working_dir = os.path.realpath("./work")
-        self.my_resources_dir = os.path.realpath("./resources")
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.source_dir = os.path.join(current_dir, "sources")
+        self.working_dir = os.path.join(current_dir, "work")
+        self.my_resources_dir = os.path.join(current_dir, "resources")
         self.package_aliases = {
             "cloud-init": "vyos-cloud-init",
             "libvyosconfig0": "libvyosconfig",
@@ -219,7 +220,7 @@ class TarballRepoSync:
 
         if readme_path is None:
             if os.path.exists(os.path.join(repo_path, "README")) or os.path.exists(
-                    os.path.join(repo_path, "README.rst")) or repo_name in ["vyos-world"]:
+                    os.path.join(repo_path, "README.rst")) or repo_name in ["vyos-world", "live-boot"]:
                 readme_path = os.path.join(repo_path, "readme.md")
                 with open(readme_path, "w") as file:
                     file.write("")
