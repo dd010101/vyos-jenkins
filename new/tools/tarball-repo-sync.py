@@ -10,11 +10,12 @@ from debian.deb822 import Deb822
 import requests
 
 from lib.git import Git
-from lib.helpers import setup_logging, ProcessException, execute, quote_all
+from lib.helpers import setup_logging, ProcessException, execute, quote_all, resources_dir
 
 
 class TarballRepoSync:
-    def __init__(self, branch, source_org, target_org, skip_analyze, single_package, skip_until, debug=False):
+    def __init__(self, branch, source_org, target_org, skip_analyze, single_package, skip_until, debug=False,
+                 trademark_only=False):
         self.branch = branch
         self.source_org = source_org
         self.target_org = target_org
@@ -22,8 +23,10 @@ class TarballRepoSync:
         self.single_package = single_package
         self.skip_until = skip_until
         self.debug = debug
+        self.trademark_only = trademark_only
         self.source_dir = os.path.realpath("./sources")
         self.working_dir = os.path.realpath("./work")
+        self.my_resources_dir = os.path.realpath("./resources")
         self.package_aliases = {
             "cloud-init": "vyos-cloud-init",
             "libvyosconfig0": "libvyosconfig",
@@ -134,10 +137,12 @@ class TarballRepoSync:
 
             repo_path = os.path.join(self.working_dir, info["name"])
             git = Git(repo_path, debug=self.debug)
+
             if git.exists():
                 shutil.rmtree(repo_path)
 
             git.clone("git@github.com:%s/%s.git" % (self.target_org, info["name"]))
+
             try:
                 git.checkout(self.branch)
             except ProcessException as e:
@@ -148,54 +153,132 @@ class TarballRepoSync:
                 else:
                     raise
 
-            sources_path = os.path.join(self.working_dir, "%s-sources" % info["name"])
-            if os.path.exists(sources_path):
-                shutil.rmtree(sources_path)
-            os.makedirs(sources_path)
-            os.chdir(sources_path)
-            execute("tar -xf %s" % quote_all(info["path"]))
-
-            sources_path = self.find_root_directory(sources_path)
-            source_git_path = os.path.join(sources_path, ".git")
-            if os.path.exists(source_git_path):
-                try:
-                    git.rm_remote("local")
-                except ProcessException as e:
-                    if "No such remote" not in str(e):
-                        raise
-
-                git.add_remote("file://%s" % source_git_path, "local")
-                git.pull("local", "HEAD", ff_only=True)
-
+            if self.trademark_only:
+                self.handle_trademark(git, repo_path, info["name"], commit=True)
             else:
-                for entry in os.scandir(repo_path):
-                    if entry.name != ".git":
-                        self.destroy_path(entry.path)
+                sources_path = os.path.join(self.working_dir, "%s-sources" % info["name"])
+                if os.path.exists(sources_path):
+                    shutil.rmtree(sources_path)
+                os.makedirs(sources_path)
+                os.chdir(sources_path)
+                execute("tar -xf %s" % quote_all(info["path"]))
 
-                for entry in os.scandir(sources_path):
-                    src_path = entry.path
-                    dest_path = os.path.join(repo_path, src_path[len(sources_path) + 1:])
-                    self.copy_path(src_path, dest_path)
+                sources_path = self.find_root_directory(sources_path)
+                source_git_path = os.path.join(sources_path, ".git")
+                if os.path.exists(source_git_path):
+                    try:
+                        git.rm_remote("local")
+                    except ProcessException as e:
+                        if "No such remote" not in str(e):
+                            raise
 
-                git.add()
-                try:
-                    source_name = os.path.basename(info["path"])
-                    if info["version"] is None:
-                        tarball_time = os.path.getmtime(info["path"])
-                        source_name += " [%s]" % datetime.fromtimestamp(tarball_time).strftime("%Y-%m-%d %H:%M:%S")
+                    git.add_remote("file://%s" % source_git_path, "local")
+                    git.pull("local", "HEAD", ff_only=True)
 
-                    message = "Updated from %s" % source_name
-                    git.commit(message)
-                    logging.info("%s new commit: %s" % (info["name"], message))
-                except ProcessException as e:
-                    if "nothing to commit, working tree clean" not in str(e):
-                        raise
+                    self.handle_trademark(git, repo_path, info["name"], commit=True)
+
+                else:
+                    for entry in os.scandir(repo_path):
+                        if entry.name != ".git":
+                            self.destroy_path(entry.path)
+
+                    for entry in os.scandir(sources_path):
+                        src_path = entry.path
+                        dest_path = os.path.join(repo_path, src_path[len(sources_path) + 1:])
+                        self.copy_path(src_path, dest_path)
+
+                    self.handle_trademark(git, repo_path, info["name"], commit=False)
+
+                    git.add()
+
+                    try:
+                        source_name = os.path.basename(info["path"])
+                        if info["version"] is None:
+                            tarball_time = os.path.getmtime(info["path"])
+                            source_name += " [%s]" % datetime.fromtimestamp(tarball_time).strftime("%Y-%m-%d %H:%M:%S")
+
+                        message = "Updated from %s" % source_name
+                        git.commit(message)
+                        logging.info("%s new commit: %s" % (info["name"], message))
+                    except ProcessException as e:
+                        if "nothing to commit, working tree clean" not in str(e):
+                            raise
 
             output = git.push("origin")
             if "up-to-date" in output:
                 logging.info("%s is up to date" % info["name"])
             else:
                 logging.info("%s was updated" % info["name"])
+
+    def handle_trademark(self, git, repo_path, repo_name, commit):
+        readme_path = None
+        for entry in os.scandir(repo_path):
+            if entry.is_file() and re.search("^readme\.md$", entry.name, flags=re.I):
+                readme_path = entry.path
+                break
+
+        if readme_path is None:
+            if os.path.exists(os.path.join(repo_path, "README")) or os.path.exists(
+                    os.path.join(repo_path, "README.rst")) or repo_name in ["vyos-world"]:
+                readme_path = os.path.join(repo_path, "readme.md")
+                with open(readme_path, "w") as file:
+                    file.write("")
+
+        if readme_path is None:
+            raise Exception("unable to find readme file: %s" % repo_path)
+
+        if repo_name == "vyos-build":
+            target_splash = os.path.join(repo_path, "data/live-build-config/includes.binary/isolinux/splash.png")
+            if not os.path.exists(target_splash):
+                raise Exception("splash.png not found: %s" % target_splash)
+
+            new_splash = os.path.join(resources_dir, "not-vyos/splash.png")
+            shutil.copy2(new_splash, target_splash)
+
+        with open(os.path.join(self.my_resources_dir, "disclaimer.md"), "r") as file:
+            disclaimer = file.read().strip()
+
+        with open(readme_path, "r") as file:
+            contents = file.read().lstrip()
+
+        changed = False
+        if disclaimer not in contents:
+            lines = []
+            disclaimer_block = False
+            for line in contents.splitlines(keepends=True):
+                if "DISCLAIMER tE4AWE_AQahaxUGUpugu BEGIN" in line:
+                    disclaimer_block = True
+                elif "DISCLAIMER tE4AWE_AQahaxUGUpugu END" in line:
+                    disclaimer_block = False
+                else:
+                    if not disclaimer_block:
+                        lines.append(line)
+
+            contents = disclaimer + "\n\n" + "".join(lines).lstrip()
+
+            with open(readme_path, "w") as file:
+                file.write(contents)
+
+            changed = True
+
+        trademarks_template_path = os.path.join(self.my_resources_dir, "TRADEMARKS.md")
+        trademarks_path = os.path.join(repo_path, "TRADEMARKS.md")
+        if os.path.exists(trademarks_path):
+            with open(trademarks_path, "r") as file:
+                actual = file.read()
+            with open(trademarks_template_path, "r") as file:
+                expected = file.read()
+
+            if actual != expected:
+                raise Exception("TRADEMARKS.md already exists: %s" % trademarks_path)
+
+        if not os.path.exists(trademarks_path):
+            shutil.copy2(trademarks_template_path, trademarks_path)
+            changed = True
+
+        if changed and commit:
+            git.add()
+            git.commit("Updated readme for trademark purposes")
 
     def find_root_directory(self, path):
         for parent, directories, files in os.walk(path):
@@ -228,6 +311,7 @@ if __name__ == "__main__":
         parser.add_argument("--single-package")
         parser.add_argument("--skip-until", help="skip packages until this one")
         parser.add_argument("--debug", action="store_true")
+        parser.add_argument("--trademark-only", action="store_true")
 
         args = parser.parse_args()
         values = vars(args)
