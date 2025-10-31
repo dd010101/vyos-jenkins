@@ -30,6 +30,7 @@ class GitHub:
         self.blacklist = {
             "current": [
                 "gh-action-test-vyos-1x",
+                "udp-broadcast-relay",  # leftover, udp-broadcast-relay is now part of vyos-build
             ],
         }
         self.extra_packages = {}
@@ -38,6 +39,7 @@ class GitHub:
         my_blacklist = self.blacklist[branch] if branch in self.blacklist else []
         packages = {}
         unique_package_names = []
+        package_dependencies = {}
         for repo_name, git_url in repositories.items():
             expected_workflow = "trigger-rebuild-repo-package.yml"
             if repo_name == "vyos-build":
@@ -61,27 +63,36 @@ class GitHub:
                     continue
 
                 if "trigger-build" in workflow["jobs"]:
+                    valid_package = True
                     definition = workflow["jobs"]["trigger-build"]["with"]
                     if "ref_name" not in definition["branch"]:
                         raise Exception("%s: unknown branch: %s" % (repo_name, definition))
                     if "PACKAGE_NAME" not in definition["package_name"]:
-                        raise Exception("%s: unknown package_name: %s" % (repo_name, definition))
+                        # If package_name isn't an expression, then it's likely a hardcoded name of another package
+                        if "$" not in definition["package_name"]:
+                            valid_package = False
+                            another_package = definition["package_name"]
+                            if another_package in package_dependencies:
+                                package_dependencies[another_package].append(git_url)
+                        else:
+                            raise Exception("%s: unknown package_name: %s" % (repo_name, definition))
 
-                    if repo_name in unique_package_names:
-                        raise Exception("Packages with name '%s' was already defined: %s, others: %s" % (
-                            repo_name, definition, packages,
-                        ))
-                    unique_package_names.append(repo_name)
+                    if valid_package:
+                        if repo_name in unique_package_names:
+                            raise Exception("Packages with name '%s' was already defined: %s, others: %s" % (
+                                repo_name, definition, packages,
+                            ))
+                        unique_package_names.append(repo_name)
 
-                    packages[repo_name] = {
-                        "repo_name": repo_name,
-                        "branch": branch,
-                        "package_name": repo_name,
-                        "build_type": "dpkg-buildpackage",
-                        "path": "",
-                        "change_patterns": ["*"],
-                        "git_url": git_url,
-                    }
+                        packages[repo_name] = {
+                            "repo_name": repo_name,
+                            "branch": branch,
+                            "package_name": repo_name,
+                            "build_type": "dpkg-buildpackage",
+                            "path": "",
+                            "change_patterns": ["*"],
+                            "git_url": git_url,
+                        }
 
                 if "changes" in workflow["jobs"]:
                     for item in workflow["jobs"]["changes"]["steps"]:
@@ -111,12 +122,20 @@ class GitHub:
 
             except HTTPError as e:
                 if e.response.status_code == 404:
-                    continue  # Repository without defined workflow should be unused/legacy/deprecated
+                    continue  # Repository without a defined workflow should be unused/legacy/deprecated
                 raise
 
         if branch in self.extra_packages:
             for extra_package, info in self.extra_packages[branch].items():
                 packages[extra_package] = info
+
+        for another_package, git_urls in package_dependencies.items():
+            for repo_name, info in packages.items():
+                if info["package_name"] == another_package:
+                    if "dependencies" not in info:
+                        info["dependencies"] = []
+                    info["dependencies"].extend(git_urls)
+                    info["dependencies"] = list(set(info["dependencies"]))
 
         return packages
 
