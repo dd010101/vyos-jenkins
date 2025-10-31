@@ -13,7 +13,7 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
-    quote_all, TerminalTitle, ensure_directories, replace_github_repo_org
+    quote_all, TerminalTitle, ensure_directories, replace_github_repo_org, sanitize_filename
 from lib.objectstorage import ObjectStorage
 from lib.packagedefinitions import PackageDefinitions
 from lib.scripting import Scripting
@@ -128,24 +128,54 @@ class PackageBuilder:
         git_url = replace_github_repo_org(package["git_url"], self.clone_org)
         git = Git(repo_path)
 
+        if git.exists() and not os.path.exists(git.git_dir):
+            self.docker.rmtree(parent_path)
+
         if git.exists() and self.clone_org not in git.get_remote_url("origin"):
             git.set_remote_url("origin", git_url)
             git.fetch()
 
         if git.exists():
-            if not os.path.exists(git.git_dir):
-                self.docker.rmtree(parent_path)
-            else:
-                try:
-                    changed = git.resolve_changes(package["change_patterns"], my_state["hash"])
-                    if not changed and not self.force_build:
-                        logging.info("Package is up to date, skipping build")
-                        return
-                except ProcessException as e:
-                    if "not a git repository" in str(e):
-                        self.docker.rmtree(parent_path)
+            up_to_date = False
+
+            try:
+                changed = git.resolve_changes(package["change_patterns"], my_state["hash"])
+                if not changed:
+                    up_to_date = True
+            except ProcessException as e:
+                if "not a git repository" in str(e):
+                    self.docker.rmtree(parent_path)
+                else:
+                    raise
+
+            if "dependencies" in package:
+                if "dependencies" in my_state:
+                    previous_dependency_hashes = my_state["dependencies"]
+                else:
+                    previous_dependency_hashes = {}
+
+                for dependency_git_url in package["dependencies"]:
+                    dependency_repo_name = "dependency-%s" % sanitize_filename(dependency_git_url)
+                    dependency_repo_path = os.path.join(self.my_build_dir, dependency_repo_name)
+                    dependency_git = Git(dependency_repo_path)
+                    if dependency_git.exists():
+                        dependency_git.pull()
                     else:
-                        raise
+                        dependency_git.clone(dependency_git_url, package["branch"])
+
+                    if dependency_git_url in previous_dependency_hashes:
+                        my_previous_hash = previous_dependency_hashes[dependency_git_url]
+                    else:
+                        my_previous_hash = None
+
+                    my_current_hash = dependency_git.get_last_commit_hash()
+                    if my_previous_hash != my_current_hash:
+                        up_to_date = False
+                        break
+
+            if up_to_date and not self.force_build:
+                logging.info("Package is up to date, skipping build")
+                return
 
         new = False
         if repo_name not in self.updated_repos:
@@ -240,7 +270,9 @@ class PackageBuilder:
         if "packages" in payload:
             for package in payload["packages"]:
                 if "scm_url" in package:
-                    scm_url = replace_github_repo_org(package["scm_url"], self.clone_org, whitelist_orgs=["vyos", "VyOS-Networks"])
+                    scm_url = replace_github_repo_org(
+                        package["scm_url"], self.clone_org, whitelist_orgs=["vyos", "VyOS-Networks"]
+                    )
                     if scm_url != package["scm_url"]:
                         changed = True
                         logging.info("Updating package.toml GIT url from %s to %s" % (package["scm_url"], scm_url))

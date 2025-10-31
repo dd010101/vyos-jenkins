@@ -30,6 +30,13 @@ def quote_all(*args):
     return tuple(quoted)
 
 
+def sanitize_filename(any_string):
+    sanitized = re.sub(r"[^A-Za-z0-9\-._]", "_", any_string)
+    sanitized = re.sub(r"_+", "_", sanitized)
+    sanitized = sanitized.strip("_")
+    return sanitized
+
+
 def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=None, passthrough_output=False,
             **kwargs):
     if passthrough:
