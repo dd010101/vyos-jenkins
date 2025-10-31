@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import argparse
+import base64
 from contextlib import closing
 from datetime import datetime
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 import logging
 import os
+import re
 from shlex import quote
 import shutil
 import socket
@@ -101,6 +103,24 @@ class ImageBuilder:
             file.seek(0)
             file.write(contents)
             file.truncate()
+
+        if self.branch == "current":
+            if self.vyos_mirror == "local":
+                # TODO: remove me, yet another temporary hack until vyos-build if fixed
+                # --custom-apt-key is broken since https://github.com/vyos/vyos-build/commit/9ed7a29ebb77c36ee555c2818b728a7e6b160322
+                apt_key_path = os.path.join(apt_dir, "apt.gpg.key")
+                with open(os.path.join(git.repo_path, "scripts/image-build/defaults.py"), "r+") as file:
+                    contents = file.read()
+                    with open(apt_key_path, "rb") as key_file:
+                        encoded_key = base64.b64encode(key_file.read()).decode("utf-8")
+                    contents = re.sub(
+                        r"('custom_apt_keys'):.*\[[^]]*]",
+                        "\\1: [{'name': 'custom', 'key': '" + encoded_key + "'}]",
+                        contents
+                    )
+                    file.seek(0)
+                    file.write(contents)
+                    file.truncate()
 
         version = self.version
         if version == "auto":
