@@ -31,6 +31,7 @@ class GitHub:
             "current": [
                 "gh-action-test-vyos-1x",
                 "udp-broadcast-relay",  # leftover, udp-broadcast-relay is now part of vyos-build
+                "vyos-build-pam_tacplus", # pam_tacplus should exist in vyos-build, but it doesn't for some reason
             ],
         }
         self.extra_packages = {}
@@ -101,7 +102,7 @@ class GitHub:
                             for package_name, patterns in filters.items():
                                 pseudo_repo_name = "%s-%s" % (repo_name, package_name)
 
-                                if package_name in my_blacklist:
+                                if pseudo_repo_name in my_blacklist:
                                     continue
 
                                 if package_name in unique_package_names:
