@@ -75,8 +75,9 @@ class Git:
         try:
             return self.execute("git --git-dir %s diff --name-only %s %s" % quote_all(self.git_dir, ref1, ref2)).strip()
         except ProcessException as e:
-            if e.exit_code == 1 and "Could not access" in e.output:
-                return ""  # ignore non-existing commits (caused by repo changed or force-push)
+            # ignore non-existing commits (caused by repo changed or force-push)
+            if e.exit_code == 1 and "Could not access" in e.output or "bad object" in e.output:
+                raise InvalidStateException() from e
             raise
 
     def resolve_changes(self, change_patterns, previous_hash):
@@ -105,12 +106,15 @@ class Git:
             regexes.append(re.compile(r"^%s$" % pattern, flags=re.I))
 
         matched = False
-        changed_files = self.get_changed_files(current_hash, previous_hash).splitlines()
-        for file in changed_files:
-            for regex in regexes:
-                if regex.search(file):
-                    matched = True
-                    break
+        try:
+            changed_files = self.get_changed_files(current_hash, previous_hash).splitlines()
+            for file in changed_files:
+                for regex in regexes:
+                    if regex.search(file):
+                        matched = True
+                        break
+        except InvalidStateException:
+            return True
 
         if not matched:
             changed = False
@@ -154,3 +158,7 @@ class Git:
         kwargs["env"]["GIT_TERMINAL_PROMPT"] = "0"
 
         return execute(command, timeout, passthrough, passthrough_prefix, passthrough_output=self.debug, **kwargs)
+
+
+class InvalidStateException(Exception):
+    pass
