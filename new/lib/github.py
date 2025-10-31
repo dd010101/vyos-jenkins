@@ -129,6 +129,7 @@ class GitHub:
             for extra_package, info in self.extra_packages[branch].items():
                 packages[extra_package] = info
 
+        matched_dependencies = []
         for another_package, git_urls in package_dependencies.items():
             for repo_name, info in packages.items():
                 if info["package_name"] == another_package:
@@ -136,6 +137,14 @@ class GitHub:
                         info["dependencies"] = []
                     info["dependencies"].extend(git_urls)
                     info["dependencies"] = list(set(info["dependencies"]))
+                    matched_dependencies.append(another_package)
+                    break
+
+        for another_package in package_dependencies.keys():
+            if another_package not in matched_dependencies:
+                raise Exception(
+                    "Dependency '%s' failed to be link with any package, something is wrong" % another_package
+                )
 
         return packages
 
