@@ -14,6 +14,7 @@ build_dir: str = os.path.join(project_dir, "build")
 data_dir: str = os.path.join(project_dir, "data")
 resources_dir: str = os.path.join(project_dir, "resources")
 scripts_dir: str = os.path.join(project_dir, "scripts")
+debug: bool = False
 
 
 def ensure_directories():
@@ -37,6 +38,11 @@ def sanitize_filename(any_string):
     return sanitized
 
 
+def enable_debug():
+    global debug
+    debug = True
+
+
 def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=None, passthrough_output=False,
             **kwargs):
     if passthrough:
@@ -49,6 +55,9 @@ def execute(command, timeout: int = None, passthrough=False, passthrough_prefix=
         kwargs["stderr"] = subprocess.STDOUT
     if "shell" not in kwargs:
         kwargs["shell"] = True
+
+    if debug:
+        logging.info("Executing command: %s" % command)
 
     process = subprocess.Popen(command, **kwargs)
     buffer = None

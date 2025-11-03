@@ -19,7 +19,7 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir, TerminalTitle, \
-    ensure_directories, replace_github_repo_org
+    ensure_directories, replace_github_repo_org, enable_debug
 from lib.scripting import Scripting
 
 
@@ -32,7 +32,7 @@ class ImageBuilder:
     docker = None
 
     def __init__(self, branch, clone_org, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options, flavor,
-                 build_by, version, bind_addr, bind_port, keep_build, pre_build_hook, debranding: Debranding):
+                 build_by, version, bind_addr, bind_port, keep_build, pre_build_hook, debug, debranding: Debranding):
         self.branch = branch
         self.clone_org = clone_org
         self.vyos_build_git = vyos_build_git
@@ -46,11 +46,15 @@ class ImageBuilder:
         self.bind_port = bind_port
         self.keep_build = keep_build
         self.pre_build_hook = pre_build_hook
+        self.debug = debug
         self.debranding = debranding
 
         self.cwd = os.getcwd()
         self.scripting = Scripting()
         self.terminal_title = TerminalTitle("Image builder: ")
+
+        if self.debug:
+            enable_debug()
 
         ensure_directories()
 
@@ -290,6 +294,7 @@ if __name__ == "__main__":
         parser.add_argument("--bind-addr", help="Bind local webserver to static address instead of automatic")
         parser.add_argument("--bind-port", type=int, help="Bind local webserver to static port instead of random")
         parser.add_argument("--keep-build", action="store_true", help="DEV - Keep previous vyos-build repository")
+        parser.add_argument("--debug", action="store_true", help="DEV - more verbose logging")
 
         args = parser.parse_args()
         values = vars(args)

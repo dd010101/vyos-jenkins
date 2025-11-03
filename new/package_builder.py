@@ -13,7 +13,7 @@ from lib.debranding import Debranding
 from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, ProcessException, refuse_root, get_my_log_file, data_dir, build_dir, scripts_dir, \
-    quote_all, TerminalTitle, ensure_directories, replace_github_repo_org, sanitize_filename
+    quote_all, TerminalTitle, ensure_directories, replace_github_repo_org, sanitize_filename, enable_debug
 from lib.objectstorage import ObjectStorage
 from lib.packagedefinitions import PackageDefinitions
 from lib.scripting import Scripting
@@ -27,7 +27,7 @@ class PackageBuilder:
     docker = None
 
     def __init__(self, branch, analyze_org, clone_org, single_package, dirty_build, ignore_missing_binaries,
-                 skip_build, skip_apt, force_build, vyos_build_docker, rescan_packages, pre_build_hook,
+                 skip_build, skip_apt, force_build, vyos_build_docker, rescan_packages, pre_build_hook, debug,
                  debranding: Debranding):
         self.branch = branch
         self.analyze_org = analyze_org
@@ -41,6 +41,7 @@ class PackageBuilder:
         self.vyos_build_docker = vyos_build_docker
         self.rescan_packages = rescan_packages
         self.pre_build_hook = pre_build_hook
+        self.debug = debug
         self.debranding = debranding
 
         self.vyos_stream_mode = self.clone_org != "vyos"
@@ -53,6 +54,9 @@ class PackageBuilder:
         )
         self.scripting = Scripting()
         self.terminal_title = TerminalTitle("Package builder: ")
+
+        if self.debug:
+            enable_debug()
 
         ensure_directories()
 
@@ -332,6 +336,7 @@ if __name__ == "__main__":
                             help="DEV - Don't terminate when missing binaries are detected")
         parser.add_argument("--skip-build", action="store_true", help="DEV - Skip build stage for existing packages")
         parser.add_argument("--skip-apt", action="store_true", help="DEV - Skip reprepro stage for existing packages")
+        parser.add_argument("--debug", action="store_true", help="DEV - more verbose logging")
 
         args = parser.parse_args()
         values = vars(args)
