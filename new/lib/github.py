@@ -31,7 +31,7 @@ class GitHub:
             "current": [
                 "gh-action-test-vyos-1x",
                 "udp-broadcast-relay",  # leftover, udp-broadcast-relay is now part of vyos-build
-                "vyos-build-pam_tacplus", # pam_tacplus should exist in vyos-build, but it doesn't for some reason
+                "vyos-build-pam_tacplus",  # pam_tacplus should exist in vyos-build, but it doesn't for some reason
             ],
         }
         self.extra_packages = {}
@@ -163,6 +163,58 @@ class GitHub:
             repositories[item["name"]] = item["clone_url"]
 
         return repositories
+
+    def find_org_repositories_with_branches(self, name):
+        query = """
+        query($org: String!, $repoCursor: String) {
+          organization(login: $org) {
+            repositories(first: 100, after: $repoCursor) {
+              nodes {
+                name
+                refs(refPrefix: "refs/heads/", first: 100) {
+                  nodes {
+                    name
+                  }
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        }
+        """
+
+        auth = None
+        if os.environ.get("GITHUB_TOKEN"):
+            auth = tuple(os.environ["GITHUB_TOKEN"].split(":"))
+
+        repo_cursor = None
+        items = {}
+        while True:
+            variables = {"org": name, "repoCursor": repo_cursor}
+            response = requests.post(
+                "https://api.github.com/graphql",
+                auth=auth,
+                json={"query": query, "variables": variables},
+            )
+            response.raise_for_status()
+            payload = response.json()
+
+            repositories = payload["data"]["organization"]["repositories"]["nodes"]
+            for repository in repositories:
+                branches = []
+                for branch in repository["refs"]["nodes"]:
+                    branches.append(branch["name"])
+                items[repository["name"]] = branches
+
+            page_info = payload["data"]["organization"]["repositories"]["pageInfo"]
+            if page_info["hasNextPage"]:
+                repo_cursor = page_info["endCursor"]
+            else:
+                break
+        return items
 
     def fetch_all_pages(self, base_url, give_up=1000):
         page = 1

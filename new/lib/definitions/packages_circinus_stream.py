@@ -142,17 +142,6 @@ definitions = {
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
-    "kea": {
-        "repo_name": "vyos-build",
-        "branch": "circinus",
-        "package_name": "kea",
-        "build_type": "build.py",
-        "path": "scripts/package-build/kea",
-        "change_patterns": [
-            "scripts/package-build/kea/**"
-        ],
-        "git_url": "https://github.com/NOTvyos/vyos-build.git",
-    },
     "keepalived": {
         "repo_name": "vyos-build",
         "branch": "circinus",
@@ -185,17 +174,6 @@ definitions = {
             "scripts/package-build/libpam-radius-auth/**"
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
-    },
-    "libvyosconfig": {
-        "repo_name": "libvyosconfig",
-        "branch": "circinus",
-        "package_name": "libvyosconfig",
-        "build_type": "dpkg-buildpackage",
-        "path": "",
-        "change_patterns": [
-            "*"
-        ],
-        "git_url": "https://github.com/NOTvyos/libvyosconfig.git",
     },
     "linux-kernel": {
         "repo_name": "vyos-build",
@@ -261,17 +239,6 @@ definitions = {
         "path": "scripts/package-build/node_exporter",
         "change_patterns": [
             "scripts/package-build/node_exporter/**"
-        ],
-        "git_url": "https://github.com/NOTvyos/vyos-build.git",
-    },
-    "opennhrp": {
-        "repo_name": "vyos-build",
-        "branch": "circinus",
-        "package_name": "opennhrp",
-        "build_type": "build.py",
-        "path": "scripts/package-build/opennhrp",
-        "change_patterns": [
-            "scripts/package-build/opennhrp/**"
         ],
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
@@ -375,15 +342,26 @@ definitions = {
         "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "udp-broadcast-relay": {
-        "repo_name": "udp-broadcast-relay",
+        "repo_name": "vyos-build",
         "branch": "circinus",
         "package_name": "udp-broadcast-relay",
-        "build_type": "dpkg-buildpackage",
-        "path": "",
+        "build_type": "build.py",
+        "path": "scripts/package-build/udp-broadcast-relay",
         "change_patterns": [
-            "*"
+            "scripts/package-build/udp-broadcast-relay/**"
         ],
-        "git_url": "https://github.com/NOTvyos/udp-broadcast-relay.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
+    },
+    "vpp": {
+        "repo_name": "vyos-build",
+        "branch": "circinus",
+        "package_name": "vpp",
+        "build_type": "build.py",
+        "path": "scripts/package-build/vpp",
+        "change_patterns": [
+            "scripts/package-build/vpp/**"
+        ],
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "vyatta-bash": {
         "repo_name": "vyatta-bash",
@@ -430,15 +408,15 @@ definitions = {
         "git_url": "https://github.com/NOTvyos/vyatta-wanloadbalance.git",
     },
     "vyos-1x": {
-        "repo_name": "vyos-1x",
+        "repo_name": "vyos-build",
         "branch": "circinus",
         "package_name": "vyos-1x",
-        "build_type": "dpkg-buildpackage",
-        "path": "",
+        "build_type": "build.py",
+        "path": "scripts/package-build/vyos-1x",
         "change_patterns": [
-            "*"
+            "scripts/package-build/vyos-1x/**"
         ],
-        "git_url": "https://github.com/NOTvyos/vyos-1x.git",
+        "git_url": "https://github.com/NOTvyos/vyos-build.git",
     },
     "vyos-cloud-init": {
         "repo_name": "vyos-cloud-init",

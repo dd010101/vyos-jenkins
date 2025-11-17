@@ -7,19 +7,21 @@ import re
 import shutil
 
 from debian.deb822 import Deb822
-import requests
 
 from lib.git import Git
+from lib.github import GitHub
 from lib.helpers import setup_logging, ProcessException, execute, quote_all, resources_dir
 
 
 class TarballRepoSync:
-    def __init__(self, branch, source_org, target_org, skip_analyze, single_package, skip_until, debug=False,
-                 trademark_only=False):
+    def __init__(self, branch, version, source_org, target_org, skip_analyze, ignore_missing, single_package,
+                 skip_until, debug, trademark_only):
         self.branch = branch
+        self.version = version
         self.source_org = source_org
         self.target_org = target_org
         self.skip_analyze = skip_analyze
+        self.ignore_missing = [ignore_missing] if not isinstance(ignore_missing, list) else ignore_missing
         self.single_package = single_package
         self.skip_until = skip_until
         self.debug = debug
@@ -34,6 +36,7 @@ class TarballRepoSync:
             "libnss-tacplus": ("libnss-tacplus", "master"),
             "libtacplus-map": ("libtacplus-map", "master"),
         }
+        self.expected_packages = ["cloud-init"]
 
     def run(self):
         if not os.path.exists(self.working_dir):
@@ -43,23 +46,27 @@ class TarballRepoSync:
         matched = None
         if not self.skip_analyze:
             logging.info("scanning metadata...")
-            source_packages = self.scan_sources()
+            source_packages = {}
+            for item in self.scan_sources():
+                source_packages[item["name"]] = item
+
+            repositories = GitHub().find_org_repositories_with_branches(self.target_org)
+
             matched = []
             missing = []
-            for info in source_packages:
-                response = requests.request("head", "https://github.com/%s/%s/tree/%s" % (
-                    self.source_org, info["name"], info["branch"]
-                ))
-                if response.status_code == 200:
-                    matched.append(info)
-                elif response.status_code == 404:
-                    missing.append("%s (%s)" % (info["name"], info["path"]))
+            for repository, branches in repositories.items():
+                if "circinus" not in branches:
+                    continue
 
-            if len(missing):
-                raise Exception("found packages without repository:\n%s" % ("\n".join(missing)))
+                if repository in source_packages:
+                    matched.append(source_packages[repository])
+                else:
+                    if repository in self.ignore_missing:
+                        continue
+                    missing.append(repository)
 
-            with open(matched_path, "w") as file:
-                json.dump(matched, file, indent=True)
+            if len(missing) > 0:
+                raise Exception("found repositories with missing packages:\n%s" % ("\n".join(missing)))
 
         if matched is None:
             logging.info("reusing previous analyzed metadata")
@@ -74,14 +81,77 @@ class TarballRepoSync:
 
     def scan_sources(self):
         found = []
-        for directory_name in [self.branch, "vyos-tarballs"]:
-            directory = os.path.join(self.source_dir, directory_name)
-            for parent, directories, files in os.walk(directory):
+        for parent_dir_name in [self.branch, "src", "vyos-tarballs"]:
+            parent_dir_path = os.path.join(self.source_dir, parent_dir_name)
+            if not os.path.exists(parent_dir_path):
+                continue
+
+            directory_mode = None
+            for parent, directories, files in os.walk(parent_dir_path):
+                if directory_mode is None:
+                    directory_mode = True
+                    for file_name in files:
+                        if re.search(r"\.tar$", file_name, flags=re.I):
+                            directory_mode = False
+                            break
+
+                if directory_mode:
+                    for directory in directories:
+                        path = os.path.join(parent_dir_path, directory)
+
+                        nested_dir = None
+                        for entry in os.scandir(path):
+                            if not entry.is_dir():
+                                nested_dir = None
+                                break
+                            if entry.is_dir():
+                                if nested_dir is None:
+                                    nested_dir = entry.name
+                                else:
+                                    nested_dir = None
+                                    break
+
+                        if nested_dir is None:
+                            continue
+
+                        for package_name in self.expected_packages:
+                            if package_name in nested_dir:
+                                nested_dir = package_name
+                                break
+
+                        if not directory.startswith(nested_dir):
+                            continue
+
+                        version = self.version
+                        if directory != nested_dir:
+                            version = directory[len(nested_dir) + 1:]
+
+                        if version in ["master", self.branch]:
+                            version = self.version
+
+                        name = nested_dir
+
+                        if name in self.package_aliases:
+                            name = self.package_aliases[name]
+
+                        if isinstance(name, tuple):
+                            name, branch = name
+                        else:
+                            branch = self.branch
+
+                        found.append({
+                            "path": path,
+                            "name": name,
+                            "version": version,
+                            "branch": branch,
+                        })
+                    break
+
                 for file_name in files:
                     path = os.path.join(parent, file_name)
 
                     name = None
-                    version = None
+                    version = self.version
                     if re.search(r"\.dsc$", file_name, flags=re.I):
                         with open(path, "r") as file:
                             dsc = Deb822(file)
@@ -160,11 +230,25 @@ class TarballRepoSync:
                 sources_path = os.path.join(self.working_dir, "%s-sources" % info["name"])
                 if os.path.exists(sources_path):
                     shutil.rmtree(sources_path)
-                os.makedirs(sources_path)
-                os.chdir(sources_path)
-                execute("tar -xf %s" % quote_all(info["path"]))
+
+                if os.path.isdir(info["path"]):
+                    shutil.copytree(info["path"], sources_path)
+                    os.chdir(sources_path)
+                else:
+                    os.makedirs(sources_path)
+                    os.chdir(sources_path)
+                    execute("tar -xf %s" % quote_all(info["path"]))
 
                 sources_path = self.find_root_directory(sources_path)
+
+                for parent, directories, files in os.walk(sources_path):
+                    for file_name in files:
+                        name, extension = os.path.splitext(file_name)
+                        extension = extension[1:].lower()
+                        if extension in ["deb", "buildinfo", "changes"] and info["name"] in name:
+                            os.remove(os.path.join(parent, file_name))
+                            logging.info("removed '%s"'' % file_name)
+
                 source_git_path = os.path.join(sources_path, ".git")
                 if os.path.exists(source_git_path):
                     try:
@@ -197,6 +281,10 @@ class TarballRepoSync:
                         if info["version"] is None:
                             tarball_time = os.path.getmtime(info["path"])
                             source_name += " [%s]" % datetime.fromtimestamp(tarball_time).strftime("%Y-%m-%d %H:%M:%S")
+                        elif info["version"] not in source_name:
+                            source_name += " [%s]" % info["version"]
+                        else:
+                            source_name += " [%s]" % self.version
 
                         message = "Updated from %s" % source_name
                         git.commit(message)
@@ -219,8 +307,9 @@ class TarballRepoSync:
                 break
 
         if readme_path is None:
-            if os.path.exists(os.path.join(repo_path, "README")) or os.path.exists(
-                    os.path.join(repo_path, "README.rst")) or repo_name in ["vyos-world", "live-boot"]:
+            if (os.path.exists(os.path.join(repo_path, "README"))
+                    or os.path.exists(os.path.join(repo_path, "README.rst"))
+                    or repo_name in ["vyos-world", "live-boot", "vyos-1x"]):
                 readme_path = os.path.join(repo_path, "readme.md")
                 with open(readme_path, "w") as file:
                     file.write("")
@@ -313,6 +402,8 @@ if __name__ == "__main__":
         parser.add_argument("--skip-until", help="skip packages until this one")
         parser.add_argument("--debug", action="store_true")
         parser.add_argument("--trademark-only", action="store_true")
+        parser.add_argument("--version")
+        parser.add_argument("--ignore-missing", action="append")
 
         args = parser.parse_args()
         values = vars(args)
