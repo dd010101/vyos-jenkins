@@ -203,16 +203,16 @@ class PackageBuilder:
                 git_url = git.get_remote_url("origin")
                 logging.info("Pulling repository %s" % git_url)
                 git.pull()
-
-            if repo_name == "vyos-build":
-                for parent, directories, files in os.walk(repo_path):
-                    for file_name in files:
-                        if file_name == "package.toml":
-                            package_toml_path = os.path.join(parent, file_name)
-                            self.modify_package_toml(package_toml_path)
         else:
             git_url = git.get_remote_url("origin")
             logging.info("Using shared repository %s" % git_url)
+
+        if repo_name == "vyos-build":
+            for parent, directories, files in os.walk(repo_path):
+                for file_name in files:
+                    if file_name == "package.toml":
+                        package_toml_path = os.path.join(parent, file_name)
+                        self.modify_package_toml(package_toml_path)
 
         self.debranding.remove_package_branding(repo_path, package["package_name"])
 
