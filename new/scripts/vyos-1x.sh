@@ -6,10 +6,18 @@ sudo apt-get update
 if [ -d ../strongswan/ ]; then
   # build and install python3-vici dependency
   cd ../strongswan/
-  commit_id=$(awk -F'"' '/commit_id/ {print $2; exit}' package.toml)
-  scm_url=$(awk -F'"' '/scm_url/ {print $2; exit}' package.toml)
-  git clone "$scm_url" -b "$commit_id"
-  ./build-vici.sh
+  # clone and build only if not already built as consequence of strongswan build
+  shopt -s nullglob
+  files=(python3-vici*.deb)
+  if (( ${#files[@]} > 0 )); then
+    echo "Reusing ${files[@]}"
+  else
+    commit_id=$(awk -F'"' '/commit_id/ {print $2; exit}' package.toml)
+    scm_url=$(awk -F'"' '/scm_url/ {print $2; exit}' package.toml)
+    rm -rf ./strongswan
+    git clone "$scm_url" -b "$commit_id"
+    ./build-vici.sh
+  fi
   sudo apt-get install -y ./python3-vici*.deb
   cd ../vyos-1x
 
