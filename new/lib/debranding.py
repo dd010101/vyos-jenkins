@@ -7,8 +7,9 @@ import shutil
 
 import tomlkit
 
-from lib.objectstorage import ObjectStorage
+from lib.git import Git
 from lib.helpers import resources_dir, data_dir
+from lib.objectstorage import ObjectStorage
 
 
 class Debranding:
@@ -45,7 +46,8 @@ class Debranding:
         if package_name == "vyos-1x":
             logging.info("Applying debranding for %s..." % package_name)
 
-            # sagitta & circinus
+            root_dir = self.prepare_vyos_build_repo(root_dir, package_name, root_dir)
+
             motd_path = os.path.join(root_dir, "data/templates/login/default_motd.j2")
             self.replace_patterns_in_file(motd_path, [
                 ("VyOS", alternative_name),
@@ -82,26 +84,29 @@ class Debranding:
                 ("VyOS {{version}}", "%s {{version}}" % alternative_name),
             ])
 
-            # equuleus
-            login_banner_path = os.path.join(root_dir, "src/conf_mode/system-login-banner.py")
-            self.replace_patterns_in_file(login_banner_path, [
-                ("Welcome to VyOS", "Welcome to %s" % alternative_name),
-            ])
+    def prepare_vyos_build_repo(self, root_dir: str, package_name: str, fallback_path: str):
+        package_path = os.path.join(root_dir, "scripts/package-build", package_name)
+        package_toml_path = os.path.join(package_path, "package.toml")
+        if os.path.exists(package_toml_path):
+            logging.info("Detected vyos-build package debranding mode")
 
-            version_path = os.path.join(root_dir, "src/op_mode/show_version.py")
-            self.replace_patterns_in_file(version_path, [
-                ("VyOS {{version}}", "%s {{version}}" % alternative_name),
-            ])
+            my_package = None
+            with open(package_toml_path, "r") as file:
+                payload = tomlkit.load(file)
+                for package in payload["packages"]:
+                    if package["name"] == package_name:
+                        my_package = package
+                        break
 
-        elif package_name == "vyatta-cfg":
-            logging.info("Applying debranding for %s..." % package_name)
+            if my_package:
+                my_repo = Git(os.path.join(package_path, my_package["name"]))
+                if not my_repo.exists():
+                    logging.info("Cloning inner repository %s" % my_package["scm_url"])
+                    my_repo.clone(my_package["scm_url"])
+                    my_repo.checkout(my_package["commit_id"])
+                    return my_repo.repo_path
 
-            # equuleus
-            router_init_path = os.path.join(root_dir, "scripts/init/vyos-router")
-            self.replace_patterns_in_file(router_init_path, [
-                ("VyOS Config", "%s Config" % alternative_name),
-                ("VyOS router", "%s router" % alternative_name),
-            ])
+        return fallback_path
 
     def remove_image_branding(self, root_dir):
         self.log_settings()
