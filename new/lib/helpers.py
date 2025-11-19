@@ -187,16 +187,35 @@ def setup_logging(name="test"):
     logger.addHandler(stderr_handler)
 
     log_file = os.path.join(build_dir, "%s.log" % name)
-    if os.path.exists(log_file):
-        previous_log_file = "%s.2" % log_file
-        if os.path.exists(previous_log_file):
-            os.remove(previous_log_file)
-        os.rename(log_file, previous_log_file)
+    rotate_log_files(log_file)
     file_handler = FileHandler(log_file, encoding="utf-8")
     file_handler.my_log_file = log_file
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
     logger.addHandler(file_handler)
+
+
+def rotate_log_files(log_path, keep_count=None):
+    max_number = 1
+    while True:
+        current_path = "%s.%s" % (log_path, max_number)
+        if not os.path.exists(current_path):
+            break
+        max_number += 1
+
+    if keep_count is not None and max_number > keep_count - 1:
+        oldest_path = "%s.%s" % (log_path, keep_count - 1)
+        if os.path.exists(oldest_path):
+            os.remove(oldest_path)
+
+    for number in reversed(range(1, max_number)):
+        src_path = "%s.%s" % (log_path, number)
+        dst_path = "%s.%s" % (log_path, number + 1)
+        if os.path.exists(src_path):
+            os.rename(src_path, dst_path)
+
+    if os.path.exists(log_path):
+        os.rename(log_path, "%s.%s" % (log_path, 1))
 
 
 def find_file_log_handler():
