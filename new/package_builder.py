@@ -197,6 +197,13 @@ class PackageBuilder:
                 git_url = git.get_remote_url("origin")
                 logging.info("Pulling repository %s" % git_url)
                 git.pull()
+
+            if repo_name == "vyos-build":
+                for parent, directories, files in os.walk(repo_path):
+                    for file_name in files:
+                        if file_name == "package.toml":
+                            package_toml_path = os.path.join(parent, file_name)
+                            self.modify_package_toml(package_toml_path)
         else:
             git_url = git.get_remote_url("origin")
             logging.info("Using shared repository %s" % git_url)
@@ -213,9 +220,6 @@ class PackageBuilder:
         if package["build_type"] == "build.py":
             my_directory = os.path.join(self.my_build_dir, "vyos-build", package["path"])
             if not self.skip_build or new:
-                package_toml_path = os.path.join(my_directory, "package.toml")
-                if os.path.exists(package_toml_path):
-                    self.modify_package_toml(package_toml_path)
                 # It's important to run bash in interactive mode, non-interactive shell breaks dependency on .bashrc.
                 build_script = os.path.join(virtual_scripts, "build_py.sh")
                 vyos_dir = "/vyos/%s" % package["path"]
@@ -279,7 +283,12 @@ class PackageBuilder:
                     )
                     if scm_url != package["scm_url"]:
                         changed = True
-                        logging.info("Updating package.toml GIT url from %s to %s" % (package["scm_url"], scm_url))
+
+                        file_name = os.path.basename(path)
+                        parent_directory_name = os.path.basename(os.path.dirname(path))
+                        relative_path = os.path.join(parent_directory_name, file_name)
+
+                        logging.info("Updating %s GIT url from %s to %s" % (relative_path, package["scm_url"], scm_url))
                         package["scm_url"] = scm_url
                         if "commit_id" in package and package["commit_id"] in ["master", "main"]:
                             package["commit_id"] = self.branch
