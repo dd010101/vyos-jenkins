@@ -5,6 +5,7 @@ import os
 import re
 from shlex import quote
 import shutil
+from time import monotonic
 
 import requests
 
@@ -101,7 +102,13 @@ class Docker:
             self.run("bash -c %s" % quote("sudo rm -rf /delete-me/*"), extra_mounts=[
                 (target, "/delete-me")
             ])
-            shutil.rmtree(target)
+            deadline = monotonic() + 10
+            while monotonic() < deadline:
+                try:
+                    shutil.rmtree(target)
+                    break
+                except FileNotFoundError:
+                    continue
 
     def run(self, command, work_dir="/vyos", extra_mounts=None, passthrough=True, log_command=None, env=None):
         pieces: list = [
