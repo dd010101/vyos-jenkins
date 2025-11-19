@@ -13,11 +13,12 @@ from lib.helpers import execute, quote_all, project_dir, ProcessException
 
 
 class Docker:
-    def __init__(self, image_name, branch, vyos_mount_dir, vyos_stream_mode):
+    def __init__(self, image_name, branch, vyos_mount_dir, vyos_stream_mode, preferred_docker_image):
         self.image_name = image_name
         self.branch = branch
         self.vyos_mount_dir = vyos_mount_dir
         self.vyos_stream_mode = vyos_stream_mode
+        self.preferred_docker_image = preferred_docker_image
 
     def get_full_image_name(self):
         return "%s:%s" % (self.image_name, self.branch)
@@ -47,10 +48,14 @@ class Docker:
         except ProcessException:
             pass  # Ignore if image doesn't exist.
 
-        image_version = self.branch
-        if self.branch == "circinus" and self.vyos_stream_mode:
-            org_name, repo_name = self.image_name.split("/")
-            image_version = self.find_most_recent_tag(org_name, repo_name, re.compile(r"1\.5-stream.*"))
+        if self.preferred_docker_image:
+            logging.info("Using preferred docker image: %s" % self.preferred_docker_image)
+            self.image_name, image_version = self.preferred_docker_image.split(":")
+        else:
+            image_version = self.branch
+            if self.branch == "circinus" and self.vyos_stream_mode:
+                org_name, repo_name = self.image_name.split("/")
+                image_version = self.find_most_recent_tag(org_name, repo_name, re.compile(r"1\.5-stream.*"))
 
         if self.branch != image_version:
             temp_image = "%s:%s" % (self.image_name, image_version)

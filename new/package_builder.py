@@ -77,7 +77,13 @@ class PackageBuilder:
 
         logging.info("Pulling vyos-build docker image")
         vyos_build_repo = os.path.join(os.path.join(self.my_build_dir, "vyos-build"))
-        self.docker = Docker(self.vyos_build_docker, self.branch, vyos_build_repo, self.vyos_stream_mode)
+        self.docker = Docker(
+            self.vyos_build_docker,
+            self.branch,
+            vyos_build_repo,
+            self.vyos_stream_mode,
+            self.package_definitions.get_preferred_docker_image(self.branch),
+         )
         self.docker.pull()
 
         self.updated_repos = []

@@ -15,7 +15,7 @@ class PackageDefinitions:
     def get_definitions(self, github_org, branch):
         virtual_branch = self.get_virtual_branch(branch)
         if virtual_branch in self.static_definitions:
-            packages = self.static_definitions[virtual_branch]
+            packages = self.static_definitions[virtual_branch]["packages"]
         else:
             github = GitHub(self.vyos_stream_mode)
             logging.info("Fetching vyos repository list")
@@ -29,6 +29,12 @@ class PackageDefinitions:
     def is_static(self, branch):
         virtual_branch = self.get_virtual_branch(branch)
         return virtual_branch in self.static_definitions
+
+    def get_preferred_docker_image(self, branch):
+        virtual_branch = self.get_virtual_branch(branch)
+        if virtual_branch in self.static_definitions:
+            return self.static_definitions[virtual_branch].get("docker_image")
+        return None
 
     def get_virtual_branch(self, branch):
         virtual_branch = branch

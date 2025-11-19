@@ -20,6 +20,7 @@ from lib.docker import Docker
 from lib.git import Git
 from lib.helpers import setup_logging, refuse_root, get_my_log_file, apt_dir, build_dir, TerminalTitle, \
     ensure_directories, replace_github_repo_org, enable_debug
+from lib.packagedefinitions import PackageDefinitions
 from lib.scripting import Scripting
 
 
@@ -78,7 +79,13 @@ class ImageBuilder:
 
         logging.info("Pulling vyos-build docker image")
         vyos_stream_mode = "github.com/vyos" not in self.vyos_build_git
-        self.docker = Docker(self.vyos_build_docker, self.branch, self.vyos_build_repo, vyos_stream_mode)
+        self.docker = Docker(
+            self.vyos_build_docker,
+            self.branch,
+            self.vyos_build_repo,
+            vyos_stream_mode,
+            PackageDefinitions(vyos_stream_mode).get_preferred_docker_image(self.branch),
+        )
         self.docker.pull()
 
         git = Git(self.vyos_build_repo)
