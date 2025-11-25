@@ -33,7 +33,8 @@ class ImageBuilder:
     docker = None
 
     def __init__(self, branch, clone_org, vyos_build_git, vyos_build_docker, vyos_mirror, extra_options, flavor,
-                 build_by, version, bind_addr, bind_port, keep_build, pre_build_hook, debug, debranding: Debranding):
+                 build_type, build_by, version, bind_addr, bind_port, keep_build, pre_build_hook, debug,
+                 debranding: Debranding):
         self.branch = branch
         self.clone_org = clone_org
         self.vyos_build_git = vyos_build_git
@@ -41,6 +42,7 @@ class ImageBuilder:
         self.vyos_mirror = vyos_mirror
         self.extra_options = extra_options
         self.flavor = flavor
+        self.build_type = build_type
         self.build_by = build_by
         self.version = version
         self.bind_addr = bind_addr
@@ -146,6 +148,7 @@ class ImageBuilder:
                 "BRANCH": self.branch,
                 "VERSION": version,
                 "FLAVOR": self.flavor,
+                "BUILD_TYPE": self.build_type,
             })
 
         # build image
@@ -154,7 +157,7 @@ class ImageBuilder:
             quote(self.flavor),
             "--architecture", quote("amd64"),
             "--build-by", quote(self.build_by),
-            "--build-type", quote("release"),
+            "--build-type", quote(self.build_type),
             "--version", quote(version),
             "--vyos-mirror", quote(vyos_mirror),
         ]
@@ -292,6 +295,7 @@ if __name__ == "__main__":
                             help="Default option uses vyos/vyos-build from dockerhub")
         parser.add_argument("--extra-options", help="Extra options for the build-vyos-image")
         parser.add_argument("--flavor", default="generic", help="The build FLAVOR of build-vyos-image")
+        parser.add_argument("--build-type", default="release", help="The --build-type of build-vyos-image")
         parser.add_argument("--build-by", default="myself@localhost", help="The --build-by of build-vyos-image")
         parser.add_argument("--version", default="auto", help="The --version of build-vyos-image")
         scripting_info = "the current working directory is the vyos-build repo used to build the image"
