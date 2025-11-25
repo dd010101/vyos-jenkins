@@ -26,4 +26,8 @@ if [ -d ../strongswan/ ]; then
   sudo sh -c 'eval $(opam env --root=/opt/opam --set-root); opam init --auto-setup && opam install pcre2 -y'
 fi
 
-python3 ./build.py
+if [ -f ./build.py ]; then
+  python3 ./build.py
+else
+  /my-build-scripts/generic-build-script.sh
+fi
