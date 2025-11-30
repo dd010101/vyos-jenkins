@@ -62,6 +62,22 @@ class ImageBuilder:
         ensure_directories()
 
     def build(self):
+        local_apt_key_path = os.path.join(apt_dir, "apt.gpg.key")
+        if self.vyos_mirror == "local":
+            if os.path.exists(local_apt_key_path):
+                if os.path.isdir(local_apt_key_path):
+                    os.rmdir(local_apt_key_path)
+
+            if not os.path.exists(local_apt_key_path):
+                self.terminal_title.set("ERROR")
+                logging.error(
+                    "Something went wrong, the APT key is missing (%s),"
+                    " this can happen if package-builder.py wasn't run before image-builder.py,"
+                    " or if the build files are corrupted,"
+                    " either way you need to run package-builder.py and then image-builder.py" % local_apt_key_path
+                )
+                exit(1)
+
         self.terminal_title.set("Preparation...")
         begin = monotonic()
         if self.vyos_mirror == "local":
@@ -121,10 +137,9 @@ class ImageBuilder:
             if self.vyos_mirror == "local":
                 # TODO: remove me, yet another temporary hack until vyos-build if fixed
                 # --custom-apt-key is broken since https://github.com/vyos/vyos-build/commit/9ed7a29ebb77c36ee555c2818b728a7e6b160322
-                apt_key_path = os.path.join(apt_dir, "apt.gpg.key")
                 with open(os.path.join(git.repo_path, "scripts/image-build/defaults.py"), "r+") as file:
                     contents = file.read()
-                    with open(apt_key_path, "rb") as key_file:
+                    with open(local_apt_key_path, "rb") as key_file:
                         encoded_key = base64.b64encode(key_file.read()).decode("utf-8")
                     contents = re.sub(
                         r"('custom_apt_keys'):.*\[[^]]*]",
@@ -180,8 +195,7 @@ class ImageBuilder:
 
         extra_mounts = []
         if self.vyos_mirror == "local":
-            apt_key_path = os.path.join(apt_dir, "apt.gpg.key")
-            extra_mounts.append((apt_key_path, "/opt/apt.gpg.key"))
+            extra_mounts.append((local_apt_key_path, "/opt/apt.gpg.key"))
 
         self.terminal_title.set("Building '%s' image..." % self.branch)
 
