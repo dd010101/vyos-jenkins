@@ -86,6 +86,8 @@ class TarballRepoSync:
             if not os.path.exists(parent_dir_path):
                 continue
 
+            os.scandir(parent_dir_path)  # permission check
+
             directory_mode = None
             for parent, directories, files in os.walk(parent_dir_path):
                 if directory_mode is None:
@@ -302,7 +304,7 @@ class TarballRepoSync:
     def handle_trademark(self, git, repo_path, repo_name, commit):
         readme_path = None
         for entry in os.scandir(repo_path):
-            if entry.is_file() and re.search("^readme\.md$", entry.name, flags=re.I):
+            if entry.is_file() and re.search(r"^readme\.md$", entry.name, flags=re.I):
                 readme_path = entry.path
                 break
 

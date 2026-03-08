@@ -212,7 +212,7 @@ class PackageBuilder:
                 for file_name in files:
                     if file_name == "package.toml":
                         package_toml_path = os.path.join(parent, file_name)
-                        self.modify_package_toml(package_toml_path)
+                        self.modify_package_toml(package_toml_path, package)
 
         self.debranding.remove_package_branding(repo_path, package["package_name"])
 
@@ -276,28 +276,47 @@ class PackageBuilder:
 
         self.build_data.set(package["package_name"], my_state)
 
-    def modify_package_toml(self, path):
+    def modify_package_toml(self, path, package):
         with open(path, "r") as file:
             payload = tomlkit.load(file)
 
         changed = False
         if "packages" in payload:
-            for package in payload["packages"]:
-                if "scm_url" in package:
+            for toml_package in payload["packages"]:
+                if "scm_url" in toml_package:
+                    original_scm_url = toml_package["scm_url"]
+
                     scm_url = replace_github_repo_org(
-                        package["scm_url"], self.clone_org, whitelist_orgs=["vyos", "VyOS-Networks"]
+                        original_scm_url, self.clone_org, whitelist_orgs=["vyos", "VyOS-Networks"]
                     )
-                    if scm_url != package["scm_url"]:
+
+                    file_name = os.path.basename(path)
+                    parent_directory_name = os.path.basename(os.path.dirname(path))
+                    relative_path = os.path.join(parent_directory_name, file_name)
+
+                    if scm_url != original_scm_url:
                         changed = True
 
-                        file_name = os.path.basename(path)
-                        parent_directory_name = os.path.basename(os.path.dirname(path))
-                        relative_path = os.path.join(parent_directory_name, file_name)
+                        logging.info("Updating %s GIT url from %s to %s" % (
+                            relative_path, original_scm_url, scm_url
+                        ))
+                        toml_package["scm_url"] = scm_url
+                        if toml_package.get("commit_id") in ["master", "main"]:
+                            toml_package["commit_id"] = self.branch
 
-                        logging.info("Updating %s GIT url from %s to %s" % (relative_path, package["scm_url"], scm_url))
-                        package["scm_url"] = scm_url
-                        if "commit_id" in package and package["commit_id"] in ["master", "main"]:
-                            package["commit_id"] = self.branch
+                    branch_override = None
+                    if "repo_branch_override" in package:
+                        for override in package["repo_branch_override"]:
+                            if override["git_url"] == original_scm_url:
+                                branch_override = override["branch"]
+                                break
+
+                    if branch_override is not None and toml_package.get("commit_id") != branch_override:
+                        changed = True
+                        logging.info("Updating %s GIT branch from %s to %s" % (
+                            relative_path, toml_package.get("commit_id"), branch_override
+                        ))
+                        toml_package["commit_id"] = branch_override
 
         if changed:
             with open(path, "w") as file:

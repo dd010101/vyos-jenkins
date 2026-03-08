@@ -144,6 +144,17 @@ definitions = {
             ],
             "git_url": "https://github.com/NOTvyos/vyos-build.git",
         },
+        "isc-kea": {
+            "repo_name": "vyos-build",
+            "branch": "circinus",
+            "package_name": "isc-kea",
+            "build_type": "build.py",
+            "path": "scripts/package-build/isc-kea",
+            "change_patterns": [
+                "scripts/package-build/isc-kea/**"
+            ],
+            "git_url": "https://github.com/NOTvyos/vyos-build.git",
+        },
         "keepalived": {
             "repo_name": "vyos-build",
             "branch": "circinus",
@@ -176,6 +187,12 @@ definitions = {
                 "scripts/package-build/libpam-radius-auth/**"
             ],
             "git_url": "https://github.com/NOTvyos/vyos-build.git",
+            "repo_branch_override": [
+                {
+                    "git_url": "https://github.com/VyOS-Networks/libpam-radius-auth.git",
+                    "branch": "current",
+                },
+            ],
         },
         "linux-kernel": {
             "repo_name": "vyos-build",
@@ -266,17 +283,6 @@ definitions = {
             ],
             "git_url": "https://github.com/NOTvyos/vyos-build.git",
         },
-        "pmacct": {
-            "repo_name": "vyos-build",
-            "branch": "circinus",
-            "package_name": "pmacct",
-            "build_type": "build.py",
-            "path": "scripts/package-build/pmacct",
-            "change_patterns": [
-                "scripts/package-build/pmacct/**"
-            ],
-            "git_url": "https://github.com/NOTvyos/vyos-build.git",
-        },
         "podman": {
             "repo_name": "vyos-build",
             "branch": "circinus",
@@ -307,6 +313,17 @@ definitions = {
             "path": "scripts/package-build/radvd",
             "change_patterns": [
                 "scripts/package-build/radvd/**"
+            ],
+            "git_url": "https://github.com/NOTvyos/vyos-build.git",
+        },
+        "salt": {
+            "repo_name": "vyos-build",
+            "branch": "circinus",
+            "package_name": "salt",
+            "build_type": "build.py",
+            "path": "scripts/package-build/salt",
+            "change_patterns": [
+                "scripts/package-build/salt/**"
             ],
             "git_url": "https://github.com/NOTvyos/vyos-build.git",
         },
