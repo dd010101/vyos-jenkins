@@ -316,17 +316,17 @@ definitions = {
             ],
             "git_url": "https://github.com/NOTvyos/vyos-build.git",
         },
-        "salt": {
-            "repo_name": "vyos-build",
-            "branch": "circinus",
-            "package_name": "salt",
-            "build_type": "build.py",
-            "path": "scripts/package-build/salt",
-            "change_patterns": [
-                "scripts/package-build/salt/**"
-            ],
-            "git_url": "https://github.com/NOTvyos/vyos-build.git",
-        },
+        # "salt": {
+        #     "repo_name": "vyos-build",
+        #     "branch": "circinus",
+        #     "package_name": "salt",
+        #     "build_type": "build.py",
+        #     "path": "scripts/package-build/salt",
+        #     "change_patterns": [
+        #         "scripts/package-build/salt/**"
+        #     ],
+        #     "git_url": "https://github.com/NOTvyos/vyos-build.git",
+        # },
         "strongswan": {
             "repo_name": "vyos-build",
             "branch": "circinus",
