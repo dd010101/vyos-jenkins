@@ -109,29 +109,13 @@ class ImageBuilder:
         git = Git(self.vyos_build_repo)
         if not self.keep_build:
             if git.exists():
-                # We want to delete original vyos-build repo and do fresh clone to clean cached build files.
+                # We want to delete the original vyos-build repo and do a fresh clone to clean cached build files.
                 self.docker.rmtree(self.vyos_build_repo)
 
         if not git.exists():
             git.clone(self.vyos_build_git, self.branch)
 
         self.debranding.remove_image_branding(self.vyos_build_repo)
-
-        # TODO: remove me, temporary hack until vyos-build is fixed
-        with open(os.path.join(git.repo_path, "data/build-flavors/generic.toml"), "r+") as file:
-            contents = file.read()
-            contents = contents.replace("vyos-xe-guest-utilities", "xen-guest-agent")
-            file.seek(0)
-            file.write(contents)
-            file.truncate()
-
-        # TODO: remove me, another temporary hack until vyos-build is fixed
-        with open(os.path.join(git.repo_path, "data/architectures/amd64.toml"), "r+") as file:
-            contents = file.read()
-            contents = contents.replace("https://repo.saltproject.io/py3", "https://packages.vyos.net/saltproject")
-            file.seek(0)
-            file.write(contents)
-            file.truncate()
 
         if self.branch == "current":
             if self.vyos_mirror == "local":
