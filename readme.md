@@ -3,6 +3,19 @@
 > It is **not affiliated with, endorsed by, or sponsored by VyOS Networks Corporation** by any means.
 > VyOS® is a registered trademark of VyOS Networks Corporation.
 
+Archived
+==
+
+Archived due to a lack of resources needed to keep the build system up to date. 
+Maintaining an independent build system requires constant effort in this case because the sources are provided 
+as a chaotic archive and upstream sources have become increasingly difficult to use over time.
+
+As an alternative for creating customized images, I created a utility that uses official ISO images as a base.
+This utility provides a platform for customizing an existing image, which is much easier to maintain over time
+and should satisfy most of the use cases this project was created for.
+
+See more information here: [vyos-modifyiso](https://github.com/dd010101/vyos-modifyiso).
+
 The end of public LTS
 ==
 
